@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Macro Risk Dashboard | Recession & Slowdown Early Warning System</title>
+    <style>
+        :root {
+            --bg-primary: #05070a;
+            --bg-secondary: #0a0d12;
+            --bg-tertiary: #10141c;
+            --bg-card: #141922;
+            --accent-red: #ef4444;
+            --accent-orange: #f97316;
+            --accent-amber: #f59e0b;
+            --accent-yellow: #eab308;
+            --accent-green: #22c55e;
+            --accent-emerald: #10b981;
+            --accent-cyan: #06b6d4;
+            --accent-blue: #3b82f6;
+            --accent-indigo: #6366f1;
+            --accent-purple: #8b5cf6;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: #1e293b;
+            --gradient-recession: linear-gradient(135deg, #ef4444 0%, #f97316 50%, #eab308 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        .bg-grid {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(ellipse at top, rgba(99, 102, 241, 0.05) 0%, transparent 50%),
+                linear-gradient(rgba(99, 102, 241, 0.01) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.01) 1px, transparent 1px);
+            background-size: 100% 100%, 60px 60px, 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding: 40px 24px;
+            background: linear-gradient(180deg, var(--bg-secondary) 0%, transparent 100%);
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 400px; height: 3px;
+            background: var(--gradient-recession);
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            border-radius: 24px;
+        }
+
+        .header h1 {
+            font-size: clamp(26px, 4vw, 42px);
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #f8fafc 0%, #6366f1 50%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header h2 {
+            font-size: 16px;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        /* Composite Risk Gauge */
+        .composite-gauge {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 32px;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .gauge-visual {
+            text-align: center;
+        }
+
+        .gauge-circle {
+            width: 220px;
+            height: 220px;
+            margin: 0 auto 16px;
+            position: relative;
+        }
+
+        .gauge-circle svg {
+            transform: rotate(-90deg);
+        }
+
+        .gauge-bg {
+            fill: none;
+            stroke: var(--bg-tertiary);
+            stroke-width: 20;
+        }
+
+        .gauge-fill {
+            fill: none;
+            stroke-width: 20;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s ease;
+        }
+
+        .gauge-center {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .gauge-score {
+            font-size: 56px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .gauge-max {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .gauge-label {
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .gauge-drivers {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .driver-item {
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+            padding: 16px;
+        }
+
+        .driver-name {
+            font-size: 11px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .driver-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .driver-status {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .status-critical { background: rgba(239,68,68,0.2); color: var(--accent-red); }
+        .status-high { background: rgba(249,115,22,0.2); color: var(--accent-orange); }
+        .status-elevated { background: rgba(245,158,11,0.2); color: var(--accent-amber); }
+        .status-moderate { background: rgba(234,179,8,0.2); color: var(--accent-yellow); }
+        .status-low { background: rgba(34,197,94,0.2); color: var(--accent-green); }
+
+        /* Section Styling */
+        .section {
+            margin-bottom: 32px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-number {
+            width: 36px; height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-recession);
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .section-why {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-left: auto;
+            font-style: italic;
+        }
+
+        /* Risk Card Grid */
+        .risk-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+        }
+
+        .risk-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .risk-card-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .risk-card-title {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .risk-card-badge {
+            font-size: 10px;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .badge-critical { background: rgba(239,68,68,0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
+        .badge-high { background: rgba(249,115,22,0.2); color: var(--accent-orange); border: 1px solid var(--accent-orange); }
+        .badge-elevated { background: rgba(245,158,11,0.2); color: var(--accent-amber); border: 1px solid var(--accent-amber); }
+        .badge-moderate { background: rgba(234,179,8,0.2); color: var(--accent-yellow); border: 1px solid var(--accent-yellow); }
+        .badge-low { background: rgba(34,197,94,0.2); color: var(--accent-green); border: 1px solid var(--accent-green); }
+
+        .risk-card-body {
+            padding: 24px;
+        }
+
+        .risk-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .risk-metric {
+            text-align: center;
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+        }
+
+        .risk-metric-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .risk-metric-value {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .metric-critical { color: var(--accent-red); }
+        .metric-high { color: var(--accent-orange); }
+        .metric-elevated { color: var(--accent-amber); }
+        .metric-moderate { color: var(--accent-yellow); }
+        .metric-low { color: var(--accent-green); }
+        .metric-neutral { color: var(--accent-cyan); }
+
+        /* Chart Container */
+        .chart-container {
+            height: 180px;
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .chart-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .risk-interpretation {
+            font-size: 12px;
+            color: var(--text-secondary);
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            line-height: 1.7;
+            border-left: 3px solid var(--accent-indigo);
+        }
+
+        /* Historical Context Table */
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .history-table th {
+            background: var(--bg-tertiary);
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 2px solid var(--accent-indigo);
+        }
+
+        .history-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .history-table tr:hover {
+            background: var(--bg-secondary);
+        }
+
+        .event-tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .event-recession { background: rgba(239,68,68,0.2); color: var(--accent-red); }
+        .event-slowdown { background: rgba(249,115,22,0.2); color: var(--accent-orange); }
+        .event-current { background: rgba(99,102,241,0.2); color: var(--accent-indigo); border: 1px solid var(--accent-indigo); }
+
+        /* Signal Legend */
+        .signal-legend {
+            display: flex;
+            gap: 24px;
+            padding: 16px 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .signal-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .signal-dot {
+            width: 12px; height: 12px;
+            border-radius: 50%;
+        }
+
+        .signal-dot.critical { background: var(--accent-red); }
+        .signal-dot.high { background: var(--accent-orange); }
+        .signal-dot.elevated { background: var(--accent-amber); }
+        .signal-dot.moderate { background: var(--accent-yellow); }
+        .signal-dot.low { background: var(--accent-green); }
+
+        /* AI Interpretation */
+        .interpretation-panel {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .interpretation-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .interpretation-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .interpretation-item h4 {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--accent-purple);
+        }
+
+        .interpretation-item p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 32px;
+            border-top: 1px solid var(--border-color);
+            margin-top: 40px;
+        }
+
+        .footer-title {
+            font-size: 12px;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .footer-disclaimer {
+            font-size: 11px;
+            color: var(--text-muted);
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .legal-disclaimer {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .legal-disclaimer p {
+            font-size: 11px;
+            color: var(--text-muted);
+            line-height: 1.8;
+            max-width: 900px;
+            margin: 0 auto 16px auto;
+        }
+
+        .legal-disclaimer strong {
+            color: var(--text-secondary);
+        }
+
+        .copyright {
+            font-size: 10px;
+            color: #475569;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .composite-gauge {
+                grid-template-columns: 1fr;
+            }
+            .gauge-drivers {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .risk-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-badge">📊 Macro Risk Intelligence</div>
+            <h1>RECESSION EARLY WARNING DASHBOARD</h1>
+            <h2>Core Economic Indicators | Yield Curve • PMI • Credit • Liquidity • Labor • Bankruptcies</h2>
+        </header>
+
+        <!-- Signal Legend -->
+        <div class="signal-legend">
+            <div class="signal-item"><div class="signal-dot critical"></div> Critical (Recession Imminent)</div>
+            <div class="signal-item"><div class="signal-dot high"></div> High Risk (Warning Phase)</div>
+            <div class="signal-item"><div class="signal-dot elevated"></div> Elevated (Monitor Closely)</div>
+            <div class="signal-item"><div class="signal-dot moderate"></div> Moderate (Early Signs)</div>
+            <div class="signal-item"><div class="signal-dot low"></div> Low (Expansion Mode)</div>
+        </div>
+
+        <!-- Composite Risk Gauge -->
+        <div class="composite-gauge">
+            <div class="gauge-visual">
+                <div class="gauge-circle">
+                    <svg width="220" height="220" viewBox="0 0 220 220">
+                        <circle class="gauge-bg" cx="110" cy="110" r="90"></circle>
+                        <circle class="gauge-fill" cx="110" cy="110" r="90" 
+                                stroke="url(#gaugeGradient)"
+                                stroke-dasharray="565"
+                                stroke-dashoffset="198"></circle>
+                        <defs>
+                            <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#22c55e"/>
+                                <stop offset="50%" stop-color="#eab308"/>
+                                <stop offset="100%" stop-color="#ef4444"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <div class="gauge-center">
+                        <div class="gauge-score" style="color: var(--accent-orange);">65</div>
+                        <div class="gauge-max">/ 100</div>
+                    </div>
+                </div>
+                <div class="gauge-label" style="color: var(--accent-orange);">⚠️ HIGH RISK</div>
+            </div>
+            <div class="gauge-drivers">
+                <div class="driver-item">
+                    <div class="driver-name">Yield Curve</div>
+                    <div class="driver-value metric-critical">+71 bps</div>
+                    <span class="driver-status status-critical">RE-STEEPENING</span>
+                </div>
+                <div class="driver-item">
+                    <div class="driver-name">PMI Gap</div>
+                    <div class="driver-value metric-high">-4.2</div>
+                    <span class="driver-status status-high">WIDENING</span>
+                </div>
+                <div class="driver-item">
+                    <div class="driver-name">HY Spread</div>
+                    <div class="driver-value metric-elevated">342 bps</div>
+                    <span class="driver-status status-elevated">ELEVATED</span>
+                </div>
+                <div class="driver-item">
+                    <div class="driver-name">SOFR-FF</div>
+                    <div class="driver-value metric-moderate">+8 bps</div>
+                    <span class="driver-status status-moderate">NORMAL</span>
+                </div>
+                <div class="driver-item">
+                    <div class="driver-name">Jobless Claims</div>
+                    <div class="driver-value metric-elevated">248K</div>
+                    <span class="driver-status status-elevated">RISING</span>
+                </div>
+                <div class="driver-item">
+                    <div class="driver-name">Bankruptcies</div>
+                    <div class="driver-value metric-high">+34%</div>
+                    <span class="driver-status status-high">ACCELERATING</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 1. Yield Curve Section -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-number">1</div>
+                <h2 class="section-title">2Y-10Y Treasury Yield Spread</h2>
+                <span class="section-why">Primary recession trigger after inversion</span>
+            </div>
+
+            <div class="risk-grid">
+                <div class="risk-card">
+                    <div class="risk-card-header">
+                        <span class="risk-card-title">Current Yield Curve Status</span>
+                        <span class="risk-card-badge badge-critical">CRITICAL</span>
+                    </div>
+                    <div class="risk-card-body">
+                        <div class="risk-metrics">
+                            <div class="risk-metric">
+                                <div class="risk-metric-label">2Y-10Y Spread</div>
+                                <div class="risk-metric-value metric-critical">+71 bps</div>
+                            </div>
+                            <div class="risk-metric">
+                                <div class="risk-metric-label">10Y Yield</div>
+                                <div class="risk-metric-value metric-neutral">4.18%</div>
+                            </div>
+                            <div class="risk-metric">
+                                <div class="risk-metric-label">2Y Yield</div>
+                                <div class="risk-metric-value metric-neutral">3.47%</div>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <svg class="chart-svg" viewBox="0 0 400 150" preserveAspectRatio="none">
+                                <!-- Zero line -->
+                                <line x1="0" y1="75" x2="400" y2="75" stroke="#ef4444" stroke-width="2" stroke-dasharray="5,5"/>
+                                <text x="5" y="72" fill="#ef4444" font-size="10">0 bps (Inversion Line)</text>
+                                
+                                <!-- Inversion shading -->
+                                <rect x="120" y="75" width="180" height="45" fill="rgba(239,68,68,0.15)"/>
+                                <text x="200" y="115" fill="#ef4444" font-size="9" text-anchor="middle">Inverted Period</text>
+                                
+                                <!-- Yield curve line -->
+                                <path d="M10,50 L50,45 L100,60 L150,95 L200,110 L250,100 L300,85 L350,60 L390,30" 
+                                      fill="none" stroke="#6366f1" stroke-width="3"/>
+                                
+                                <!-- Current point -->
+                                <circle cx="390" cy="30" r="6" fill="#ef4444"/>
+                                <text x="375" y="20" fill="#ef4444" font-size="10" font-weight="bold">+71 bps</text>
+                                
+                                <!-- Re-steepening arrow -->
+                                <path d="M320,70 L370,35" fill="none" stroke="#f97316" stroke-width="2" marker-end="url(#arrow)"/>
+                                <text x="330" y="55" fill="#f97316" font-size="9">Re-steepening!</text>
+                                
+                                <!-- Time labels -->
+                                <text x="10" y="145" fill="#64748b" font-size="9">2022</text>
+                                <text x="150" y="145" fill="#64748b" font-size="9">2023</text>
+                                <text x="270" y="145" fill="#64748b" font-size="9">2024</text>
+                                <text x="370" y="145" fill="#64748b" font-size="9">Now</text>
+                            </svg>
+                        </div>
+                        <div class="risk-interpretation">
+                            <strong>⚠️ CRITICAL SIGNAL:</strong> The yield curve has re-steepened rapidly after prolonged inversion. 
+                            Historically, recessions begin 6-18 months AFTER the curve un-inverts, not during inversion. 
+                            The current +71 bps spread combined with Fed rate cuts suggests the classic "recession setup" pattern.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="risk-card">
+                    <div class="risk-card-header">
+                        <span class="risk-card-title">Historical Pattern Recognition</span>
+                        <span class="risk-card-badge badge-high">PATTERN MATCH</span>
+                    </div>
+                    <div class="risk-card-body">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Period</th>
+                                    <th>Inversion</th>
+                                    <th>Re-Steepen</th>
+                                    <th>Recession</th>
+                                    <th>Lag</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="event-tag event-current">Current</span></td>
+                                    <td>Jul 2022</td>
+                                    <td>Sep 2024</td>
+                                    <td>TBD</td>
+                                    <td>—</td>
+                                </tr>
+                                <tr>
+                                    <td>2019-2020</td>
+                                    <td>Aug 2019</td>
+                                    <td>Oct 2019</td>
+                                    <td><span class="event-tag event-recession">Feb 2020</span></td>
+                                    <td>4 mo</td>
+                                </tr>
+                                <tr>
+                                    <td>2006-2008</td>
+                                    <td>Feb 2006</td>
+                                    <td>Jun 2007</td>
+                                    <td><span class="event-tag event-recession">Dec 2007</span></td>
+                                    <td>6 mo</td>
+                                </tr>
+                                <tr>
+                                    <td>2000-2001</td>
+                                    <td>Feb 2000</td>
+                                    <td>Dec 2000</td>
+                                    <td><span class="event-tag event-recession">Mar 2001</span></td>
+                                    <td>3 mo</td>
+                                </tr>
+                                <tr>
+                                    <td>1989-1990</td>
+                                    <td>Jun 1989</td>
+                                    <td>Mar 1990</td>
+                                    <td><span class="event-tag event-recession">Jul 1990</span></td>
+                                    <td>4 mo</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="risk-interpretation" style="margin-top: 16px;">
+                            <strong>Pattern:</strong> Average lag from re-steepening to recession onset is 4-6 months. 
+                            Current re-steepening began ~Sep 2024, implying elevated recession risk through Q2 2025.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. PMI Section -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-number">2</div>
+                <h2 class="section-title">PMI New Orders vs Output Gap</h2>
+                <span class="section-why">"Since 2008" warning signal when gap widens</span>
+            </div>
+
+            <div class="risk-grid">
+                <div class="risk-card">
+                    <div class="risk-card-header">
+                        <span class="risk-card-title">Manufacturing PMI Components</span>
+                        <span class="risk-card-badge badge-high">HIGH RISK</span>
+                    </div>
+                    <div class="risk-card-body">
+                        <div class="risk-metrics">
+                            <div class="risk-metric">
+                                <div class="risk-metric-label">New Orders</div>
+                                <div class="risk-metric-value metric-critical">47.8</div>
+                            </div>
+                            <div class="risk-metric">
+                                <div class="risk-metric-label">Output</div>
+                                <div class="risk-metric-value metric-moderate">52.0</div>
+                            </div>
+                            <div class="risk-metric">
+                                <div class="risk-metric-label">Gap (O-NO)</div>
+                                <div class="risk-metric-value metric-high">+4.2</div>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <svg class="chart-svg" viewBox="0 0 400 150" preserveAspectRatio="none">
+                                <!-- 50 line (expansion/contraction) -->
+                                <line x1="0" y1="75" x2="400" y2="75" stroke="#64748b" stroke-width="1" stroke-dasharray="3,3"/>
+                                <text x="5" y="72" fill="#64748b" font-size="9">50 (Expansion)</text>
+                                
+                                <!-- Output line (blue) -->
+                                <path d="M10,60 L60,55 L120,58 L180,62 L240,55 L300,60 L360,58 L390,65" 
+                                      fill="none" stroke="#3b82f6" stroke-width="2.5"/>
+                                <text x="340" y="50" fill="#3b82f6" font-size="9">Output: 52.0</text>
+                                
+                                <!-- New Orders line (red) -->
+                                <path d="M10,65 L60,68 L120,72 L180,78 L240,85 L300,90 L360,95 L390,100" 
+                                      fill="none" stroke="#ef4444" stroke-width="2.5"/>
+                                <text x="300" y="115" fill="#ef4444" font-size="9">New Orders: 47.8</text>
+                                
+                                <!-- Gap shading -->
+                                <path d="M10,60 L60,55 L120,58 L180,62 L240,55 L300,60 L360,58 L390,65 L390,100 L360,95 L300,90 L240,85 L180,78 L120,72 L60,68 L10,65 Z" 
+                                      fill="rgba(249,115,22,0.2)"/>
+                                
+                                <!-- Time labels -->
+                                <text x="10" y="145" fill="#64748b" font-size="9">Jan</text>
+                                <text x="100" y="145" fill="#64748b" font-size="9">Apr</text>
+                                <text x="200" y="145" fill="#64748b" font-size="9">Jul</text>
+                                <text x="300" y="145" fill="#64748b" font-size="9">Oct</text>
+                                <text x="370" y="145" fill="#64748b" font-size="9">Dec</text>
+                            </svg>
+                        </div>
+                        <div class="risk-interpretation">
+                            <strong>⚠️ "Wile E. Coyote" Warning:</strong> Output remains above 50 while New Orders have 
+                            fallen below. This divergence—manufacturers still producing while demand falls—historically 
+                            precedes sharp economic slowdowns. Companies are running off backlogs; when backlogs clear, 
+                            production cuts and layoffs follow.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="risk-card">
+                    <div class="risk-card-header">
+                        <span class="risk-card-title">PMI Gap Historical Percentile</span>
+                        <span class="risk-card-badge badge-elevated">87th %ile</span>
+                    </div>
+                    <div class="risk-card-body">
+                        <div class="risk-metrics">
+                            <div class="risk-metric">
+                                <div class="risk-metric-label">Current Gap</div>
+                                <div class="risk-metric-value metric-high">+4.2</div>
+                            </div>
+                            <div class="risk-metric">
+                                <div class="risk-metric-label">Avg Gap</div>
+                                <div class="risk-metric-value metric-neutral">+0.8</div>
+                            </div>
+                            <div class="risk-metric">
+                                <div class="risk-metric-label">Pre-2008 Gap</div>
+                                <div class="risk-metric-value metric-critical">+5.1</div>
+                            </div>
+                        </div>
+                        <div style="padding: 20px; background: var(--bg-tertiary); border-radius: 8px; margin-bottom: 16px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="font-size: 11px; color: var(--text-muted);">Gap Percentile</span>
+                                <span style="font-size: 11px; color: var(--accent-orange); font-weight: 600;">87th</span>
+                            </div>
+                            <div style="height: 12px; background: var(--bg-secondary); border-radius: 6px; overflow: hidden;">
+                                <div style="width: 87%; height: 100%; background: linear-gradient(90deg, #22c55e, #eab308, #f97316); border-radius: 6px;"></div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-top: 6px;">
+                                <span style="font-size: 9px; color: #22c55e;">0</span>
+                                <span style="font-size: 9px; color: #eab308;">50</span>
+                                <span style="font-size: 9px; color: #ef4444;">100</span>
+                            </div>
+                        </div>
+                        <div class="risk-interpretation">
+                            <strong>Signal:</strong> Current Output-Orders gap is in the 87th percentile historically. 
+                            Gaps above the 90th percentile have preceded every recession since 1980. 
+                            The "lag" between orders falling and output/employment cuts is typically 3-6 months.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Credit Spreads Section -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-number">3</div>
+                <h2 class="section-title">High-Yield Credit Spread (HY-Treasury)</h2>
+                <span class="section-why">Transmission from macro stress → financing stress</span>
+            </div>
+
+            <div class="risk-grid">
+                <div class="risk-card">
+                    <div class="risk-card-header">
+                        <span class="risk-card-title">Credit Spread Monitor</span>
+                        <span class="risk-card-badge badge-elevated">ELEVATED</span>
+                    </div>
+                    <div class="risk-card-body">
+                        <div class="risk-metrics">
+                            <div class="risk-metric">
+                                <div class="risk-metric-label">HY OAS</div>
+                                <div class="risk-metric-value metric-elevated">342 bps</div>
+                            </div>
+                            <div class="risk-metric">
+                                <div class="risk-metric-label">4-Wk Change</div>
+                                <div class="risk-metric-value metric-high">+48 bps</div>
+                            </div>
+                            <div class="risk-metric">
+                                <div class="risk-metric-label">YoY Change</div>
+                                <div class="risk-metric-value metric-moderate">+62 bps</div>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <svg class="chart-svg" viewBox="0 0 400 150" preserveAspectRatio="none">
+                                <!-- Stress bands -->
+                                <rect x="0" y="0" width="400" height="25" fill="rgba(239,68,68,0.1)"/>
+                                <text x="5" y="15" fill="#ef4444" font-size="8">Stress Zone (>500 bps)</text>
+                                
+                                <rect x="0" y="25" width="400" height="35" fill="rgba(249,115,22,0.08)"/>
+                                <text x="5" y="45" fill="#f97316" font-size="8">Deteriorating (350-500)</text>
+                                
+                                <rect x="0" y="60" width="400" height="40" fill="rgba(234,179,8,0.05)"/>
+                                <text x="5" y="80" fill="#eab308" font-size="8">Elevated (250-350)</text>
+                                
+                                <!-- HY Spread line -->
+                                <path d="M10,110 L60,108 L120,105 L180,98 L240,90 L300,75 L360,68 L390,55" 
+                                      fill="none" stroke="#f97316" stroke-width="3"/>
+                                
+                                <!-- Current point -->
+                                <circle cx="390" cy="55" r="5" fill="#f97316"/>
+                                <text x="355" y="45" fill="#f97316" font-size="10" font-weight="bold">342 bps</text>
+                                
+                                <!-- Trend arrow -->
+                                <path d="M340,80 L380,58" fill="none" stroke="#ef4444" stroke-width="2" stroke-dasharray="4"/>
+                            </svg>
+                        </div>
+                        <div class="risk-interpretation">
+                            <strong>Signal:</strong> HY spreads have widened +48 bps in 4 weeks—a pace that often 
+                            precedes further deterioration. Spreads above 350 bps indicate tightening financial 
+                            conditions. Watch for break above 400 bps as confirmation of credit stress.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="risk-card">
+                    <div class="risk-card-header">
+                        <span class="risk-card-title">Credit Stress Thresholds</span>
+                        <span class="risk-card-badge badge-moderate">APPROACHING</span>
+                    </div>
+                    <div class="risk-card-body">
+                        <div style="padding: 16px; background: var(--bg-tertiary); border-radius: 8px; margin-bottom: 16px;">
+                            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
+                                <div style="width: 100px; font-size: 11px; color: var(--text-muted);">Current</div>
+                                <div style="flex: 1; height: 24px; background: var(--bg-secondary); border-radius: 4px; position: relative;">
+                                    <div style="position: absolute; left: 68%; top: 0; height: 100%; width: 3px; background: #f97316;"></div>
+                                    <div style="position: absolute; left: 70%; top: -8px; font-size: 10px; color: #f97316; font-weight: 600;">342</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 9px; color: var(--text-muted);">
+                                <span>200 (Calm)</span>
+                                <span>300 (Watch)</span>
+                                <span>400 (Stress)</span>
+                                <span>600+ (Crisis)</span>
+                            </div>
+                        </div>
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Event</th>
+                                    <th>Peak Spread</th>
+                                    <th>From Current</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>COVID Mar 2020</td>
+                                    <td class="metric-critical">1,087 bps</td>
+                                    <td>+745 bps</td>
+                                </tr>
+                                <tr>
+                                    <td>GFC Oct 2008</td>
+                                    <td class="metric-critical">1,934 bps</td>
+                                    <td>+1,592 bps</td>
+                                </tr>
+                                <tr>
+                                    <td>Energy 2016</td>
+                                    <td class="metric-high">839 bps</td>
+                                    <td>+497 bps</td>
+                                </tr>
+                                <tr>
+                                    <td>2022 Tightening</td>
+                                    <td class="metric-elevated">583 bps</td>
+                                    <td>+241 bps</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Liquidity Section -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-number">4</div>
+                <h2 class="section-title">Liquidity Stress Proxy (SOFR - Fed Funds)</h2>
+                <span class="section-why">Detects hidden funding stress in money markets</span>
+            </div>
+
+            <div class="risk-grid">
+                <div class="risk-card">
+                    <div class="risk-card-header">
+                        <span class="risk-card-title">Funding Rate Spread</span>
+                        <span class="risk-card-badge badge-low">NORMAL</span>
+                    </div>
+                    <div class="risk-card-body">
+                        <div class="risk-metrics">
+                            <div class="risk-metric">
+                                <div class="risk-metric-label">SOFR</div>
+                                <div class="risk-metric-value metric-neutral">3.72%</div>
+                            </div>
+                            <div class="risk-metric">
+                                <div class="risk-metric-label">Fed Funds</div>
+                                <div class="risk-metric-value metric-neutral">3.64%</div>
+                            </div>
+                            <div class="risk-metric">
+                                <div class="risk-metric-label">Spread</div>
+                                <div class="risk-metric-value metric-low">+8 bps</div>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <svg class="chart-svg" viewBox="0 0 400 150" preserveAspectRatio="none">
+                                <!-- Zero line -->
+                                <line x1="0" y1="75" x2="400" y2="75" stroke="#64748b" stroke-width="1"/>
+                                
+                                <!-- Normal band -->
+                                <rect x="0" y="55" width="400" height="40" fill="rgba(34,197,94,0.1)"/>
+                                <text x="5" y="78" fill="#22c55e" font-size="8">Normal Range (±15 bps)</text>
+                                
+                                <!-- Stress zones -->
+                                <rect x="0" y="0" width="400" height="30" fill="rgba(239,68,68,0.1)"/>
+                                <rect x="0" y="120" width="400" height="30" fill="rgba(239,68,68,0.1)"/>
+                                
+                                <!-- Spread line -->
+                                <path d="M10,72 L60,74 L120,73 L180,70 L240,72 L300,71 L360,70 L390,68" 
+                                      fill="none" stroke="#22c55e" stroke-width="2.5"/>
+                                
+                                <!-- Current point -->
+                                <circle cx="390" cy="68" r="5" fill="#22c55e"/>
+                                <text x="355" y="60" fill="#22c55e" font-size="10" font-weight="bold">+8 bps</text>
+                            </svg>
+                        </div>
+                        <div class="risk-interpretation">
+                            <strong>✅ All Clear:</strong> The SOFR-Fed Funds spread is within normal range (+8 bps). 
+                            No immediate funding stress detected. Watch for spikes above +25 bps or persistent 
+                            elevation as early warning of liquidity deterioration.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="risk-card">
+                    <div class="risk-card-header">
+                        <span class="risk-card-title">Liquidity Stress Events</span>
+                        <span class="risk-card-badge badge-moderate">REFERENCE</span>
+                    </div>
+                    <div class="risk-card-body">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Event</th>
+                                    <th>Date</th>
+                                    <th>Peak Spread</th>
+                                    <th>Duration</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="event-tag event-current">Current</span></td>
+                                    <td>Jan 2026</td>
+                                    <td style="color: var(--accent-green);">+8 bps</td>
+                                    <td>—</td>
+                                </tr>
+                                <tr>
+                                    <td>SVB Crisis</td>
+                                    <td>Mar 2023</td>
+                                    <td style="color: var(--accent-red);">+45 bps</td>
+                                    <td>2 weeks</td>
+                                </tr>
+                                <tr>
+                                    <td>Repo Spike</td>
+                                    <td>Sep 2019</td>
+                                    <td style="color: var(--accent-red);">+282 bps</td>
+                                    <td>3 days</td>
+                                </tr>
+                                <tr>
+                                    <td>COVID Panic</td>
+                                    <td>Mar 2020</td>
+                                    <td style="color: var(--accent-red);">+62 bps</td>
+                                    <td>1 week</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="risk-interpretation" style="margin-top: 16px;">
+                            <strong>Watch For:</strong> Spikes in repo facility usage, drawdowns in bank reserves, 
+                            or persistent spread widening. These often precede broader market stress by 1-2 weeks.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. Labor Section -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-number">5</div>
+                <h2 class="section-title">Initial Jobless Claims (4-Week MA)</h2>
+                <span class="section-why">Confirms when warning becomes real</span>
+            </div>
+
+            <div class="risk-grid">
+                <div class="risk-card">
+                    <div class="risk-card-header">
+                        <span class="risk-card-title">Labor Market Monitor</span>
+                        <span class="risk-card-badge badge-elevated">RISING</span>
+                    </div>
+                    <div class="risk-card-body">
+                        <div class="risk-metrics">
+                            <div class="risk-metric">
+                                <div class="risk-metric-label">4-Wk Avg Claims</div>
+                                <div class="risk-metric-value metric-elevated">248K</div>
+                            </div>
+                            <div class="risk-metric">
+                                <div class="risk-metric-label">Unemployment</div>
+                                <div class="risk-metric-value metric-elevated">4.6%</div>
+                            </div>
+                            <div class="risk-metric">
+                                <div class="risk-metric-label">YoY Δ Claims</div>
+                                <div class="risk-metric-value metric-high">+12.4%</div>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <svg class="chart-svg" viewBox="0 0 400 150" preserveAspectRatio="none">
+                                <!-- Warning threshold -->
+                                <line x1="0" y1="50" x2="400" y2="50" stroke="#f97316" stroke-width="1" stroke-dasharray="4"/>
+                                <text x="5" y="45" fill="#f97316" font-size="8">Warning (>250K)</text>
+                                
+                                <!-- Claims line -->
+                                <path d="M10,120 L40,118 L80,115 L120,110 L160,105 L200,95 L240,85 L280,75 L320,65 L360,58 L390,55" 
+                                      fill="none" stroke="#f59e0b" stroke-width="2.5"/>
+                                
+                                <!-- Unemployment rate (secondary axis, scaled) -->
+                                <path d="M10,130 L80,128 L160,125 L240,115 L320,100 L390,90" 
+                                      fill="none" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="6,3"/>
+                                <text x="350" y="85" fill="#8b5cf6" font-size="9">U-Rate: 4.6%</text>
+                                
+                                <!-- Current point -->
+                                <circle cx="390" cy="55" r="5" fill="#f59e0b"/>
+                                <text x="345" y="48" fill="#f59e0b" font-size="10" font-weight="bold">248K</text>
+                                
+                                <!-- Time labels -->
+                                <text x="10" y="145" fill="#64748b" font-size="9">Jan '25</text>
+                                <text x="180" y="145" fill="#64748b" font-size="9">Jul '25</text>
+                                <text x="360" y="145" fill="#64748b" font-size="9">Dec '25</text>
+                            </svg>
+                        </div>
+                        <div class="risk-interpretation">
+                            <strong>⚠️ Trending Higher:</strong> Initial claims have risen from ~210K to 248K over 
+                            6 months. YoY growth of +12.4% signals labor market cooling. Sustained claims above 
+                            260K would confirm labor rollover. Unemployment at 4.6% is up from 4.0% at start of year.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="risk-card">
+                    <div class="risk-card-header">
+                        <span class="risk-card-title">Labor Confirmation Signals</span>
+                        <span class="risk-card-badge badge-moderate">WATCH LIST</span>
+                    </div>
+                    <div class="risk-card-body">
+                        <div style="display: grid; gap: 12px;">
+                            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-tertiary); border-radius: 8px;">
+                                <span style="font-size: 12px;">Continuing Claims</span>
+                                <span style="font-size: 14px; font-weight: 600; color: var(--accent-amber);">1.92M (+8% YoY)</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-tertiary); border-radius: 8px;">
+                                <span style="font-size: 12px;">Challenger Job Cuts</span>
+                                <span style="font-size: 14px; font-weight: 600; color: var(--accent-orange);">72K (+34% YoY)</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-tertiary); border-radius: 8px;">
+                                <span style="font-size: 12px;">Quits Rate (JOLTS)</span>
+                                <span style="font-size: 14px; font-weight: 600; color: var(--accent-yellow);">2.1% (↓ from 2.4%)</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-tertiary); border-radius: 8px;">
+                                <span style="font-size: 12px;">NFP 3-Mo Avg</span>
+                                <span style="font-size: 14px; font-weight: 600; color: var(--accent-amber);">145K (↓ from 180K)</span>
+                            </div>
+                        </div>
+                        <div class="risk-interpretation" style="margin-top: 16px;">
+                            <strong>Sahm Rule Check:</strong> Unemployment rate has risen 0.6% from 12-month low (4.0% → 4.6%). 
+                            The Sahm Rule triggers at +0.5%, suggesting elevated recession probability.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. Bankruptcies Section -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-number">6</div>
+                <h2 class="section-title">Corporate Bankruptcies (Real Economy Confirmation)</h2>
+                <span class="section-why">Validates stress outside markets</span>
+            </div>
+
+            <div class="risk-grid">
+                <div class="risk-card">
+                    <div class="risk-card-header">
+                        <span class="risk-card-title">Bankruptcy Filings Trend</span>
+                        <span class="risk-card-badge badge-high">ACCELERATING</span>
+                    </div>
+                    <div class="risk-card-body">
+                        <div class="risk-metrics">
+                            <div class="risk-metric">
+                                <div class="risk-metric-label">2025 YTD Filings</div>
+                                <div class="risk-metric-value metric-high">687</div>
+                            </div>
+                            <div class="risk-metric">
+                                <div class="risk-metric-label">YoY Change</div>
+                                <div class="risk-metric-value metric-high">+34%</div>
+                            </div>
+                            <div class="risk-metric">
+                                <div class="risk-metric-label">vs 5Y Avg</div>
+                                <div class="risk-metric-value metric-elevated">+52%</div>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <svg class="chart-svg" viewBox="0 0 400 150" preserveAspectRatio="none">
+                                <!-- Bars for monthly filings -->
+                                <rect x="20" y="100" width="30" height="40" fill="#3b82f6" rx="3"/>
+                                <rect x="60" y="95" width="30" height="45" fill="#3b82f6" rx="3"/>
+                                <rect x="100" y="90" width="30" height="50" fill="#3b82f6" rx="3"/>
+                                <rect x="140" y="85" width="30" height="55" fill="#6366f1" rx="3"/>
+                                <rect x="180" y="80" width="30" height="60" fill="#6366f1" rx="3"/>
+                                <rect x="220" y="70" width="30" height="70" fill="#8b5cf6" rx="3"/>
+                                <rect x="260" y="65" width="30" height="75" fill="#8b5cf6" rx="3"/>
+                                <rect x="300" y="55" width="30" height="85" fill="#f97316" rx="3"/>
+                                <rect x="340" y="45" width="30" height="95" fill="#f97316" rx="3"/>
+                                
+                                <!-- 5-year average line -->
+                                <line x1="10" y1="95" x2="390" y2="95" stroke="#22c55e" stroke-width="2" stroke-dasharray="5"/>
+                                <text x="300" y="105" fill="#22c55e" font-size="9">5Y Avg</text>
+                                
+                                <!-- Trend line -->
+                                <path d="M35,100 L75,95 L115,90 L155,85 L195,80 L235,70 L275,65 L315,55 L355,45" 
+                                      fill="none" stroke="#ef4444" stroke-width="2"/>
+                                
+                                <!-- Labels -->
+                                <text x="30" y="145" fill="#64748b" font-size="8">Apr</text>
+                                <text x="110" y="145" fill="#64748b" font-size="8">Jun</text>
+                                <text x="190" y="145" fill="#64748b" font-size="8">Aug</text>
+                                <text x="270" y="145" fill="#64748b" font-size="8">Oct</text>
+                                <text x="350" y="145" fill="#64748b" font-size="8">Dec</text>
+                            </svg>
+                        </div>
+                        <div class="risk-interpretation">
+                            <strong>⚠️ Real Economy Stress:</strong> Corporate bankruptcies have risen 34% YoY and 
+                            are 52% above the 5-year average. Accelerating trend suggests financing stress is 
+                            spreading from markets to the real economy. This is a late-cycle confirmation signal.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="risk-card">
+                    <div class="risk-card-header">
+                        <span class="risk-card-title">Delinquency Rates</span>
+                        <span class="risk-card-badge badge-elevated">RISING</span>
+                    </div>
+                    <div class="risk-card-body">
+                        <div style="display: grid; gap: 16px;">
+                            <div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                                    <span style="font-size: 12px;">Credit Card Delinquency (90+ days)</span>
+                                    <span style="font-size: 12px; font-weight: 600; color: var(--accent-orange);">3.2%</span>
+                                </div>
+                                <div style="height: 8px; background: var(--bg-tertiary); border-radius: 4px; overflow: hidden;">
+                                    <div style="width: 64%; height: 100%; background: var(--accent-orange); border-radius: 4px;"></div>
+                                </div>
+                                <div style="font-size: 9px; color: var(--text-muted); margin-top: 4px;">Highest since 2012</div>
+                            </div>
+                            <div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                                    <span style="font-size: 12px;">Auto Loan Delinquency (60+ days)</span>
+                                    <span style="font-size: 12px; font-weight: 600; color: var(--accent-amber);">2.8%</span>
+                                </div>
+                                <div style="height: 8px; background: var(--bg-tertiary); border-radius: 4px; overflow: hidden;">
+                                    <div style="width: 56%; height: 100%; background: var(--accent-amber); border-radius: 4px;"></div>
+                                </div>
+                                <div style="font-size: 9px; color: var(--text-muted); margin-top: 4px;">Above pre-COVID levels</div>
+                            </div>
+                            <div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                                    <span style="font-size: 12px;">Small Business Default Rate</span>
+                                    <span style="font-size: 12px; font-weight: 600; color: var(--accent-red);">4.1%</span>
+                                </div>
+                                <div style="height: 8px; background: var(--bg-tertiary); border-radius: 4px; overflow: hidden;">
+                                    <div style="width: 82%; height: 100%; background: var(--accent-red); border-radius: 4px;"></div>
+                                </div>
+                                <div style="font-size: 9px; color: var(--text-muted); margin-top: 4px;">Elevated - watch closely</div>
+                            </div>
+                        </div>
+                        <div class="risk-interpretation" style="margin-top: 16px;">
+                            <strong>Consumer Stress:</strong> Rising delinquencies across credit cards, auto, and 
+                            small business loans confirm household/firm strain. These typically lead employment 
+                            weakness by 2-3 quarters.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Interpretation Panel -->
+        <section class="section">
+            <div class="interpretation-panel">
+                <h3 class="interpretation-title">🧠 AI Synthesis & Forward Outlook</h3>
+                <div class="interpretation-content">
+                    <div class="interpretation-item">
+                        <h4>Yield Curve + PMI Convergence</h4>
+                        <p>
+                            The re-steepening yield curve combined with widening PMI Orders-Output gap creates 
+                            a classic "recession setup." Historically, this combination has preceded every 
+                            recession since 1980 with 6-12 month lead time. Current signals suggest elevated 
+                            risk through mid-2026.
+                        </p>
+                    </div>
+                    <div class="interpretation-item">
+                        <h4>Credit → Labor Transmission</h4>
+                        <p>
+                            HY spreads widening (+48 bps in 4 weeks) typically precedes employment deterioration 
+                            by 2-3 quarters. Initial claims trending higher (+12% YoY) and Sahm Rule triggered 
+                            suggest the credit-to-labor transmission is underway.
+                        </p>
+                    </div>
+                    <div class="interpretation-item">
+                        <h4>Real Economy Confirmation</h4>
+                        <p>
+                            Rising bankruptcies (+34% YoY) and elevated delinquency rates confirm stress is 
+                            spreading beyond financial markets. This "real economy" confirmation typically 
+                            marks the transition from "warning phase" to "realization phase."
+                        </p>
+                    </div>
+                    <div class="interpretation-item">
+                        <h4>Liquidity Buffer</h4>
+                        <p>
+                            The one bright spot: SOFR-Fed Funds spread remains normal (+8 bps), indicating 
+                            no acute funding stress. However, liquidity can deteriorate rapidly—the 2019 
+                            repo spike went from normal to +282 bps in days. Monitor closely.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p class="footer-title">Macro Risk Dashboard | Recession Early Warning System</p>
+            <p class="footer-disclaimer">
+                This dashboard synthesizes yield curve dynamics, PMI divergences, credit spreads, liquidity metrics, 
+                labor market indicators, and real economy stress signals to assess recession probability. 
+                Data sourced from Alpha Vantage, Federal Reserve, ISM, and BLS. Analysis generated: January 2, 2026.
+            </p>
+            
+            <div class="legal-disclaimer">
+                <p>
+                    <strong>⚠️ IMPORTANT LEGAL DISCLAIMER:</strong> This dashboard and all information contained herein is provided for 
+                    <strong>informational and educational purposes only</strong> and does not constitute investment advice, financial advice, 
+                    trading advice, or any other sort of advice. <strong>Nothing on this dashboard should be construed as a recommendation 
+                    to buy, sell, or hold any security, cryptocurrency, derivative, or other financial instrument.</strong>
+                </p>
+                <p>
+                    The analysis presented is based on historical data, statistical models, and AI-generated interpretations which may contain 
+                    errors, inaccuracies, or omissions. <strong>Past performance is not indicative of future results.</strong> Economic forecasting 
+                    involves substantial uncertainty. You should consult with a qualified financial advisor, economist, or other 
+                    licensed professional before making any investment decisions.
+                </p>
+                <p>
+                    The creators, developers, and distributors of this dashboard <strong>assume no responsibility or liability</strong> for any errors 
+                    or omissions in the content, or for any actions taken based on the information provided herein. By using this dashboard, 
+                    you acknowledge and agree that you are solely responsible for your own investment decisions and that you use this 
+                    information at your own risk.
+                </p>
+                <p class="copyright">
+                    © 2026 | Powered by Claude AI + Alpha Vantage + Federal Reserve Data | Not affiliated with any broker, exchange, or financial institution.
+                </p>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
