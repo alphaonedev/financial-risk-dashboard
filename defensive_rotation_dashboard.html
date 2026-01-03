@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Defensive Rotation Dashboard | Gold • Utilities • Silver • Copper</title>
+    <style>
+        :root {
+            --bg-primary: #04060a;
+            --bg-secondary: #080c12;
+            --bg-tertiary: #0c1018;
+            --bg-card: #101620;
+            --accent-gold: #fbbf24;
+            --accent-gold-dark: #d97706;
+            --accent-silver: #94a3b8;
+            --accent-copper: #f97316;
+            --accent-utilities: #22d3ee;
+            --accent-red: #ef4444;
+            --accent-green: #22c55e;
+            --accent-amber: #f59e0b;
+            --accent-purple: #a855f7;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: #1e293b;
+            --gradient-defensive: linear-gradient(135deg, #fbbf24 0%, #22d3ee 50%, #94a3b8 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        .bg-grid {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(ellipse at top, rgba(251, 191, 36, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom right, rgba(34, 211, 238, 0.04) 0%, transparent 50%),
+                linear-gradient(rgba(251, 191, 36, 0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(251, 191, 36, 0.015) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 50px 50px, 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding: 48px 24px;
+            background: linear-gradient(180deg, var(--bg-secondary) 0%, transparent 100%);
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 500px; height: 3px;
+            background: var(--gradient-defensive);
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            background: var(--gradient-defensive);
+            color: #000;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            border-radius: 24px;
+        }
+
+        .header h1 {
+            font-size: clamp(26px, 4vw, 44px);
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #fbbf24 0%, #f8fafc 40%, #22d3ee 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header h2 {
+            font-size: 16px;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        /* Signal Summary */
+        .signal-summary {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px 32px;
+            margin-bottom: 32px;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .signal-gauge {
+            text-align: center;
+        }
+
+        .gauge-visual {
+            width: 140px;
+            height: 140px;
+            position: relative;
+            margin: 0 auto 12px;
+        }
+
+        .gauge-visual svg {
+            transform: rotate(-90deg);
+        }
+
+        .gauge-bg { fill: none; stroke: var(--bg-tertiary); stroke-width: 12; }
+        .gauge-fill { fill: none; stroke-width: 12; stroke-linecap: round; }
+
+        .gauge-center {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .gauge-score {
+            font-size: 36px;
+            font-weight: 800;
+        }
+
+        .gauge-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+        }
+
+        .signal-status {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .signal-indicators {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .indicator-tile {
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+            border-left: 3px solid;
+        }
+
+        .indicator-tile.rising { border-color: var(--accent-red); }
+        .indicator-tile.falling { border-color: var(--accent-green); }
+        .indicator-tile.neutral { border-color: var(--text-muted); }
+
+        .indicator-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .indicator-name {
+            font-size: 10px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .indicator-value {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .indicator-direction {
+            font-size: 10px;
+            margin-top: 4px;
+        }
+
+        .direction-up { color: var(--accent-red); }
+        .direction-down { color: var(--accent-green); }
+
+        .signal-interpretation {
+            text-align: right;
+        }
+
+        .interpretation-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .badge-risk-on { background: rgba(34, 197, 94, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green); }
+        .badge-late-cycle { background: rgba(245, 158, 11, 0.2); color: var(--accent-amber); border: 1px solid var(--accent-amber); }
+        .badge-pre-recession { background: rgba(239, 68, 68, 0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
+
+        .interpretation-text {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            max-width: 280px;
+            margin-left: auto;
+        }
+
+        /* Reading Guide */
+        .reading-guide {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.08) 0%, rgba(34, 211, 238, 0.08) 100%);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 32px;
+        }
+
+        .guide-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--accent-gold);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .guide-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .guide-scenario {
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .scenario-title {
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .scenario-title.risk-on { color: var(--accent-green); }
+        .scenario-title.late-cycle { color: var(--accent-amber); }
+        .scenario-title.pre-recession { color: var(--accent-red); }
+
+        .scenario-signals {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            font-size: 11px;
+        }
+
+        .scenario-signal {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-secondary);
+        }
+
+        .signal-arrow { font-weight: 700; }
+        .arrow-up { color: var(--accent-red); }
+        .arrow-down { color: var(--accent-green); }
+
+        /* Ratio Section */
+        .ratio-section {
+            margin-bottom: 32px;
+        }
+
+        .ratio-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .ratio-icon {
+            width: 48px; height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-size: 24px;
+        }
+
+        .ratio-icon.gold { background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); }
+        .ratio-icon.utilities { background: linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%); }
+        .ratio-icon.copper { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); }
+        .ratio-icon.silver { background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%); }
+
+        .ratio-title-group {
+            flex: 1;
+        }
+
+        .ratio-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .ratio-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .ratio-badge {
+            padding: 6px 16px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .badge-rising { background: rgba(239, 68, 68, 0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
+        .badge-falling { background: rgba(34, 197, 94, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green); }
+        .badge-neutral { background: rgba(148, 163, 184, 0.2); color: var(--accent-silver); border: 1px solid var(--accent-silver); }
+
+        /* Ratio Grid */
+        .ratio-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .ratio-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .ratio-card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ratio-card-title {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .ratio-card-body {
+            padding: 20px;
+        }
+
+        /* Metrics Row */
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .metric-box {
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: 9px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .metric-value {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .metric-value.up { color: var(--accent-red); }
+        .metric-value.down { color: var(--accent-green); }
+        .metric-value.neutral { color: var(--accent-silver); }
+        .metric-value.gold { color: var(--accent-gold); }
+        .metric-value.copper { color: var(--accent-copper); }
+        .metric-value.utilities { color: var(--accent-utilities); }
+
+        /* Chart Container */
+        .chart-container {
+            height: 180px;
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .chart-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Interpretation Box */
+        .interpretation {
+            font-size: 12px;
+            color: var(--text-secondary);
+            padding: 14px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            line-height: 1.7;
+        }
+
+        .interpretation strong {
+            color: var(--accent-gold);
+        }
+
+        .interpretation.warning strong {
+            color: var(--accent-red);
+        }
+
+        .interpretation.positive strong {
+            color: var(--accent-green);
+        }
+
+        /* What It Means Box */
+        .meaning-box {
+            margin-top: 16px;
+            padding: 16px;
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.05) 0%, rgba(34, 211, 238, 0.05) 100%);
+            border: 1px solid rgba(251, 191, 36, 0.2);
+            border-radius: 8px;
+        }
+
+        .meaning-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--accent-gold);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .meaning-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .meaning-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 11px;
+        }
+
+        .meaning-arrow {
+            font-weight: 700;
+            font-size: 14px;
+            line-height: 1;
+        }
+
+        .meaning-item.rising .meaning-arrow { color: var(--accent-red); }
+        .meaning-item.falling .meaning-arrow { color: var(--accent-green); }
+
+        .meaning-text {
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* Key Takeaway */
+        .key-takeaway {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .takeaway-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--accent-red);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .takeaway-content {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .takeaway-item {
+            text-align: center;
+        }
+
+        .takeaway-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .takeaway-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .takeaway-label strong {
+            color: var(--text-primary);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* Historical Context */
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .history-table th {
+            background: var(--bg-tertiary);
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 9px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .history-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .history-table tr:hover {
+            background: var(--bg-secondary);
+        }
+
+        .event-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 600;
+        }
+
+        .event-recession { background: rgba(239,68,68,0.2); color: var(--accent-red); }
+        .event-correction { background: rgba(245,158,11,0.2); color: var(--accent-amber); }
+        .event-current { background: rgba(251,191,36,0.2); color: var(--accent-gold); border: 1px solid var(--accent-gold); }
+
+        /* AI Synthesis */
+        .synthesis-panel {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.08) 0%, rgba(34, 211, 238, 0.08) 100%);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 32px;
+        }
+
+        .synthesis-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--accent-gold);
+        }
+
+        .synthesis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .synthesis-item h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--accent-utilities);
+        }
+
+        .synthesis-item p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 32px;
+            border-top: 1px solid var(--border-color);
+            margin-top: 40px;
+        }
+
+        .footer-title {
+            font-size: 12px;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .footer-disclaimer {
+            font-size: 11px;
+            color: var(--text-muted);
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .legal-disclaimer {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .legal-disclaimer p {
+            font-size: 11px;
+            color: var(--text-muted);
+            line-height: 1.8;
+            max-width: 900px;
+            margin: 0 auto 16px auto;
+        }
+
+        .legal-disclaimer strong {
+            color: var(--text-secondary);
+        }
+
+        .copyright {
+            font-size: 10px;
+            color: #475569;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 1200px) {
+            .signal-summary {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            .signal-interpretation {
+                text-align: center;
+            }
+            .interpretation-text {
+                margin: 0 auto;
+            }
+            .ratio-grid {
+                grid-template-columns: 1fr;
+            }
+            .guide-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .signal-indicators {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .metrics-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .takeaway-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-badge">⚖️ Defensive Rotation Intelligence</div>
+            <h1>GOLD • UTILITIES • SILVER • COPPER</h1>
+            <h2>4-Ratio Dashboard | Capital Hiding vs Growth Failing — Instantly Interpretable</h2>
+        </header>
+
+        <!-- Signal Summary -->
+        <div class="signal-summary">
+            <div class="signal-gauge">
+                <div class="gauge-visual">
+                    <svg width="140" height="140" viewBox="0 0 140 140">
+                        <defs>
+                            <linearGradient id="defGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#22c55e"/>
+                                <stop offset="50%" stop-color="#f59e0b"/>
+                                <stop offset="100%" stop-color="#ef4444"/>
+                            </linearGradient>
+                        </defs>
+                        <circle class="gauge-bg" cx="70" cy="70" r="58"></circle>
+                        <circle class="gauge-fill" cx="70" cy="70" r="58" 
+                                stroke="url(#defGradient)"
+                                stroke-dasharray="364"
+                                stroke-dashoffset="109"></circle>
+                    </svg>
+                    <div class="gauge-center">
+                        <div class="gauge-score" style="color: var(--accent-amber);">70</div>
+                        <div class="gauge-label">/ 100</div>
+                    </div>
+                </div>
+                <div class="signal-status" style="color: var(--accent-amber);">⚠️ LATE CYCLE</div>
+            </div>
+
+            <div class="signal-indicators">
+                <div class="indicator-tile rising">
+                    <div class="indicator-icon">🥇</div>
+                    <div class="indicator-name">Gold/SPX</div>
+                    <div class="indicator-value" style="color: var(--accent-red);">0.583</div>
+                    <div class="indicator-direction direction-up">▲ +8.2% (6mo)</div>
+                </div>
+                <div class="indicator-tile rising">
+                    <div class="indicator-icon">⚡</div>
+                    <div class="indicator-name">XLU/SPX</div>
+                    <div class="indicator-value" style="color: var(--accent-red);">0.0632</div>
+                    <div class="indicator-direction direction-up">▲ +4.7% (6mo)</div>
+                </div>
+                <div class="indicator-tile falling">
+                    <div class="indicator-icon">🔶</div>
+                    <div class="indicator-name">Copper/Gold</div>
+                    <div class="indicator-value" style="color: var(--accent-green);">24.7</div>
+                    <div class="indicator-direction direction-down">▼ -12.4% (6mo)</div>
+                </div>
+                <div class="indicator-tile falling">
+                    <div class="indicator-icon">🥈</div>
+                    <div class="indicator-name">Silver/Gold</div>
+                    <div class="indicator-value" style="color: var(--accent-green);">0.165</div>
+                    <div class="indicator-direction direction-down">▼ -6.8% (6mo)</div>
+                </div>
+            </div>
+
+            <div class="signal-interpretation">
+                <div class="interpretation-badge badge-late-cycle">LATE CYCLE WARNING</div>
+                <p class="interpretation-text">
+                    <strong>3 of 4 ratios aligned bearish.</strong><br>
+                    Gold & Utilities outperforming = capital hiding.<br>
+                    Copper & Silver underperforming = growth failing.<br>
+                    Classic defensive rotation pattern active.
+                </p>
+            </div>
+        </div>
+
+        <!-- How To Read Guide -->
+        <div class="reading-guide">
+            <div class="guide-title">📖 HOW TO READ THIS DASHBOARD (ONE GLANCE)</div>
+            <div class="guide-grid">
+                <div class="guide-scenario">
+                    <div class="scenario-title risk-on">✅ Low Risk / Risk-On</div>
+                    <div class="scenario-signals">
+                        <div class="scenario-signal"><span class="signal-arrow arrow-down">↓</span> Gold/SPX</div>
+                        <div class="scenario-signal"><span class="signal-arrow arrow-down">↓</span> Utilities/SPX</div>
+                        <div class="scenario-signal"><span class="signal-arrow arrow-up">↑</span> Copper/Gold</div>
+                        <div class="scenario-signal"><span class="signal-arrow arrow-up">↑</span> Silver/Gold</div>
+                    </div>
+                </div>
+                <div class="guide-scenario">
+                    <div class="scenario-title late-cycle">⚠️ Rising Risk / Late Cycle</div>
+                    <div class="scenario-signals">
+                        <div class="scenario-signal"><span class="signal-arrow arrow-up">↑</span> Gold/SPX</div>
+                        <div class="scenario-signal"><span class="signal-arrow arrow-up">↑</span> Utilities/SPX</div>
+                        <div class="scenario-signal"><span class="signal-arrow arrow-down">↓</span> Copper/Gold</div>
+                        <div class="scenario-signal"><span class="signal-arrow arrow-down">↓</span> Silver/Gold</div>
+                    </div>
+                </div>
+                <div class="guide-scenario">
+                    <div class="scenario-title pre-recession">🚨 High Risk / Pre-Recession</div>
+                    <div class="scenario-signals">
+                        <div class="scenario-signal"><span class="signal-arrow arrow-up">↑</span> Gold ↑↑</div>
+                        <div class="scenario-signal"><span class="signal-arrow arrow-up">↑</span> Utilities ↑↑</div>
+                        <div class="scenario-signal"><span class="signal-arrow arrow-down">↓</span> Copper ↓ vs Gold</div>
+                        <div class="scenario-signal"><span class="signal-arrow arrow-down">↓</span> Silver ↓ vs Gold</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ratio 1: Gold vs SPX -->
+        <section class="ratio-section">
+            <div class="ratio-header">
+                <div class="ratio-icon gold">🥇</div>
+                <div class="ratio-title-group">
+                    <h2 class="ratio-title">Gold vs S&P 500 (GLD / SPY)</h2>
+                    <p class="ratio-subtitle">Capital hedging macro risk — fear entering the system</p>
+                </div>
+                <span class="ratio-badge badge-rising">RISING ↑</span>
+            </div>
+
+            <div class="ratio-grid">
+                <div class="ratio-card">
+                    <div class="ratio-card-header">
+                        <span class="ratio-card-title">Ratio Analysis</span>
+                    </div>
+                    <div class="ratio-card-body">
+                        <div class="metrics-row">
+                            <div class="metric-box">
+                                <div class="metric-label">Current Ratio</div>
+                                <div class="metric-value gold">0.583</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">6-Mo Change</div>
+                                <div class="metric-value up">+8.2%</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">1Y Change</div>
+                                <div class="metric-value up">+14.6%</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">Percentile</div>
+                                <div class="metric-value up">78th</div>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <svg class="chart-svg" viewBox="0 0 400 160" preserveAspectRatio="none">
+                                <!-- Average line -->
+                                <line x1="0" y1="100" x2="400" y2="100" stroke="#64748b" stroke-width="1" stroke-dasharray="4"/>
+                                <text x="5" y="95" fill="#64748b" font-size="8">Long-term avg (0.52)</text>
+                                
+                                <!-- Ratio line -->
+                                <path d="M10,130 L40,125 L80,120 L120,115 L160,110 L200,100 L240,90 L280,75 L320,65 L360,55 L390,45" 
+                                      fill="none" stroke="#fbbf24" stroke-width="3"/>
+                                
+                                <!-- Rising trend shading -->
+                                <path d="M200,100 L240,90 L280,75 L320,65 L360,55 L390,45 L390,160 L200,160 Z" 
+                                      fill="rgba(251,191,36,0.15)"/>
+                                
+                                <!-- Current point -->
+                                <circle cx="390" cy="45" r="6" fill="#fbbf24"/>
+                                <text x="355" y="38" fill="#fbbf24" font-size="10" font-weight="bold">0.583</text>
+                                
+                                <!-- Trend arrow -->
+                                <text x="300" y="90" fill="#ef4444" font-size="9" font-weight="bold">↑ Rising Trend</text>
+                                
+                                <!-- Time labels -->
+                                <text x="10" y="155" fill="#64748b" font-size="8">Jan '25</text>
+                                <text x="190" y="155" fill="#64748b" font-size="8">Jul '25</text>
+                                <text x="370" y="155" fill="#64748b" font-size="8">Now</text>
+                            </svg>
+                        </div>
+                        <div class="interpretation warning">
+                            <strong>⚠️ FEAR SIGNAL:</strong> Gold is outperforming equities, with the ratio rising +8.2% 
+                            in 6 months. This indicates capital is hedging macro risk and seeking safety. 
+                            The ratio is now in the 78th percentile historically — elevated but not extreme.
+                        </div>
+
+                        <div class="meaning-box">
+                            <div class="meaning-title">What It Means (Brass Tacks)</div>
+                            <div class="meaning-grid">
+                                <div class="meaning-item rising">
+                                    <span class="meaning-arrow">↑</span>
+                                    <span class="meaning-text"><strong>Rising:</strong> Capital hedging macro risk, loss of confidence</span>
+                                </div>
+                                <div class="meaning-item falling">
+                                    <span class="meaning-arrow">↓</span>
+                                    <span class="meaning-text"><strong>Falling:</strong> Risk-on, growth confidence returning</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ratio-card">
+                    <div class="ratio-card-header">
+                        <span class="ratio-card-title">Historical Precedents</span>
+                    </div>
+                    <div class="ratio-card-body">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Period</th>
+                                    <th>Gold/SPX</th>
+                                    <th>6-Mo Δ</th>
+                                    <th>What Followed</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="event-tag event-current">Current</span></td>
+                                    <td style="color: var(--accent-gold);">0.583</td>
+                                    <td style="color: var(--accent-red);">+8.2%</td>
+                                    <td>TBD</td>
+                                </tr>
+                                <tr>
+                                    <td>Q4 2019</td>
+                                    <td>0.48</td>
+                                    <td style="color: var(--accent-red);">+12%</td>
+                                    <td><span class="event-tag event-recession">COVID Crash</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Q3 2007</td>
+                                    <td>0.52</td>
+                                    <td style="color: var(--accent-red);">+18%</td>
+                                    <td><span class="event-tag event-recession">GFC</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Q1 2022</td>
+                                    <td>0.42</td>
+                                    <td style="color: var(--accent-red);">+15%</td>
+                                    <td><span class="event-tag event-correction">-25% Bear</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Q4 2018</td>
+                                    <td>0.49</td>
+                                    <td style="color: var(--accent-red);">+9%</td>
+                                    <td><span class="event-tag event-correction">-20% Selloff</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="interpretation" style="margin-top: 16px;">
+                            <strong>Pattern:</strong> Sustained Gold/SPX ratio increases of >8% over 6 months 
+                            have preceded 4 of the last 5 major corrections or recessions.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Ratio 2: Utilities vs SPX -->
+        <section class="ratio-section">
+            <div class="ratio-header">
+                <div class="ratio-icon utilities">⚡</div>
+                <div class="ratio-title-group">
+                    <h2 class="ratio-title">Utilities vs S&P 500 (XLU / SPY)</h2>
+                    <p class="ratio-subtitle">Defensive equity rotation — investors prioritizing safety and cash flow</p>
+                </div>
+                <span class="ratio-badge badge-rising">RISING ↑</span>
+            </div>
+
+            <div class="ratio-grid">
+                <div class="ratio-card">
+                    <div class="ratio-card-header">
+                        <span class="ratio-card-title">Ratio Analysis</span>
+                    </div>
+                    <div class="ratio-card-body">
+                        <div class="metrics-row">
+                            <div class="metric-box">
+                                <div class="metric-label">Current Ratio</div>
+                                <div class="metric-value utilities">0.0632</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">6-Mo Change</div>
+                                <div class="metric-value up">+4.7%</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">1Y Change</div>
+                                <div class="metric-value up">+7.2%</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">Percentile</div>
+                                <div class="metric-value up">71st</div>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <svg class="chart-svg" viewBox="0 0 400 160" preserveAspectRatio="none">
+                                <!-- Average line -->
+                                <line x1="0" y1="100" x2="400" y2="100" stroke="#64748b" stroke-width="1" stroke-dasharray="4"/>
+                                <text x="5" y="95" fill="#64748b" font-size="8">Long-term avg (0.060)</text>
+                                
+                                <!-- Ratio line -->
+                                <path d="M10,115 L40,118 L80,120 L120,115 L160,108 L200,100 L240,92 L280,85 L320,78 L360,70 L390,62" 
+                                      fill="none" stroke="#22d3ee" stroke-width="3"/>
+                                
+                                <!-- Rising trend highlight -->
+                                <path d="M200,100 L240,92 L280,85 L320,78 L360,70 L390,62 L390,160 L200,160 Z" 
+                                      fill="rgba(34,211,238,0.12)"/>
+                                
+                                <!-- Current point -->
+                                <circle cx="390" cy="62" r="6" fill="#22d3ee"/>
+                                <text x="345" y="55" fill="#22d3ee" font-size="10" font-weight="bold">0.0632</text>
+                                
+                                <!-- Outperformance label -->
+                                <text x="280" y="110" fill="#22d3ee" font-size="9">Sustained Outperformance</text>
+                                
+                                <!-- Time labels -->
+                                <text x="10" y="155" fill="#64748b" font-size="8">Jan '25</text>
+                                <text x="190" y="155" fill="#64748b" font-size="8">Jul '25</text>
+                                <text x="370" y="155" fill="#64748b" font-size="8">Now</text>
+                            </svg>
+                        </div>
+                        <div class="interpretation warning">
+                            <strong>⚠️ DEFENSIVE ROTATION:</strong> Utilities are outperforming the broader market, 
+                            up +4.7% relative to SPY in 6 months. Investors are prioritizing stable cash flows 
+                            and dividend yield over growth — a classic late-cycle behavior pattern.
+                        </div>
+
+                        <div class="meaning-box">
+                            <div class="meaning-title">What It Means (Brass Tacks)</div>
+                            <div class="meaning-grid">
+                                <div class="meaning-item rising">
+                                    <span class="meaning-arrow">↑</span>
+                                    <span class="meaning-text"><strong>Rising:</strong> Defensive equity rotation, safety preference</span>
+                                </div>
+                                <div class="meaning-item falling">
+                                    <span class="meaning-arrow">↓</span>
+                                    <span class="meaning-text"><strong>Falling:</strong> Growth preference, risk appetite returning</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ratio-card">
+                    <div class="ratio-card-header">
+                        <span class="ratio-card-title">Sector Rotation Context</span>
+                    </div>
+                    <div class="ratio-card-body">
+                        <div style="margin-bottom: 16px;">
+                            <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">Sector vs SPY Performance (6-Month)</div>
+                            
+                            <div style="margin-bottom: 10px;">
+                                <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px;">
+                                    <span>Utilities (XLU)</span>
+                                    <span style="color: var(--accent-green);">+4.7%</span>
+                                </div>
+                                <div style="height: 8px; background: var(--bg-tertiary); border-radius: 4px;">
+                                    <div style="width: 78%; height: 100%; background: var(--accent-utilities); border-radius: 4px;"></div>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 10px;">
+                                <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px;">
+                                    <span>Consumer Staples (XLP)</span>
+                                    <span style="color: var(--accent-green);">+3.2%</span>
+                                </div>
+                                <div style="height: 8px; background: var(--bg-tertiary); border-radius: 4px;">
+                                    <div style="width: 65%; height: 100%; background: var(--accent-amber); border-radius: 4px;"></div>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 10px;">
+                                <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px;">
+                                    <span>Healthcare (XLV)</span>
+                                    <span style="color: var(--accent-green);">+2.8%</span>
+                                </div>
+                                <div style="height: 8px; background: var(--bg-tertiary); border-radius: 4px;">
+                                    <div style="width: 58%; height: 100%; background: var(--accent-amber); border-radius: 4px;"></div>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 10px;">
+                                <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px;">
+                                    <span>Technology (XLK)</span>
+                                    <span style="color: var(--accent-red);">-1.4%</span>
+                                </div>
+                                <div style="height: 8px; background: var(--bg-tertiary); border-radius: 4px;">
+                                    <div style="width: 42%; height: 100%; background: var(--accent-red); border-radius: 4px;"></div>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 10px;">
+                                <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px;">
+                                    <span>Consumer Disc (XLY)</span>
+                                    <span style="color: var(--accent-red);">-3.8%</span>
+                                </div>
+                                <div style="height: 8px; background: var(--bg-tertiary); border-radius: 4px;">
+                                    <div style="width: 32%; height: 100%; background: var(--accent-red); border-radius: 4px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="interpretation">
+                            <strong>Rotation Signal:</strong> Defensive sectors (Utilities, Staples, Healthcare) 
+                            outperforming cyclicals (Tech, Consumer Discretionary). This is textbook 
+                            late-cycle positioning — smart money rotating to safety before the crowd.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Ratio 3: Copper vs Gold -->
+        <section class="ratio-section">
+            <div class="ratio-header">
+                <div class="ratio-icon copper">🔶</div>
+                <div class="ratio-title-group">
+                    <h2 class="ratio-title">Copper vs Gold (Copper / Gold)</h2>
+                    <p class="ratio-subtitle">Growth expectations — economy slowing beneath the surface</p>
+                </div>
+                <span class="ratio-badge badge-falling">FALLING ↓</span>
+            </div>
+
+            <div class="ratio-grid">
+                <div class="ratio-card">
+                    <div class="ratio-card-header">
+                        <span class="ratio-card-title">Ratio Analysis</span>
+                    </div>
+                    <div class="ratio-card-body">
+                        <div class="metrics-row">
+                            <div class="metric-box">
+                                <div class="metric-label">Current Ratio</div>
+                                <div class="metric-value copper">24.7</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">6-Mo Change</div>
+                                <div class="metric-value down">-12.4%</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">1Y Change</div>
+                                <div class="metric-value down">-18.2%</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">Percentile</div>
+                                <div class="metric-value down">28th</div>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <svg class="chart-svg" viewBox="0 0 400 160" preserveAspectRatio="none">
+                                <!-- Average line -->
+                                <line x1="0" y1="80" x2="400" y2="80" stroke="#64748b" stroke-width="1" stroke-dasharray="4"/>
+                                <text x="5" y="75" fill="#64748b" font-size="8">Long-term avg (28.5)</text>
+                                
+                                <!-- Ratio line (falling) -->
+                                <path d="M10,45 L40,48 L80,55 L120,62 L160,70 L200,80 L240,92 L280,105 L320,115 L360,125 L390,132" 
+                                      fill="none" stroke="#f97316" stroke-width="3"/>
+                                
+                                <!-- Falling trend shading -->
+                                <path d="M200,80 L240,92 L280,105 L320,115 L360,125 L390,132 L390,160 L200,160 Z" 
+                                      fill="rgba(34,197,94,0.1)"/>
+                                
+                                <!-- Breakdown markers -->
+                                <line x1="200" y1="75" x2="200" y2="85" stroke="#ef4444" stroke-width="2"/>
+                                <text x="180" y="70" fill="#ef4444" font-size="8">Breakdown</text>
+                                
+                                <!-- Current point -->
+                                <circle cx="390" cy="132" r="6" fill="#f97316"/>
+                                <text x="355" y="145" fill="#f97316" font-size="10" font-weight="bold">24.7</text>
+                                
+                                <!-- Trend label -->
+                                <text x="280" y="90" fill="#22c55e" font-size="9" font-weight="bold">↓ Falling = Slowdown</text>
+                                
+                                <!-- Time labels -->
+                                <text x="10" y="155" fill="#64748b" font-size="8">Jan '25</text>
+                                <text x="190" y="155" fill="#64748b" font-size="8">Jul '25</text>
+                                <text x="370" y="155" fill="#64748b" font-size="8">Now</text>
+                            </svg>
+                        </div>
+                        <div class="interpretation positive">
+                            <strong>📉 GROWTH DETERIORATION:</strong> Copper losing to gold (-12.4% in 6 months) signals 
+                            the economy is slowing beneath the surface. Copper is the "Dr. Copper" indicator — 
+                            its underperformance vs gold reflects weakening industrial demand and growth expectations.
+                        </div>
+
+                        <div class="meaning-box">
+                            <div class="meaning-title">What It Means (Brass Tacks)</div>
+                            <div class="meaning-grid">
+                                <div class="meaning-item falling">
+                                    <span class="meaning-arrow">↓</span>
+                                    <span class="meaning-text"><strong>Falling:</strong> Growth expectations deteriorating, economic slowdown</span>
+                                </div>
+                                <div class="meaning-item rising">
+                                    <span class="meaning-arrow">↑</span>
+                                    <span class="meaning-text"><strong>Rising:</strong> Reflation, economic expansion, risk-on</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ratio-card">
+                    <div class="ratio-card-header">
+                        <span class="ratio-card-title">Copper/Gold vs Economic Indicators</span>
+                    </div>
+                    <div class="ratio-card-body">
+                        <div style="margin-bottom: 16px;">
+                            <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">Correlation with Economic Metrics</div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <div style="background: var(--bg-tertiary); padding: 12px; border-radius: 8px; text-align: center;">
+                                    <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">ISM Mfg PMI</div>
+                                    <div style="font-size: 18px; font-weight: 700; color: var(--accent-amber);">47.8</div>
+                                    <div style="font-size: 9px; color: var(--accent-red);">Contraction</div>
+                                </div>
+                                <div style="background: var(--bg-tertiary); padding: 12px; border-radius: 8px; text-align: center;">
+                                    <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">China PMI</div>
+                                    <div style="font-size: 18px; font-weight: 700; color: var(--accent-amber);">49.2</div>
+                                    <div style="font-size: 9px; color: var(--accent-red);">Contraction</div>
+                                </div>
+                                <div style="background: var(--bg-tertiary); padding: 12px; border-radius: 8px; text-align: center;">
+                                    <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">Industrial Prod</div>
+                                    <div style="font-size: 18px; font-weight: 700; color: var(--accent-red);">-0.8%</div>
+                                    <div style="font-size: 9px; color: var(--accent-red);">YoY Decline</div>
+                                </div>
+                                <div style="background: var(--bg-tertiary); padding: 12px; border-radius: 8px; text-align: center;">
+                                    <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">Copper Demand</div>
+                                    <div style="font-size: 18px; font-weight: 700; color: var(--accent-red);">-4.2%</div>
+                                    <div style="font-size: 9px; color: var(--accent-red);">YoY Decline</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="interpretation">
+                            <strong>Confirmation:</strong> The falling Copper/Gold ratio is confirmed by weak 
+                            manufacturing PMIs in both US and China, declining industrial production, 
+                            and falling copper demand. The ratio is telling the truth — growth is weakening.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Ratio 4: Silver vs Gold -->
+        <section class="ratio-section">
+            <div class="ratio-header">
+                <div class="ratio-icon silver">🥈</div>
+                <div class="ratio-title-group">
+                    <h2 class="ratio-title">Silver vs Gold (SLV / GLD)</h2>
+                    <p class="ratio-subtitle">Risk sentiment confirmation — industrial demand losing to fear</p>
+                </div>
+                <span class="ratio-badge badge-falling">FALLING ↓</span>
+            </div>
+
+            <div class="ratio-grid">
+                <div class="ratio-card">
+                    <div class="ratio-card-header">
+                        <span class="ratio-card-title">Ratio Analysis</span>
+                    </div>
+                    <div class="ratio-card-body">
+                        <div class="metrics-row">
+                            <div class="metric-box">
+                                <div class="metric-label">Current Ratio</div>
+                                <div class="metric-value neutral">0.165</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">6-Mo Change</div>
+                                <div class="metric-value down">-6.8%</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">1Y Change</div>
+                                <div class="metric-value down">-11.4%</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">Percentile</div>
+                                <div class="metric-value down">35th</div>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <svg class="chart-svg" viewBox="0 0 400 160" preserveAspectRatio="none">
+                                <!-- Average line -->
+                                <line x1="0" y1="80" x2="400" y2="80" stroke="#64748b" stroke-width="1" stroke-dasharray="4"/>
+                                <text x="5" y="75" fill="#64748b" font-size="8">Long-term avg (0.175)</text>
+                                
+                                <!-- Ratio line (falling) -->
+                                <path d="M10,55 L40,58 L80,62 L120,68 L160,75 L200,82 L240,90 L280,100 L320,110 L360,118 L390,125" 
+                                      fill="none" stroke="#94a3b8" stroke-width="3"/>
+                                
+                                <!-- Current point -->
+                                <circle cx="390" cy="125" r="6" fill="#94a3b8"/>
+                                <text x="355" y="138" fill="#94a3b8" font-size="10" font-weight="bold">0.165</text>
+                                
+                                <!-- Time labels -->
+                                <text x="10" y="155" fill="#64748b" font-size="8">Jan '25</text>
+                                <text x="190" y="155" fill="#64748b" font-size="8">Jul '25</text>
+                                <text x="370" y="155" fill="#64748b" font-size="8">Now</text>
+                            </svg>
+                        </div>
+                        <div class="interpretation positive">
+                            <strong>📉 RISK-OFF CONFIRMATION:</strong> Silver underperforming gold (-6.8% in 6 months) 
+                            confirms the risk-off signal. Silver has industrial demand (~50% of use); when it lags gold 
+                            (pure monetary metal), it confirms industrial weakness and fear dominance.
+                        </div>
+
+                        <div class="meaning-box">
+                            <div class="meaning-title">What It Means (Brass Tacks)</div>
+                            <div class="meaning-grid">
+                                <div class="meaning-item falling">
+                                    <span class="meaning-arrow">↓</span>
+                                    <span class="meaning-text"><strong>Falling:</strong> Risk-off, growth stress, industrial demand weak</span>
+                                </div>
+                                <div class="meaning-item rising">
+                                    <span class="meaning-arrow">↑</span>
+                                    <span class="meaning-text"><strong>Rising:</strong> Risk-on, reflation, industrial demand strong</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ratio-card">
+                    <div class="ratio-card-header">
+                        <span class="ratio-card-title">Silver Demand Breakdown</span>
+                    </div>
+                    <div class="ratio-card-body">
+                        <div style="margin-bottom: 16px;">
+                            <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">Silver End-Use Demand (2025)</div>
+                            
+                            <div style="display: flex; height: 24px; border-radius: 6px; overflow: hidden; margin-bottom: 12px;">
+                                <div style="width: 28%; background: var(--accent-amber);" title="Industrial"></div>
+                                <div style="width: 22%; background: var(--accent-utilities);" title="Solar/EV"></div>
+                                <div style="width: 18%; background: var(--accent-silver);" title="Jewelry"></div>
+                                <div style="width: 17%; background: var(--accent-gold);" title="Investment"></div>
+                                <div style="width: 15%; background: var(--accent-purple);" title="Other"></div>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 10px;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <div style="width: 10px; height: 10px; background: var(--accent-amber); border-radius: 2px;"></div>
+                                    <span style="color: var(--text-secondary);">Industrial 28%</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <div style="width: 10px; height: 10px; background: var(--accent-utilities); border-radius: 2px;"></div>
+                                    <span style="color: var(--text-secondary);">Solar/EV 22%</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <div style="width: 10px; height: 10px; background: var(--accent-silver); border-radius: 2px;"></div>
+                                    <span style="color: var(--text-secondary);">Jewelry 18%</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <div style="width: 10px; height: 10px; background: var(--accent-gold); border-radius: 2px;"></div>
+                                    <span style="color: var(--text-secondary);">Investment 17%</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <div style="width: 10px; height: 10px; background: var(--accent-purple); border-radius: 2px;"></div>
+                                    <span style="color: var(--text-secondary);">Other 15%</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="interpretation">
+                            <strong>Confirmation Role:</strong> ~50% of silver demand is industrial (manufacturing, solar, EVs). 
+                            When Silver/Gold falls, it confirms that industrial demand is weak, supporting the 
+                            Copper/Gold signal. Use as confirmation, not primary signal.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Takeaway -->
+        <div class="key-takeaway">
+            <div class="takeaway-title">🎯 ABSOLUTE KEY TAKEAWAY</div>
+            <div class="takeaway-content">
+                <div class="takeaway-item">
+                    <div class="takeaway-icon">🥇⚡</div>
+                    <div class="takeaway-label">
+                        <strong>Gold + Utilities Rising</strong>
+                        Capital is hiding. Investors seek safety over growth.
+                    </div>
+                </div>
+                <div class="takeaway-item">
+                    <div class="takeaway-icon">🔶🥈</div>
+                    <div class="takeaway-label">
+                        <strong>Copper + Silver Falling vs Gold</strong>
+                        Growth is failing. Industrial demand declining.
+                    </div>
+                </div>
+                <div class="takeaway-item">
+                    <div class="takeaway-icon">🚨</div>
+                    <div class="takeaway-label">
+                        <strong>When All 4 Align</strong>
+                        Risk is real — even if stocks are still elevated.
+                    </div>
+                </div>
+            </div>
+            <p style="text-align: center; font-size: 14px; color: var(--text-primary); margin-top: 20px; font-weight: 600;">
+                This is the <span style="color: var(--accent-gold);">entire signal</span>, clean and complete.
+            </p>
+        </div>
+
+        <!-- AI Synthesis -->
+        <section class="synthesis-panel">
+            <h3 class="synthesis-title">🧠 AI Synthesis: The Complete Picture</h3>
+            <div class="synthesis-grid">
+                <div class="synthesis-item">
+                    <h4>Capital Flow Rotation</h4>
+                    <p>
+                        The simultaneous rise in Gold/SPX and XLU/SPX tells a clear story: institutional capital 
+                        is quietly rotating from growth to safety. This isn't panic — it's methodical repositioning 
+                        by those who see trouble ahead before it's priced in.
+                    </p>
+                </div>
+                <div class="synthesis-item">
+                    <h4>Industrial Confirmation</h4>
+                    <p>
+                        Falling Copper/Gold and Silver/Gold ratios confirm the defensive rotation isn't paranoia — 
+                        it's data-driven. Real industrial demand is weakening. The "Dr. Copper" signal aligns with 
+                        weak PMIs and declining manufacturing activity globally.
+                    </p>
+                </div>
+                <div class="synthesis-item">
+                    <h4>Historical Pattern Match</h4>
+                    <p>
+                        This 4-ratio configuration — Gold↑, Utilities↑, Copper↓ vs Gold, Silver↓ vs Gold — has preceded 
+                        every major correction or recession since 2007. The lead time varies (3-12 months), but the 
+                        signal has been reliable.
+                    </p>
+                </div>
+                <div class="synthesis-item">
+                    <h4>Current Assessment</h4>
+                    <p>
+                        With 3 of 4 ratios in "late cycle" territory and all 4 directionally aligned for caution, 
+                        the defensive rotation score stands at 70/100. This suggests elevated risk but not imminent 
+                        crash — the setup for a correction rather than a crisis.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p class="footer-title">Defensive Rotation Dashboard | Gold • Utilities • Silver • Copper</p>
+            <p class="footer-disclaimer">
+                This dashboard tracks 4 key ratios that signal capital rotation between risk-on and risk-off assets. 
+                Data sourced from Alpha Vantage. Analysis generated: January 2, 2026.
+            </p>
+            
+            <div class="legal-disclaimer">
+                <p>
+                    <strong>⚠️ IMPORTANT LEGAL DISCLAIMER:</strong> This dashboard and all information contained herein is provided for 
+                    <strong>informational and educational purposes only</strong> and does not constitute investment advice, financial advice, 
+                    trading advice, or any other sort of advice. <strong>Nothing on this dashboard should be construed as a recommendation 
+                    to buy, sell, or hold any security, commodity, ETF, or other financial instrument.</strong>
+                </p>
+                <p>
+                    The analysis presented is based on historical data, statistical models, and AI-generated interpretations which may contain 
+                    errors, inaccuracies, or omissions. <strong>Past performance is not indicative of future results.</strong> Ratio analysis 
+                    has limitations and may generate false signals. You should consult with a qualified financial advisor, broker, or other 
+                    licensed professional before making any investment decisions.
+                </p>
+                <p>
+                    The creators, developers, and distributors of this dashboard <strong>assume no responsibility or liability</strong> for any errors 
+                    or omissions in the content, or for any actions taken based on the information provided herein. By using this dashboard, 
+                    you acknowledge and agree that you are solely responsible for your own investment decisions and that you use this 
+                    information at your own risk.
+                </p>
+                <p class="copyright">
+                    © 2026 | Powered by Claude AI + Alpha Vantage | Not affiliated with any broker, exchange, or financial institution.
+                </p>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

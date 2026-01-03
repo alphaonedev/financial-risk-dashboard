@@ -156,6 +156,17 @@
             box-shadow: 0 20px 40px rgba(168, 85, 247, 0.3);
         }
         
+        .tag-defensive {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(34, 211, 238, 0.2) 100%);
+            color: #fbbf24;
+            border: 1px solid #fbbf24;
+        }
+        
+        .report-card.defensive:hover {
+            border-color: #fbbf24;
+            box-shadow: 0 20px 40px rgba(251, 191, 36, 0.2);
+        }
+        
         .card-title {
             font-size: 22px;
             font-weight: 600;
@@ -208,6 +219,7 @@
         .metric-value.red { color: #ef4444; }
         .metric-value.indigo { color: #6366f1; }
         .metric-value.pink { color: #ec4899; }
+        .metric-value.gold { color: #fbbf24; }
         
         .card-footer {
             padding: 16px 24px;
@@ -240,6 +252,10 @@
         
         .report-card.hidden .view-report {
             color: #a855f7;
+        }
+        
+        .report-card.defensive .view-report {
+            color: #fbbf24;
         }
         
         .view-report svg {
@@ -439,6 +455,39 @@
                         <div class="metric">
                             <div class="metric-label">Passive Share</div>
                             <div class="metric-value danger">54%</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <span class="view-report">
+                        View Full Report 
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </span>
+                    <span class="date">Jan 2, 2026</span>
+                </div>
+            </a>
+            
+            <a href="defensive_rotation_dashboard.html" class="report-card defensive">
+                <div class="card-header">
+                    <div class="card-tag tag-defensive">⚖️ Defensive Rotation</div>
+                    <h2 class="card-title">Gold • Utilities • Silver • Copper</h2>
+                    <p class="card-subtitle">Capital Hiding vs Growth Failing</p>
+                </div>
+                <div class="card-body">
+                    <p class="card-description">
+                        4-ratio dashboard tracking defensive rotation signals. When Gold & Utilities rise 
+                        while Copper & Silver fall vs gold — risk is real even if stocks are elevated.
+                    </p>
+                    <div class="card-metrics">
+                        <div class="metric">
+                            <div class="metric-label">Rotation Score</div>
+                            <div class="metric-value gold">70/100</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Gold/SPX</div>
+                            <div class="metric-value danger">↑ +8.2%</div>
                         </div>
                     </div>
                 </div>
