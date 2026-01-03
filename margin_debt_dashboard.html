@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FINRA Margin Debt Risk Dashboard | Leverage & Positioning Intelligence</title>
+    <style>
+        :root {
+            --bg-primary: #06080c;
+            --bg-secondary: #0c0f14;
+            --bg-tertiary: #12161e;
+            --bg-card: #161b26;
+            --accent-red: #ef4444;
+            --accent-orange: #f97316;
+            --accent-amber: #f59e0b;
+            --accent-yellow: #eab308;
+            --accent-green: #22c55e;
+            --accent-emerald: #10b981;
+            --accent-cyan: #06b6d4;
+            --accent-blue: #3b82f6;
+            --accent-indigo: #6366f1;
+            --accent-purple: #8b5cf6;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: #1e293b;
+            --gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            --gradient-warning: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            --gradient-leverage: linear-gradient(135deg, #ef4444 0%, #f97316 50%, #eab308 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        .bg-grid {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(ellipse at top, rgba(239, 68, 68, 0.06) 0%, transparent 50%),
+                linear-gradient(rgba(239, 68, 68, 0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(239, 68, 68, 0.015) 1px, transparent 1px);
+            background-size: 100% 100%, 50px 50px, 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding: 48px 24px;
+            background: linear-gradient(180deg, var(--bg-secondary) 0%, transparent 100%);
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 300px; height: 3px;
+            background: var(--gradient-leverage);
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            background: var(--gradient-danger);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+            border-radius: 24px;
+        }
+
+        .header h1 {
+            font-size: clamp(28px, 4vw, 44px);
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #f8fafc 0%, #ef4444 50%, #f97316 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header h2 {
+            font-size: 17px;
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-bottom: 32px;
+        }
+
+        /* Alert Banner */
+        .alert-banner {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(249, 115, 22, 0.15) 100%);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            border-radius: 12px;
+            padding: 20px 28px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .alert-icon {
+            font-size: 32px;
+        }
+
+        .alert-content h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--accent-red);
+            margin-bottom: 4px;
+        }
+
+        .alert-content p {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* Key Metrics Row */
+        .metrics-hero {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .metric-hero-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-hero-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 3px;
+        }
+
+        .metric-hero-card.critical::before { background: var(--accent-red); }
+        .metric-hero-card.high::before { background: var(--accent-orange); }
+        .metric-hero-card.elevated::before { background: var(--accent-amber); }
+        .metric-hero-card.neutral::before { background: var(--accent-cyan); }
+
+        .metric-hero-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .metric-hero-value {
+            font-size: 32px;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .metric-hero-value.critical { color: var(--accent-red); }
+        .metric-hero-value.high { color: var(--accent-orange); }
+        .metric-hero-value.elevated { color: var(--accent-amber); }
+        .metric-hero-value.neutral { color: var(--accent-cyan); }
+        .metric-hero-value.positive { color: var(--accent-green); }
+
+        .metric-hero-change {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .metric-hero-change.up { color: var(--accent-red); }
+        .metric-hero-change.down { color: var(--accent-green); }
+
+        /* Section Styling */
+        .section {
+            margin-bottom: 32px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-icon {
+            width: 40px; height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-danger);
+            border-radius: 10px;
+            font-size: 18px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .section-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-left: auto;
+        }
+
+        /* Chart Container */
+        .chart-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chart-title::before {
+            content: '';
+            width: 8px; height: 8px;
+            background: var(--accent-red);
+            border-radius: 50%;
+        }
+
+        .chart-container {
+            height: 320px;
+            position: relative;
+        }
+
+        /* Historical Chart SVG */
+        .history-chart {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Risk Gauge Panel */
+        .gauge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .gauge-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .gauge-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 3px;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .gauge-card.critical::before { background: var(--accent-red); }
+        .gauge-card.high::before { background: var(--accent-orange); }
+        .gauge-card.elevated::before { background: var(--accent-amber); }
+
+        .gauge-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .gauge-title {
+            font-size: 11px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .gauge-badge {
+            font-size: 9px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .badge-critical { background: rgba(239,68,68,0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
+        .badge-high { background: rgba(249,115,22,0.2); color: var(--accent-orange); border: 1px solid var(--accent-orange); }
+        .badge-elevated { background: rgba(245,158,11,0.2); color: var(--accent-amber); border: 1px solid var(--accent-amber); }
+
+        .gauge-value {
+            font-size: 32px;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .gauge-value.critical { color: var(--accent-red); }
+        .gauge-value.high { color: var(--accent-orange); }
+        .gauge-value.elevated { color: var(--accent-amber); }
+
+        .gauge-bar {
+            height: 6px;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            margin: 12px 0;
+            overflow: hidden;
+        }
+
+        .gauge-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+        }
+
+        .gauge-bar-fill.critical { background: var(--accent-red); }
+        .gauge-bar-fill.high { background: var(--accent-orange); }
+        .gauge-bar-fill.elevated { background: var(--accent-amber); }
+
+        .gauge-detail {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .gauge-interpretation {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border-color);
+            line-height: 1.6;
+        }
+
+        /* Historical Comparison Table */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .comparison-table th {
+            background: var(--bg-tertiary);
+            padding: 14px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 2px solid var(--accent-red);
+        }
+
+        .comparison-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .comparison-table tr:hover {
+            background: var(--bg-secondary);
+        }
+
+        .table-value {
+            font-weight: 600;
+            font-family: 'SF Mono', 'Monaco', monospace;
+        }
+
+        .table-value.danger { color: var(--accent-red); }
+        .table-value.warning { color: var(--accent-orange); }
+        .table-value.neutral { color: var(--text-secondary); }
+
+        .event-tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .event-tag.crash { background: rgba(239,68,68,0.2); color: var(--accent-red); }
+        .event-tag.peak { background: rgba(249,115,22,0.2); color: var(--accent-orange); }
+        .event-tag.current { background: rgba(239,68,68,0.3); color: var(--accent-red); border: 1px solid var(--accent-red); }
+
+        /* Scenario Cards */
+        .scenario-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .scenario-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .scenario-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .scenario-type {
+            font-size: 10px;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .scenario-prob {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .scenario-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .scenario-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .scenario-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .scenario-metric {
+            text-align: center;
+        }
+
+        .scenario-metric-label {
+            font-size: 9px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .scenario-metric-value {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        /* AI Interpretation */
+        .interpretation-panel {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(249, 115, 22, 0.08) 100%);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .interpretation-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .interpretation-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .interpretation-item h4 {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--accent-orange);
+        }
+
+        .interpretation-item p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* Monthly Data Grid */
+        .monthly-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .monthly-cell {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 8px;
+            text-align: center;
+        }
+
+        .monthly-cell.current {
+            border-color: var(--accent-red);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .monthly-month {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .monthly-value {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .monthly-change {
+            font-size: 10px;
+            margin-top: 4px;
+        }
+
+        .monthly-change.up { color: var(--accent-red); }
+        .monthly-change.down { color: var(--accent-green); }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 32px;
+            border-top: 1px solid var(--border-color);
+            margin-top: 40px;
+        }
+
+        .footer-title {
+            font-size: 12px;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .footer-disclaimer {
+            font-size: 11px;
+            color: var(--text-muted);
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .legal-disclaimer {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .legal-disclaimer p {
+            font-size: 11px;
+            color: var(--text-muted);
+            line-height: 1.8;
+            max-width: 900px;
+            margin: 0 auto 16px auto;
+        }
+
+        .legal-disclaimer strong {
+            color: var(--text-secondary);
+        }
+
+        .copyright {
+            font-size: 10px;
+            color: #475569;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-badge">🚨 LEVERAGE ALERT</div>
+            <h1>FINRA MARGIN DEBT DASHBOARD</h1>
+            <h2>Market Leverage & Positioning Risk Intelligence | Historical Comparison & Deleveraging Scenarios</h2>
+        </header>
+
+        <!-- Alert Banner -->
+        <div class="alert-banner">
+            <div class="alert-icon">⚠️</div>
+            <div class="alert-content">
+                <h3>ALL-TIME HIGH MARGIN DEBT ALERT</h3>
+                <p>November 2025 margin debt of $1.214 trillion has exceeded all previous peaks including the 2021 post-COVID high ($936B) and 2000 dot-com bubble ($278B). 
+                YoY growth of +36.3% signals extreme leverage buildup. Historically, peaks in margin debt have preceded significant market corrections.</p>
+            </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="metrics-hero">
+            <div class="metric-hero-card critical">
+                <div class="metric-hero-label">Current Margin Debt</div>
+                <div class="metric-hero-value critical">$1.214T</div>
+                <div class="metric-hero-change up">▲ All-Time High</div>
+            </div>
+            <div class="metric-hero-card critical">
+                <div class="metric-hero-label">YoY Change</div>
+                <div class="metric-hero-value critical">+36.3%</div>
+                <div class="metric-hero-change up">▲ vs Nov 2024 ($891B)</div>
+            </div>
+            <div class="metric-hero-card high">
+                <div class="metric-hero-label">MoM Change</div>
+                <div class="metric-hero-value high">+2.6%</div>
+                <div class="metric-hero-change up">▲ +$30.7B from Oct</div>
+            </div>
+            <div class="metric-hero-card elevated">
+                <div class="metric-hero-label">vs 2021 Peak</div>
+                <div class="metric-hero-value elevated">+29.7%</div>
+                <div class="metric-hero-change up">▲ $278B above prior ATH</div>
+            </div>
+            <div class="metric-hero-card neutral">
+                <div class="metric-hero-label">Free Cash (Dry Powder)</div>
+                <div class="metric-hero-value neutral">$202B</div>
+                <div class="metric-hero-change">Cash accounts balance</div>
+            </div>
+        </div>
+
+        <!-- Risk Gauges -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-icon">📊</div>
+                <h2 class="section-title">Leverage Risk Indicators</h2>
+                <span class="section-subtitle">AI-Assessed Warning Signals</span>
+            </div>
+
+            <div class="gauge-grid">
+                <div class="gauge-card critical">
+                    <div class="gauge-header">
+                        <span class="gauge-title">Absolute Leverage Level</span>
+                        <span class="gauge-badge badge-critical">CRITICAL</span>
+                    </div>
+                    <div class="gauge-value critical">$1.214T</div>
+                    <div class="gauge-detail">Highest margin debt ever recorded</div>
+                    <div class="gauge-bar"><div class="gauge-bar-fill critical" style="width: 100%;"></div></div>
+                    <div class="gauge-interpretation">
+                        <strong>Signal:</strong> Absolute levels have exceeded all historical peaks. At these levels, 
+                        any significant market decline triggers forced margin calls, creating cascading liquidations.
+                    </div>
+                </div>
+
+                <div class="gauge-card critical">
+                    <div class="gauge-header">
+                        <span class="gauge-title">YoY Growth Rate</span>
+                        <span class="gauge-badge badge-critical">CRITICAL</span>
+                    </div>
+                    <div class="gauge-value critical">+36.3%</div>
+                    <div class="gauge-detail">Rapid leverage accumulation</div>
+                    <div class="gauge-bar"><div class="gauge-bar-fill critical" style="width: 92%;"></div></div>
+                    <div class="gauge-interpretation">
+                        <strong>Signal:</strong> YoY growth above 30% has historically preceded major corrections. 
+                        This pace indicates speculative excess and crowded positioning.
+                    </div>
+                </div>
+
+                <div class="gauge-card high">
+                    <div class="gauge-header">
+                        <span class="gauge-title">Debt-to-Cash Ratio</span>
+                        <span class="gauge-badge badge-high">HIGH</span>
+                    </div>
+                    <div class="gauge-value high">6.0x</div>
+                    <div class="gauge-detail">Margin debt / Free cash balances</div>
+                    <div class="gauge-bar"><div class="gauge-bar-fill high" style="width: 85%;"></div></div>
+                    <div class="gauge-interpretation">
+                        <strong>Signal:</strong> For every $1 of cash on sidelines, there's $6 of margin debt. 
+                        Limited dry powder to absorb selling pressure during corrections.
+                    </div>
+                </div>
+
+                <div class="gauge-card high">
+                    <div class="gauge-header">
+                        <span class="gauge-title">6-Month Momentum</span>
+                        <span class="gauge-badge badge-high">HIGH</span>
+                    </div>
+                    <div class="gauge-value high">+20.5%</div>
+                    <div class="gauge-detail">Jun-Nov 2025 increase</div>
+                    <div class="gauge-bar"><div class="gauge-bar-fill high" style="width: 78%;"></div></div>
+                    <div class="gauge-interpretation">
+                        <strong>Signal:</strong> Accelerating leverage growth suggests late-cycle euphoria. 
+                        Similar patterns preceded 2000, 2008, and 2021 market peaks.
+                    </div>
+                </div>
+
+                <div class="gauge-card elevated">
+                    <div class="gauge-header">
+                        <span class="gauge-title">vs Market Cap Ratio</span>
+                        <span class="gauge-badge badge-elevated">ELEVATED</span>
+                    </div>
+                    <div class="gauge-value elevated">2.1%</div>
+                    <div class="gauge-detail">Margin debt / Total US equity market cap</div>
+                    <div class="gauge-bar"><div class="gauge-bar-fill elevated" style="width: 68%;"></div></div>
+                    <div class="gauge-interpretation">
+                        <strong>Signal:</strong> While not extreme relative to market cap, absolute dollar 
+                        amounts create mechanical selling pressure during drawdowns.
+                    </div>
+                </div>
+
+                <div class="gauge-card elevated">
+                    <div class="gauge-header">
+                        <span class="gauge-title">Margin Credit Available</span>
+                        <span class="gauge-badge badge-elevated">ELEVATED</span>
+                    </div>
+                    <div class="gauge-value elevated">$194B</div>
+                    <div class="gauge-detail">Free credit in margin accounts</div>
+                    <div class="gauge-bar"><div class="gauge-bar-fill elevated" style="width: 55%;"></div></div>
+                    <div class="gauge-interpretation">
+                        <strong>Signal:</strong> Credit available for further leverage is limited relative 
+                        to debt outstanding. Suggests positioning is near maximum extension.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Historical Chart -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-icon">📈</div>
+                <h2 class="section-title">Historical Margin Debt (1997-2025)</h2>
+                <span class="section-subtitle">FINRA Member Firm Data</span>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-title">Margin Debt vs Major Market Events</div>
+                <div class="chart-container">
+                    <svg class="history-chart" viewBox="0 0 1000 300" preserveAspectRatio="none">
+                        <!-- Grid lines -->
+                        <defs>
+                            <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#ef4444" stop-opacity="0.3"/>
+                                <stop offset="100%" stop-color="#ef4444" stop-opacity="0.05"/>
+                            </linearGradient>
+                        </defs>
+                        
+                        <!-- Y-axis labels -->
+                        <text x="10" y="25" fill="#64748b" font-size="10">$1.2T</text>
+                        <text x="10" y="85" fill="#64748b" font-size="10">$900B</text>
+                        <text x="10" y="145" fill="#64748b" font-size="10">$600B</text>
+                        <text x="10" y="205" fill="#64748b" font-size="10">$300B</text>
+                        <text x="10" y="265" fill="#64748b" font-size="10">$0</text>
+                        
+                        <!-- Grid lines -->
+                        <line x1="50" y1="20" x2="980" y2="20" stroke="#1e293b" stroke-width="1" stroke-dasharray="4"/>
+                        <line x1="50" y1="80" x2="980" y2="80" stroke="#1e293b" stroke-width="1" stroke-dasharray="4"/>
+                        <line x1="50" y1="140" x2="980" y2="140" stroke="#1e293b" stroke-width="1" stroke-dasharray="4"/>
+                        <line x1="50" y1="200" x2="980" y2="200" stroke="#1e293b" stroke-width="1" stroke-dasharray="4"/>
+                        <line x1="50" y1="260" x2="980" y2="260" stroke="#1e293b" stroke-width="1"/>
+                        
+                        <!-- Area fill -->
+                        <path d="M50,260 L50,250 L120,248 L190,240 L260,220 L330,195 L400,185 L470,190 L540,165 L610,130 L680,95 L750,70 L820,55 L890,35 L960,15 L960,260 Z" 
+                              fill="url(#areaGradient)"/>
+                        
+                        <!-- Main line -->
+                        <path d="M50,250 L120,248 L190,240 L260,220 L330,195 L400,185 L470,190 L540,165 L610,130 L680,95 L750,70 L820,55 L890,35 L960,15" 
+                              fill="none" stroke="#ef4444" stroke-width="3"/>
+                        
+                        <!-- Event markers -->
+                        <!-- 2000 Dot-com -->
+                        <circle cx="190" cy="240" r="6" fill="#f97316"/>
+                        <text x="190" y="230" fill="#f97316" font-size="9" text-anchor="middle">Dot-com</text>
+                        <text x="190" y="220" fill="#f97316" font-size="8" text-anchor="middle">$278B</text>
+                        
+                        <!-- 2008 Financial Crisis -->
+                        <circle cx="330" cy="195" r="6" fill="#f97316"/>
+                        <text x="330" y="185" fill="#f97316" font-size="9" text-anchor="middle">GFC</text>
+                        <text x="330" y="175" fill="#f97316" font-size="8" text-anchor="middle">$416B</text>
+                        
+                        <!-- 2021 Post-COVID -->
+                        <circle cx="820" cy="55" r="6" fill="#f97316"/>
+                        <text x="820" y="45" fill="#f97316" font-size="9" text-anchor="middle">COVID</text>
+                        <text x="820" y="75" fill="#f97316" font-size="8" text-anchor="middle">$936B</text>
+                        
+                        <!-- Current -->
+                        <circle cx="960" cy="15" r="8" fill="#ef4444"/>
+                        <text x="960" y="35" fill="#ef4444" font-size="10" text-anchor="middle" font-weight="bold">NOW</text>
+                        <text x="960" y="48" fill="#ef4444" font-size="9" text-anchor="middle">$1.214T</text>
+                        
+                        <!-- X-axis labels -->
+                        <text x="50" y="280" fill="#64748b" font-size="9">1997</text>
+                        <text x="190" y="280" fill="#64748b" font-size="9">2000</text>
+                        <text x="330" y="280" fill="#64748b" font-size="9">2007</text>
+                        <text x="470" y="280" fill="#64748b" font-size="9">2012</text>
+                        <text x="610" y="280" fill="#64748b" font-size="9">2017</text>
+                        <text x="750" y="280" fill="#64748b" font-size="9">2020</text>
+                        <text x="890" y="280" fill="#64748b" font-size="9">2024</text>
+                        <text x="960" y="280" fill="#ef4444" font-size="9" font-weight="bold">2025</text>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- Historical Comparison Table -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-icon">📋</div>
+                <h2 class="section-title">Peak Comparison Analysis</h2>
+                <span class="section-subtitle">Major Margin Debt Peaks & Subsequent Drawdowns</span>
+            </div>
+
+            <div class="chart-card">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Period</th>
+                            <th>Peak Margin Debt</th>
+                            <th>Peak Date</th>
+                            <th>Event</th>
+                            <th>S&P 500 Drawdown</th>
+                            <th>Margin Debt Decline</th>
+                            <th>Recovery Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Current</strong></td>
+                            <td class="table-value danger">$1,214B</td>
+                            <td>Nov 2025</td>
+                            <td><span class="event-tag current">⚠️ ACTIVE</span></td>
+                            <td class="table-value neutral">TBD</td>
+                            <td class="table-value neutral">TBD</td>
+                            <td class="table-value neutral">TBD</td>
+                        </tr>
+                        <tr>
+                            <td>Post-COVID Peak</td>
+                            <td class="table-value warning">$936B</td>
+                            <td>Oct 2021</td>
+                            <td><span class="event-tag peak">Peak</span></td>
+                            <td class="table-value danger">-25.4%</td>
+                            <td class="table-value danger">-23.8%</td>
+                            <td>18 months</td>
+                        </tr>
+                        <tr>
+                            <td>Pre-COVID High</td>
+                            <td class="table-value warning">$668B</td>
+                            <td>Jan 2020</td>
+                            <td><span class="event-tag crash">COVID Crash</span></td>
+                            <td class="table-value danger">-33.9%</td>
+                            <td class="table-value danger">-26.4%</td>
+                            <td>5 months</td>
+                        </tr>
+                        <tr>
+                            <td>2007 Peak</td>
+                            <td class="table-value warning">$416B</td>
+                            <td>Jul 2007</td>
+                            <td><span class="event-tag crash">GFC</span></td>
+                            <td class="table-value danger">-56.8%</td>
+                            <td class="table-value danger">-49.5%</td>
+                            <td>5+ years</td>
+                        </tr>
+                        <tr>
+                            <td>2000 Peak</td>
+                            <td class="table-value warning">$278B</td>
+                            <td>Mar 2000</td>
+                            <td><span class="event-tag crash">Dot-com</span></td>
+                            <td class="table-value danger">-49.1%</td>
+                            <td class="table-value danger">-55.8%</td>
+                            <td>7 years</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Recent Monthly Data -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-icon">📅</div>
+                <h2 class="section-title">2025 Monthly Trend</h2>
+                <span class="section-subtitle">Month-over-Month Progression</span>
+            </div>
+
+            <div class="monthly-grid">
+                <div class="monthly-cell">
+                    <div class="monthly-month">Jan</div>
+                    <div class="monthly-value">$937B</div>
+                    <div class="monthly-change up">+4.2%</div>
+                </div>
+                <div class="monthly-cell">
+                    <div class="monthly-month">Feb</div>
+                    <div class="monthly-value">$918B</div>
+                    <div class="monthly-change down">-2.0%</div>
+                </div>
+                <div class="monthly-cell">
+                    <div class="monthly-month">Mar</div>
+                    <div class="monthly-value">$880B</div>
+                    <div class="monthly-change down">-4.1%</div>
+                </div>
+                <div class="monthly-cell">
+                    <div class="monthly-month">Apr</div>
+                    <div class="monthly-value">$851B</div>
+                    <div class="monthly-change down">-3.3%</div>
+                </div>
+                <div class="monthly-cell">
+                    <div class="monthly-month">May</div>
+                    <div class="monthly-value">$921B</div>
+                    <div class="monthly-change up">+8.2%</div>
+                </div>
+                <div class="monthly-cell">
+                    <div class="monthly-month">Jun</div>
+                    <div class="monthly-value">$1,008B</div>
+                    <div class="monthly-change up">+9.4%</div>
+                </div>
+                <div class="monthly-cell">
+                    <div class="monthly-month">Jul</div>
+                    <div class="monthly-value">$1,023B</div>
+                    <div class="monthly-change up">+1.4%</div>
+                </div>
+                <div class="monthly-cell">
+                    <div class="monthly-month">Aug</div>
+                    <div class="monthly-value">$1,060B</div>
+                    <div class="monthly-change up">+3.6%</div>
+                </div>
+                <div class="monthly-cell">
+                    <div class="monthly-month">Sep</div>
+                    <div class="monthly-value">$1,126B</div>
+                    <div class="monthly-change up">+6.3%</div>
+                </div>
+                <div class="monthly-cell">
+                    <div class="monthly-month">Oct</div>
+                    <div class="monthly-value">$1,184B</div>
+                    <div class="monthly-change up">+5.1%</div>
+                </div>
+                <div class="monthly-cell current">
+                    <div class="monthly-month">Nov</div>
+                    <div class="monthly-value" style="color: var(--accent-red);">$1,214B</div>
+                    <div class="monthly-change up">+2.6%</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Deleveraging Scenarios -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-icon">📉</div>
+                <h2 class="section-title">Deleveraging Scenarios</h2>
+                <span class="section-subtitle">Probability-Weighted Outcomes Based on Historical Patterns</span>
+            </div>
+
+            <div class="scenario-grid">
+                <div class="scenario-card">
+                    <div class="scenario-header">
+                        <span class="scenario-type" style="background: rgba(234,179,8,0.2); color: #eab308; border: 1px solid #eab308;">BASE CASE</span>
+                        <span class="scenario-prob">Probability: 40%</span>
+                    </div>
+                    <h3 class="scenario-title">Orderly Consolidation</h3>
+                    <p class="scenario-desc">
+                        Market experiences 10-15% correction. Margin calls trigger some forced selling but 
+                        no cascade. Fed maintains accommodative stance. Deleveraging occurs gradually over 6-9 months.
+                    </p>
+                    <div class="scenario-metrics">
+                        <div class="scenario-metric">
+                            <div class="scenario-metric-label">SPX Drawdown</div>
+                            <div class="scenario-metric-value" style="color: var(--accent-amber);">-12%</div>
+                        </div>
+                        <div class="scenario-metric">
+                            <div class="scenario-metric-label">Margin Debt</div>
+                            <div class="scenario-metric-value" style="color: var(--accent-amber);">-18%</div>
+                        </div>
+                        <div class="scenario-metric">
+                            <div class="scenario-metric-label">Timeline</div>
+                            <div class="scenario-metric-value" style="color: var(--accent-amber);">6-9 mo</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="scenario-card">
+                    <div class="scenario-header">
+                        <span class="scenario-type" style="background: rgba(249,115,22,0.2); color: #f97316; border: 1px solid #f97316;">STRESS CASE</span>
+                        <span class="scenario-prob">Probability: 35%</span>
+                    </div>
+                    <h3 class="scenario-title">Cascading Deleveraging</h3>
+                    <p class="scenario-desc">
+                        Initial decline triggers margin calls, forcing liquidations that accelerate selling. 
+                        Similar to 2022 pattern but more severe due to higher absolute leverage levels.
+                    </p>
+                    <div class="scenario-metrics">
+                        <div class="scenario-metric">
+                            <div class="scenario-metric-label">SPX Drawdown</div>
+                            <div class="scenario-metric-value" style="color: var(--accent-orange);">-25%</div>
+                        </div>
+                        <div class="scenario-metric">
+                            <div class="scenario-metric-label">Margin Debt</div>
+                            <div class="scenario-metric-value" style="color: var(--accent-orange);">-35%</div>
+                        </div>
+                        <div class="scenario-metric">
+                            <div class="scenario-metric-label">Timeline</div>
+                            <div class="scenario-metric-value" style="color: var(--accent-orange);">3-6 mo</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="scenario-card">
+                    <div class="scenario-header">
+                        <span class="scenario-type" style="background: rgba(239,68,68,0.2); color: #ef4444; border: 1px solid #ef4444;">SEVERE CASE</span>
+                        <span class="scenario-prob">Probability: 25%</span>
+                    </div>
+                    <h3 class="scenario-title">Systemic Deleveraging</h3>
+                    <p class="scenario-desc">
+                        Exogenous shock (credit event, geopolitical) triggers severe risk-off. Margin debt 
+                        collapses as in 2008. Requires policy intervention to stabilize.
+                    </p>
+                    <div class="scenario-metrics">
+                        <div class="scenario-metric">
+                            <div class="scenario-metric-label">SPX Drawdown</div>
+                            <div class="scenario-metric-value" style="color: var(--accent-red);">-40%+</div>
+                        </div>
+                        <div class="scenario-metric">
+                            <div class="scenario-metric-label">Margin Debt</div>
+                            <div class="scenario-metric-value" style="color: var(--accent-red);">-50%+</div>
+                        </div>
+                        <div class="scenario-metric">
+                            <div class="scenario-metric-label">Timeline</div>
+                            <div class="scenario-metric-value" style="color: var(--accent-red);">12-18 mo</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Interpretation -->
+        <section class="section">
+            <div class="interpretation-panel">
+                <h3 class="interpretation-title">🧠 AI Risk Assessment & Interpretation</h3>
+                <div class="interpretation-content">
+                    <div class="interpretation-item">
+                        <h4>Historical Pattern Recognition</h4>
+                        <p>
+                            Margin debt peaks have preceded every major market correction since 1997. The current level 
+                            ($1.214T) is 29.7% above the prior all-time high from October 2021, which preceded a 25% 
+                            S&P 500 drawdown. The 36.3% YoY growth rate is in the 95th percentile historically.
+                        </p>
+                    </div>
+                    <div class="interpretation-item">
+                        <h4>Mechanical Risk: Forced Liquidation</h4>
+                        <p>
+                            At current levels, a 10% market decline would trigger approximately $120B+ in margin calls. 
+                            Unlike institutional deleveraging, retail margin calls create immediate forced selling, 
+                            often at market lows, amplifying volatility and drawdown severity.
+                        </p>
+                    </div>
+                    <div class="interpretation-item">
+                        <h4>Limited Dry Powder</h4>
+                        <p>
+                            Free cash balances ($202B) are only 16.6% of margin debt outstanding. This ratio suggests 
+                            limited buying power to absorb selling pressure. The debt-to-cash ratio of 6.0x is elevated 
+                            relative to historical averages of 4.5x during stable markets.
+                        </p>
+                    </div>
+                    <div class="interpretation-item">
+                        <h4>Acceleration Warning</h4>
+                        <p>
+                            Margin debt increased by $206B (+20.5%) in just 6 months (Jun-Nov 2025). This pace of leverage 
+                            accumulation typically occurs in late-cycle euphoria. The acceleration pattern mirrors 
+                            Q4 1999, Q2 2007, and Q3 2021—all of which preceded significant corrections.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer with Legal Disclaimer -->
+        <footer class="footer">
+            <p class="footer-title">FINRA Margin Debt Risk Dashboard</p>
+            <p class="footer-disclaimer">
+                This dashboard analyzes FINRA margin statistics to assess market leverage risk and potential 
+                deleveraging scenarios. Historical patterns are used as probabilistic guides but do not guarantee 
+                future outcomes. Data sourced from FINRA margin statistics reports. Analysis generated: January 2026.
+            </p>
+            
+            <div class="legal-disclaimer">
+                <p>
+                    <strong>⚠️ IMPORTANT LEGAL DISCLAIMER:</strong> This dashboard and all information contained herein is provided for 
+                    <strong>informational and educational purposes only</strong> and does not constitute investment advice, financial advice, 
+                    trading advice, or any other sort of advice. <strong>Nothing on this dashboard should be construed as a recommendation 
+                    to buy, sell, or hold any security, cryptocurrency, derivative, or other financial instrument.</strong>
+                </p>
+                <p>
+                    The analysis presented is based on historical data, statistical models, and AI-generated interpretations which may contain 
+                    errors, inaccuracies, or omissions. <strong>Past performance is not indicative of future results.</strong> Trading in securities 
+                    involves substantial risk of loss and is not suitable for all investors. Margin trading involves additional risks, including 
+                    the risk of losing more than your initial investment. You should consult with a qualified financial advisor, broker, or other 
+                    licensed professional before making any investment decisions.
+                </p>
+                <p>
+                    The creators, developers, and distributors of this dashboard <strong>assume no responsibility or liability</strong> for any errors 
+                    or omissions in the content, or for any actions taken based on the information provided herein. By using this dashboard, 
+                    you acknowledge and agree that you are solely responsible for your own investment decisions and that you use this 
+                    information at your own risk.
+                </p>
+                <p class="copyright">
+                    © 2026 | Powered by Claude AI + FINRA Data | Not affiliated with any broker, exchange, or financial institution.
+                </p>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

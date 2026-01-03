@@ -15,7 +15,7 @@
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 60px 40px;
         }
@@ -83,6 +83,11 @@
             box-shadow: 0 20px 40px rgba(168, 85, 247, 0.2);
         }
         
+        .report-card.leverage:hover {
+            border-color: #ef4444;
+            box-shadow: 0 20px 40px rgba(239, 68, 68, 0.2);
+        }
+        
         .card-header {
             padding: 24px;
             border-bottom: 1px solid #2a2a35;
@@ -121,6 +126,12 @@
             background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%);
             color: #a855f7;
             border: 1px solid #a855f7;
+        }
+        
+        .tag-leverage {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(249, 115, 22, 0.2) 100%);
+            color: #ef4444;
+            border: 1px solid #ef4444;
         }
         
         .card-title {
@@ -172,6 +183,7 @@
         .metric-value.warning { color: #f7931a; }
         .metric-value.info { color: #3b82f6; }
         .metric-value.purple { color: #a855f7; }
+        .metric-value.red { color: #ef4444; }
         
         .card-footer {
             padding: 16px 24px;
@@ -192,6 +204,10 @@
         
         .report-card.options .view-report {
             color: #a855f7;
+        }
+        
+        .report-card.leverage .view-report {
+            color: #ef4444;
         }
         
         .view-report svg {
@@ -227,6 +243,30 @@
         .powered-by a {
             color: #8b5cf6;
             text-decoration: none;
+        }
+        
+        .legal-disclaimer {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #2a2a35;
+        }
+        
+        .legal-disclaimer p {
+            font-size: 11px;
+            color: #606070;
+            line-height: 1.8;
+            max-width: 900px;
+            margin: 0 auto 16px auto;
+        }
+        
+        .legal-disclaimer strong {
+            color: #808090;
+        }
+        
+        .copyright {
+            font-size: 10px;
+            color: #404050;
+            margin-top: 20px;
         }
         
         @media (max-width: 768px) {
@@ -268,6 +308,39 @@
                         <div class="metric">
                             <div class="metric-label">Est. Position</div>
                             <div class="metric-value warning">$4-5T</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <span class="view-report">
+                        View Full Report 
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </span>
+                    <span class="date">Jan 2, 2026</span>
+                </div>
+            </a>
+            
+            <a href="margin_debt_dashboard.html" class="report-card leverage">
+                <div class="card-header">
+                    <div class="card-tag tag-leverage">🚨 Leverage Alert</div>
+                    <h2 class="card-title">FINRA Margin Debt<br>All-Time High Warning</h2>
+                    <p class="card-subtitle">Market Leverage & Positioning Risk</p>
+                </div>
+                <div class="card-body">
+                    <p class="card-description">
+                        Margin debt at record $1.214 trillion (+36% YoY). Historical analysis of leverage 
+                        peaks and subsequent deleveraging scenarios. Forced liquidation risk assessment.
+                    </p>
+                    <div class="card-metrics">
+                        <div class="metric">
+                            <div class="metric-label">Margin Debt</div>
+                            <div class="metric-value red">$1.214T</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">YoY Change</div>
+                            <div class="metric-value red">+36.3%</div>
                         </div>
                     </div>
                 </div>
@@ -385,31 +458,33 @@
         <footer>
             <p class="footer-text">
                 These reports are for informational purposes only and do not constitute investment advice.<br>
-                Data sourced from Alpha Vantage API. Analysis generated January 2, 2026.
+                Data sourced from Alpha Vantage API & FINRA. Analysis generated January 2, 2026.
             </p>
-            <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #2a2a35;">
-                <p style="font-size: 11px; color: #606070; line-height: 1.8; max-width: 900px; margin: 0 auto;">
-                    <strong style="color: #808090;">⚠️ IMPORTANT LEGAL DISCLAIMER:</strong> This dashboard and all information contained herein is provided for 
+            
+            <div class="legal-disclaimer">
+                <p>
+                    <strong>⚠️ IMPORTANT LEGAL DISCLAIMER:</strong> This dashboard and all information contained herein is provided for 
                     <strong>informational and educational purposes only</strong> and does not constitute investment advice, financial advice, 
                     trading advice, or any other sort of advice. <strong>Nothing on this dashboard should be construed as a recommendation 
                     to buy, sell, or hold any security, cryptocurrency, derivative, or other financial instrument.</strong>
                 </p>
-                <p style="font-size: 11px; color: #606070; line-height: 1.8; max-width: 900px; margin: 16px auto 0 auto;">
+                <p>
                     The analysis presented is based on historical data, statistical models, and AI-generated interpretations which may contain 
                     errors, inaccuracies, or omissions. <strong>Past performance is not indicative of future results.</strong> Trading in securities, 
                     cryptocurrencies, foreign exchange, and derivatives involves substantial risk of loss and is not suitable for all investors. You should consult with a qualified 
                     financial advisor, broker, or other licensed professional before making any investment decisions.
                 </p>
-                <p style="font-size: 11px; color: #606070; line-height: 1.8; max-width: 900px; margin: 16px auto 0 auto;">
+                <p>
                     The creators, developers, and distributors of this dashboard <strong>assume no responsibility or liability</strong> for any errors 
                     or omissions in the content, or for any actions taken based on the information provided herein. By using this dashboard, 
                     you acknowledge and agree that you are solely responsible for your own investment decisions and that you use this 
                     information at your own risk.
                 </p>
-                <p style="font-size: 10px; color: #404050; margin-top: 20px;">
-                    © 2026 | Powered by Claude AI + Alpha Vantage | Not affiliated with any broker, exchange, or financial institution.
+                <p class="copyright">
+                    © 2026 | Powered by Claude AI + Alpha Vantage + FINRA | Not affiliated with any broker, exchange, or financial institution.
                 </p>
             </div>
+            
             <p class="powered-by" style="margin-top: 20px;">
                 Powered by <a href="https://www.anthropic.com" target="_blank">Claude AI</a> | 
                 Analysis that would cost $100,000+ from human experts, delivered in minutes.
