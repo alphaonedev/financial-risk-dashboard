@@ -140,9 +140,20 @@
             border: 1px solid #6366f1;
         }
         
+        .tag-hidden {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%);
+            color: #a855f7;
+            border: 1px solid #a855f7;
+        }
+        
         .report-card.macro:hover {
             border-color: #6366f1;
             box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2);
+        }
+        
+        .report-card.hidden:hover {
+            border-color: #a855f7;
+            box-shadow: 0 20px 40px rgba(168, 85, 247, 0.3);
         }
         
         .card-title {
@@ -196,6 +207,7 @@
         .metric-value.purple { color: #a855f7; }
         .metric-value.red { color: #ef4444; }
         .metric-value.indigo { color: #6366f1; }
+        .metric-value.pink { color: #ec4899; }
         
         .card-footer {
             padding: 16px 24px;
@@ -224,6 +236,10 @@
         
         .report-card.macro .view-report {
             color: #6366f1;
+        }
+        
+        .report-card.hidden .view-report {
+            color: #a855f7;
         }
         
         .view-report svg {
@@ -390,6 +406,39 @@
                         <div class="metric">
                             <div class="metric-label">2Y-10Y Spread</div>
                             <div class="metric-value warning">+71 bps</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <span class="view-report">
+                        View Full Report 
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </span>
+                    <span class="date">Jan 2, 2026</span>
+                </div>
+            </a>
+            
+            <a href="hidden_systemic_risk_dashboard.html" class="report-card hidden">
+                <div class="card-header">
+                    <div class="card-tag tag-hidden">🔮 AI Blind Spots</div>
+                    <h2 class="card-title">Hidden Systemic Risk<br>What Humans Are Missing</h2>
+                    <p class="card-subtitle">Passive Flows • Shadow Credit • CRE • Treasury • Geopolitical</p>
+                </div>
+                <div class="card-body">
+                    <p class="card-description">
+                        AI-identified under-monitored risks: passive flow fragility, private credit opacity, 
+                        CRE maturity wall, Treasury liquidity, and geopolitical correlation bombs.
+                    </p>
+                    <div class="card-metrics">
+                        <div class="metric">
+                            <div class="metric-label">Hidden Risk Score</div>
+                            <div class="metric-value pink">75/100</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Passive Share</div>
+                            <div class="metric-value danger">54%</div>
                         </div>
                     </div>
                 </div>

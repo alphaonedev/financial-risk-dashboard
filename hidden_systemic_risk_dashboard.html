@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hidden Systemic Risk Dashboard | AI-Identified Blind Spots</title>
+    <style>
+        :root {
+            --bg-primary: #030508;
+            --bg-secondary: #080b10;
+            --bg-tertiary: #0d1117;
+            --bg-card: #111820;
+            --accent-red: #ef4444;
+            --accent-orange: #f97316;
+            --accent-amber: #f59e0b;
+            --accent-yellow: #eab308;
+            --accent-green: #22c55e;
+            --accent-emerald: #10b981;
+            --accent-cyan: #06b6d4;
+            --accent-blue: #3b82f6;
+            --accent-indigo: #6366f1;
+            --accent-purple: #8b5cf6;
+            --accent-pink: #ec4899;
+            --accent-rose: #f43f5e;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: #1e293b;
+            --gradient-danger: linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #f97316 100%);
+            --gradient-hidden: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #ec4899 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        .bg-grid {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(ellipse at top left, rgba(124, 58, 237, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom right, rgba(236, 72, 153, 0.06) 0%, transparent 50%),
+                linear-gradient(rgba(124, 58, 237, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(124, 58, 237, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding: 48px 24px;
+            background: linear-gradient(180deg, var(--bg-secondary) 0%, transparent 100%);
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 500px; height: 3px;
+            background: var(--gradient-hidden);
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            background: var(--gradient-hidden);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            border-radius: 24px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.4); }
+            50% { box-shadow: 0 0 20px 10px rgba(168, 85, 247, 0); }
+        }
+
+        .header h1 {
+            font-size: clamp(26px, 4vw, 44px);
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #f8fafc 0%, #a855f7 40%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header h2 {
+            font-size: 16px;
+            color: var(--text-secondary);
+            font-weight: 400;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* AI Callout */
+        .ai-callout {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.15) 0%, rgba(236, 72, 153, 0.15) 100%);
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            border-radius: 16px;
+            padding: 24px 32px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        .ai-icon {
+            font-size: 40px;
+            line-height: 1;
+        }
+
+        .ai-content h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--accent-purple);
+        }
+
+        .ai-content p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* Composite Threat Level */
+        .threat-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 32px;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .threat-gauge {
+            text-align: center;
+        }
+
+        .threat-circle {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 16px;
+            position: relative;
+        }
+
+        .threat-circle svg {
+            transform: rotate(-90deg);
+        }
+
+        .threat-bg {
+            fill: none;
+            stroke: var(--bg-tertiary);
+            stroke-width: 16;
+        }
+
+        .threat-fill {
+            fill: none;
+            stroke-width: 16;
+            stroke-linecap: round;
+            stroke: url(#threatGradient);
+        }
+
+        .threat-center {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .threat-score {
+            font-size: 52px;
+            font-weight: 800;
+            background: var(--gradient-hidden);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .threat-max {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .threat-label {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent-purple);
+        }
+
+        .threat-factors {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+        }
+
+        .threat-factor {
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+            padding: 16px 12px;
+            text-align: center;
+            border-left: 3px solid;
+        }
+
+        .threat-factor.critical { border-color: var(--accent-red); }
+        .threat-factor.high { border-color: var(--accent-orange); }
+        .threat-factor.elevated { border-color: var(--accent-amber); }
+
+        .factor-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .factor-name {
+            font-size: 10px;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+
+        .factor-score {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .factor-score.critical { color: var(--accent-red); }
+        .factor-score.high { color: var(--accent-orange); }
+        .factor-score.elevated { color: var(--accent-amber); }
+
+        /* Risk Section */
+        .risk-section {
+            margin-bottom: 40px;
+        }
+
+        .risk-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .risk-number {
+            width: 48px; height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-hidden);
+            border-radius: 12px;
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .risk-title-group {
+            flex: 1;
+        }
+
+        .risk-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .risk-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .risk-badge {
+            font-size: 11px;
+            padding: 6px 16px;
+            border-radius: 6px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .badge-critical { background: rgba(239,68,68,0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
+        .badge-high { background: rgba(249,115,22,0.2); color: var(--accent-orange); border: 1px solid var(--accent-orange); }
+        .badge-elevated { background: rgba(245,158,11,0.2); color: var(--accent-amber); border: 1px solid var(--accent-amber); }
+
+        /* Risk Content Grid */
+        .risk-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .risk-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .risk-card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .risk-card-title {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .risk-card-body {
+            padding: 20px;
+        }
+
+        /* Metrics Grid */
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .metric-box {
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: 9px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .metric-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .metric-value.critical { color: var(--accent-red); }
+        .metric-value.high { color: var(--accent-orange); }
+        .metric-value.elevated { color: var(--accent-amber); }
+        .metric-value.moderate { color: var(--accent-yellow); }
+        .metric-value.neutral { color: var(--accent-cyan); }
+
+        /* Chart Containers */
+        .chart-container {
+            height: 160px;
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        .chart-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Interpretation Box */
+        .interpretation {
+            font-size: 12px;
+            color: var(--text-secondary);
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            line-height: 1.7;
+            border-left: 3px solid var(--accent-purple);
+        }
+
+        .interpretation strong {
+            color: var(--accent-pink);
+        }
+
+        /* Data Table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .data-table th {
+            background: var(--bg-tertiary);
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 9px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .data-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table tr:hover {
+            background: var(--bg-secondary);
+        }
+
+        /* Progress Bars */
+        .progress-item {
+            margin-bottom: 12px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 11px;
+        }
+
+        .progress-label {
+            color: var(--text-secondary);
+        }
+
+        .progress-value {
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-fill.critical { background: linear-gradient(90deg, var(--accent-red), var(--accent-orange)); }
+        .progress-fill.high { background: linear-gradient(90deg, var(--accent-orange), var(--accent-amber)); }
+        .progress-fill.elevated { background: linear-gradient(90deg, var(--accent-amber), var(--accent-yellow)); }
+
+        /* Why Humans Miss It Box */
+        .blind-spot {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .blind-spot-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--accent-red);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .blind-spot p {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Trigger Scenarios */
+        .trigger-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .trigger-card {
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .trigger-card.severe {
+            border: 1px solid var(--accent-red);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .trigger-label {
+            font-size: 9px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .trigger-value {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .trigger-desc {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Full Width Card */
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* AI Synthesis Panel */
+        .synthesis-panel {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 32px;
+        }
+
+        .synthesis-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--accent-purple);
+        }
+
+        .synthesis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .synthesis-item h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--accent-pink);
+        }
+
+        .synthesis-item p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 32px;
+            border-top: 1px solid var(--border-color);
+            margin-top: 40px;
+        }
+
+        .footer-title {
+            font-size: 12px;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .footer-disclaimer {
+            font-size: 11px;
+            color: var(--text-muted);
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .legal-disclaimer {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .legal-disclaimer p {
+            font-size: 11px;
+            color: var(--text-muted);
+            line-height: 1.8;
+            max-width: 900px;
+            margin: 0 auto 16px auto;
+        }
+
+        .legal-disclaimer strong {
+            color: var(--text-secondary);
+        }
+
+        .copyright {
+            font-size: 10px;
+            color: #475569;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 1200px) {
+            .threat-panel {
+                grid-template-columns: 1fr;
+            }
+            .threat-factors {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .risk-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .threat-factors {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .trigger-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-badge">🔮 AI-Identified Blind Spots</div>
+            <h1>HIDDEN SYSTEMIC RISK DASHBOARD</h1>
+            <h2>Under-Monitored Risks That Could Trigger Market Dislocation — What Humans Are Missing</h2>
+        </header>
+
+        <!-- AI Callout -->
+        <div class="ai-callout">
+            <div class="ai-icon">🧠</div>
+            <div class="ai-content">
+                <h3>Why This Dashboard Exists</h3>
+                <p>
+                    Traditional risk dashboards focus on observable metrics: VIX, credit spreads, yield curves. But market crashes often originate from 
+                    <strong>risks that aren't being measured</strong> — hidden leverage, structural fragility, and interconnections that only become visible during stress. 
+                    This dashboard tracks 5 systemic risks that AI pattern recognition identifies as dangerously under-monitored by human analysts and risk models.
+                </p>
+            </div>
+        </div>
+
+        <!-- Composite Threat Level -->
+        <div class="threat-panel">
+            <div class="threat-gauge">
+                <div class="threat-circle">
+                    <svg width="200" height="200" viewBox="0 0 200 200">
+                        <defs>
+                            <linearGradient id="threatGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#7c3aed"/>
+                                <stop offset="50%" stop-color="#a855f7"/>
+                                <stop offset="100%" stop-color="#ec4899"/>
+                            </linearGradient>
+                        </defs>
+                        <circle class="threat-bg" cx="100" cy="100" r="80"></circle>
+                        <circle class="threat-fill" cx="100" cy="100" r="80" 
+                                stroke-dasharray="502"
+                                stroke-dashoffset="126"></circle>
+                    </svg>
+                    <div class="threat-center">
+                        <div class="threat-score">75</div>
+                        <div class="threat-max">/ 100</div>
+                    </div>
+                </div>
+                <div class="threat-label">⚠️ Hidden Risk Elevated</div>
+            </div>
+            <div class="threat-factors">
+                <div class="threat-factor critical">
+                    <div class="factor-icon">📊</div>
+                    <div class="factor-name">Passive Flow Fragility</div>
+                    <div class="factor-score critical">82</div>
+                </div>
+                <div class="threat-factor high">
+                    <div class="factor-icon">🏦</div>
+                    <div class="factor-name">Shadow Credit Opacity</div>
+                    <div class="factor-score high">78</div>
+                </div>
+                <div class="threat-factor high">
+                    <div class="factor-icon">🏢</div>
+                    <div class="factor-name">CRE Maturity Wall</div>
+                    <div class="factor-score high">74</div>
+                </div>
+                <div class="threat-factor elevated">
+                    <div class="factor-icon">📈</div>
+                    <div class="factor-name">Treasury Liquidity</div>
+                    <div class="factor-score elevated">68</div>
+                </div>
+                <div class="threat-factor high">
+                    <div class="factor-icon">🌐</div>
+                    <div class="factor-name">Geopolitical Correlation</div>
+                    <div class="factor-score high">72</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk 1: Passive Flow Concentration -->
+        <section class="risk-section">
+            <div class="risk-header">
+                <div class="risk-number">1</div>
+                <div class="risk-title-group">
+                    <h2 class="risk-title">Passive Flow Concentration & Reflexivity Risk</h2>
+                    <p class="risk-subtitle">The mechanical flows that amplify both rallies and crashes</p>
+                </div>
+                <span class="risk-badge badge-critical">CRITICAL</span>
+            </div>
+
+            <div class="risk-grid">
+                <div class="risk-card">
+                    <div class="risk-card-header">
+                        <span class="risk-card-title">Market Structure Fragility</span>
+                    </div>
+                    <div class="risk-card-body">
+                        <div class="metrics-row">
+                            <div class="metric-box">
+                                <div class="metric-label">Passive Share</div>
+                                <div class="metric-value critical">54%</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">Top 10 Stock Weight</div>
+                                <div class="metric-value critical">35.8%</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">ETF Daily Volume</div>
+                                <div class="metric-value high">31%</div>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <svg class="chart-svg" viewBox="0 0 400 140" preserveAspectRatio="none">
+                                <!-- Background bands -->
+                                <rect x="0" y="0" width="400" height="35" fill="rgba(239,68,68,0.1)"/>
+                                <text x="5" y="22" fill="#ef4444" font-size="8">Danger Zone (>50%)</text>
+                                
+                                <!-- Passive share line -->
+                                <path d="M20,120 L60,115 L100,108 L140,100 L180,90 L220,78 L260,65 L300,55 L340,45 L380,32" 
+                                      fill="none" stroke="#a855f7" stroke-width="3"/>
+                                
+                                <!-- Current point -->
+                                <circle cx="380" cy="32" r="6" fill="#ef4444"/>
+                                <text x="345" y="25" fill="#ef4444" font-size="10" font-weight="bold">54%</text>
+                                
+                                <!-- Historical markers -->
+                                <circle cx="100" cy="108" r="4" fill="#64748b"/>
+                                <text x="85" y="125" fill="#64748b" font-size="8">2010: 21%</text>
+                                
+                                <circle cx="220" cy="78" r="4" fill="#64748b"/>
+                                <text x="205" y="95" fill="#64748b" font-size="8">2018: 37%</text>
+                            </svg>
+                        </div>
+                        <div class="interpretation">
+                            <strong>⚠️ Reflexivity Trap:</strong> Passive funds now control 54% of US equity assets, up from 21% in 2010. 
+                            These flows are price-insensitive — they buy/sell based on fund flows, not fundamentals. 
+                            The same stocks receive inflows regardless of valuation, creating a self-reinforcing bubble.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="risk-card">
+                    <div class="risk-card-header">
+                        <span class="risk-card-title">Concentration Risk: Top Holdings</span>
+                    </div>
+                    <div class="risk-card-body">
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">Top 10 Stocks (S&P 500 Weight)</span>
+                                <span class="progress-value" style="color: var(--accent-red);">35.8%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill critical" style="width: 89%;"></div>
+                            </div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">Mag 7 Weight Alone</span>
+                                <span class="progress-value" style="color: var(--accent-red);">31.2%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill critical" style="width: 78%;"></div>
+                            </div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">ETF Single-Stock Gamma</span>
+                                <span class="progress-value" style="color: var(--accent-orange);">$18.4B</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill high" style="width: 72%;"></div>
+                            </div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">Target-Date Fund AUM</span>
+                                <span class="progress-value" style="color: var(--accent-amber);">$3.8T</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill elevated" style="width: 65%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="blind-spot">
+                            <div class="blind-spot-title">🙈 Why Humans Miss This</div>
+                            <p>
+                                Everyone celebrates passive investing as "democratization." But the same mechanism that created 
+                                steady inflows will create relentless outflows when boomers retire and target-date funds mechanically 
+                                shift to bonds. There's no fundamental buyer waiting — it's flows all the way down.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="risk-card full-width">
+                    <div class="risk-card-header">
+                        <span class="risk-card-title">Crash Scenario: Passive Unwind Mechanics</span>
+                    </div>
+                    <div class="risk-card-body">
+                        <div class="trigger-grid">
+                            <div class="trigger-card">
+                                <div class="trigger-label">Trigger Event</div>
+                                <div class="trigger-value" style="color: var(--accent-orange);">-5%</div>
+                                <div class="trigger-desc">Initial selloff from any catalyst</div>
+                            </div>
+                            <div class="trigger-card">
+                                <div class="trigger-label">ETF Redemptions</div>
+                                <div class="trigger-value" style="color: var(--accent-orange);">$85B</div>
+                                <div class="trigger-desc">Forced selling to meet redemptions</div>
+                            </div>
+                            <div class="trigger-card">
+                                <div class="trigger-label">Market Maker Delta</div>
+                                <div class="trigger-value" style="color: var(--accent-amber);">-$42B</div>
+                                <div class="trigger-desc">Gamma hedging amplifies move</div>
+                            </div>
+                            <div class="trigger-card">
+                                <div class="trigger-label">Systematic Unwind</div>
+                                <div class="trigger-value" style="color: var(--accent-red);">-12%</div>
+                                <div class="trigger-desc">Vol-control, CTA selling</div>
+                            </div>
+                            <div class="trigger-card">
+                                <div class="trigger-label">Liquidity Gap</div>
+                                <div class="trigger-value" style="color: var(--accent-red);">-40%</div>
+                                <div class="trigger-desc">Bid-ask spreads blow out</div>
+                            </div>
+                            <div class="trigger-card severe">
+                                <div class="trigger-label">Total Drawdown</div>
+                                <div class="trigger-value" style="color: var(--accent-red);">-25%</div>
+                                <div class="trigger-desc">5 days, mechanical cascade</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Risk 2: Private Credit / Shadow Banking -->
+        <section class="risk-section">
+            <div class="risk-header">
+                <div class="risk-number">2</div>
+                <div class="risk-title-group">
+                    <h2 class="risk-title">Private Credit & Shadow Banking Opacity</h2>
+                    <p class="risk-subtitle">The $1.7 trillion market with no daily pricing or transparency</p>
+                </div>
+                <span class="risk-badge badge-high">HIGH RISK</span>
+            </div>
+
+            <div class="risk-grid">
+                <div class="risk-card">
+                    <div class="risk-card-header">
+                        <span class="risk-card-title">Private Credit Market Size</span>
+                    </div>
+                    <div class="risk-card-body">
+                        <div class="metrics-row">
+                            <div class="metric-box">
+                                <div class="metric-label">Private Credit AUM</div>
+                                <div class="metric-value high">$1.7T</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">Growth Since 2020</div>
+                                <div class="metric-value high">+68%</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">Avg Leverage</div>
+                                <div class="metric-value critical">6.2x</div>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <svg class="chart-svg" viewBox="0 0 400 140" preserveAspectRatio="none">
+                                <!-- Growth bars -->
+                                <rect x="30" y="110" width="45" height="25" fill="#3b82f6" rx="3"/>
+                                <text x="52" y="130" fill="#94a3b8" font-size="8" text-anchor="middle">$0.5T</text>
+                                <text x="52" y="140" fill="#64748b" font-size="7" text-anchor="middle">2015</text>
+                                
+                                <rect x="95" y="95" width="45" height="40" fill="#6366f1" rx="3"/>
+                                <text x="117" y="130" fill="#94a3b8" font-size="8" text-anchor="middle">$0.7T</text>
+                                <text x="117" y="140" fill="#64748b" font-size="7" text-anchor="middle">2018</text>
+                                
+                                <rect x="160" y="75" width="45" height="60" fill="#8b5cf6" rx="3"/>
+                                <text x="182" y="130" fill="#94a3b8" font-size="8" text-anchor="middle">$1.0T</text>
+                                <text x="182" y="140" fill="#64748b" font-size="7" text-anchor="middle">2020</text>
+                                
+                                <rect x="225" y="50" width="45" height="85" fill="#a855f7" rx="3"/>
+                                <text x="247" y="130" fill="#94a3b8" font-size="8" text-anchor="middle">$1.3T</text>
+                                <text x="247" y="140" fill="#64748b" font-size="7" text-anchor="middle">2022</text>
+                                
+                                <rect x="290" y="25" width="45" height="110" fill="#ec4899" rx="3"/>
+                                <text x="312" y="130" fill="#94a3b8" font-size="8" text-anchor="middle">$1.5T</text>
+                                <text x="312" y="140" fill="#64748b" font-size="7" text-anchor="middle">2024</text>
+                                
+                                <rect x="355" y="10" width="45" height="125" fill="#f43f5e" rx="3"/>
+                                <text x="377" y="130" fill="#f8fafc" font-size="9" text-anchor="middle" font-weight="bold">$1.7T</text>
+                                <text x="377" y="140" fill="#64748b" font-size="7" text-anchor="middle">Now</text>
+                            </svg>
+                        </div>
+                        <div class="interpretation">
+                            <strong>🏦 Hidden Leverage:</strong> Private credit has grown 3x since 2015, absorbing companies 
+                            too risky for public debt markets. These loans are marked-to-model, not marked-to-market — 
+                            true distress is invisible until borrowers default.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="risk-card">
+                    <div class="risk-card-header">
+                        <span class="risk-card-title">Opacity Indicators</span>
+                    </div>
+                    <div class="risk-card-body">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Metric</th>
+                                    <th>Public HY</th>
+                                    <th>Private Credit</th>
+                                    <th>Gap</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Pricing Frequency</td>
+                                    <td style="color: var(--accent-green);">Real-time</td>
+                                    <td style="color: var(--accent-red);">Quarterly</td>
+                                    <td style="color: var(--accent-red);">90 days</td>
+                                </tr>
+                                <tr>
+                                    <td>Reported Default Rate</td>
+                                    <td>3.2%</td>
+                                    <td style="color: var(--accent-orange);">1.8%*</td>
+                                    <td style="color: var(--accent-amber);">?</td>
+                                </tr>
+                                <tr>
+                                    <td>Leverage (Debt/EBITDA)</td>
+                                    <td>4.8x</td>
+                                    <td style="color: var(--accent-red);">6.2x</td>
+                                    <td style="color: var(--accent-red);">+29%</td>
+                                </tr>
+                                <tr>
+                                    <td>Covenant-Lite Share</td>
+                                    <td>78%</td>
+                                    <td style="color: var(--accent-red);">92%</td>
+                                    <td style="color: var(--accent-orange);">+18%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p style="font-size: 10px; color: var(--text-muted); margin-top: 8px;">*Self-reported; likely understated due to amend-and-extend practices</p>
+                        
+                        <div class="blind-spot">
+                            <div class="blind-spot-title">🙈 Why Humans Miss This</div>
+                            <p>
+                                It's not in Bloomberg. No ticker, no daily P&L, no mark-to-market. By the time defaults 
+                                are reported, the losses have already crystallized. SVB showed how "invisible" runs can 
+                                suddenly become visible — same risk exists across $1.7T of private credit.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Risk 3: CRE Maturity Wall -->
+        <section class="risk-section">
+            <div class="risk-header">
+                <div class="risk-number">3</div>
+                <div class="risk-title-group">
+                    <h2 class="risk-title">CRE Maturity Wall & Regional Bank Nexus</h2>
+                    <p class="risk-subtitle">$1.5 trillion in loans that can't refinance at current rates</p>
+                </div>
+                <span class="risk-badge badge-high">HIGH RISK</span>
+            </div>
+
+            <div class="risk-grid">
+                <div class="risk-card">
+                    <div class="risk-card-header">
+                        <span class="risk-card-title">Commercial Real Estate Stress</span>
+                    </div>
+                    <div class="risk-card-body">
+                        <div class="metrics-row">
+                            <div class="metric-box">
+                                <div class="metric-label">Maturing 2024-2026</div>
+                                <div class="metric-value high">$1.5T</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">Office Vacancy</div>
+                                <div class="metric-value critical">22.4%</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">Value Decline</div>
+                                <div class="metric-value high">-35%</div>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <svg class="chart-svg" viewBox="0 0 400 140" preserveAspectRatio="none">
+                                <!-- Maturity wall bars -->
+                                <rect x="40" y="70" width="60" height="60" fill="#f97316" rx="4"/>
+                                <text x="70" y="95" fill="#fff" font-size="11" text-anchor="middle" font-weight="bold">$420B</text>
+                                <text x="70" y="140" fill="#64748b" font-size="9" text-anchor="middle">2024</text>
+                                
+                                <rect x="120" y="40" width="60" height="90" fill="#ef4444" rx="4"/>
+                                <text x="150" y="70" fill="#fff" font-size="11" text-anchor="middle" font-weight="bold">$580B</text>
+                                <text x="150" y="140" fill="#64748b" font-size="9" text-anchor="middle">2025</text>
+                                
+                                <rect x="200" y="55" width="60" height="75" fill="#f97316" rx="4"/>
+                                <text x="230" y="80" fill="#fff" font-size="11" text-anchor="middle" font-weight="bold">$490B</text>
+                                <text x="230" y="140" fill="#64748b" font-size="9" text-anchor="middle">2026</text>
+                                
+                                <rect x="280" y="85" width="60" height="45" fill="#f59e0b" rx="4"/>
+                                <text x="310" y="110" fill="#fff" font-size="10" text-anchor="middle">$320B</text>
+                                <text x="310" y="140" fill="#64748b" font-size="9" text-anchor="middle">2027</text>
+                                
+                                <!-- Problem annotation -->
+                                <line x1="150" y1="25" x2="150" y2="35" stroke="#ef4444" stroke-width="2"/>
+                                <text x="150" y="18" fill="#ef4444" font-size="9" text-anchor="middle" font-weight="bold">Peak Risk</text>
+                            </svg>
+                        </div>
+                        <div class="interpretation">
+                            <strong>🏢 The Math Doesn't Work:</strong> Loans originated at 3% rates must refinance at 7%+. 
+                            Property values down 35%, debt service doubled. Many borrowers will simply hand back the keys.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="risk-card">
+                    <div class="risk-card-header">
+                        <span class="risk-card-title">Regional Bank Exposure</span>
+                    </div>
+                    <div class="risk-card-body">
+                        <div class="metrics-row">
+                            <div class="metric-box">
+                                <div class="metric-label">Regional Bank CRE</div>
+                                <div class="metric-value critical">~70%</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">CRE/Assets Ratio</div>
+                                <div class="metric-value high">28%</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">Unrealized Losses</div>
+                                <div class="metric-value critical">$650B+</div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin: 16px 0;">
+                            <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">Most Exposed Regional Banks (CRE/Total Assets)</div>
+                            <div class="progress-item">
+                                <div class="progress-header">
+                                    <span class="progress-label">New York Community Bancorp</span>
+                                    <span class="progress-value" style="color: var(--accent-red);">62%</span>
+                                </div>
+                                <div class="progress-bar"><div class="progress-fill critical" style="width: 62%;"></div></div>
+                            </div>
+                            <div class="progress-item">
+                                <div class="progress-header">
+                                    <span class="progress-label">Valley National</span>
+                                    <span class="progress-value" style="color: var(--accent-red);">54%</span>
+                                </div>
+                                <div class="progress-bar"><div class="progress-fill critical" style="width: 54%;"></div></div>
+                            </div>
+                            <div class="progress-item">
+                                <div class="progress-header">
+                                    <span class="progress-label">OceanFirst Financial</span>
+                                    <span class="progress-value" style="color: var(--accent-orange);">48%</span>
+                                </div>
+                                <div class="progress-bar"><div class="progress-fill high" style="width: 48%;"></div></div>
+                            </div>
+                        </div>
+
+                        <div class="blind-spot">
+                            <div class="blind-spot-title">🙈 Why Humans Miss This</div>
+                            <p>
+                                "Extend and pretend" masks true stress. Banks aren't foreclosing, they're modifying — 
+                                kicking the can. But eventually loans mature. The $580B maturing in 2025 will force 
+                                recognition of losses that have been hidden for 2+ years.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Risk 4: Treasury Market Liquidity -->
+        <section class="risk-section">
+            <div class="risk-header">
+                <div class="risk-number">4</div>
+                <div class="risk-title-group">
+                    <h2 class="risk-title">Treasury Market Liquidity & Basis Trade Fragility</h2>
+                    <p class="risk-subtitle">When the "safest" asset becomes the source of contagion</p>
+                </div>
+                <span class="risk-badge badge-elevated">ELEVATED</span>
+            </div>
+
+            <div class="risk-grid">
+                <div class="risk-card">
+                    <div class="risk-card-header">
+                        <span class="risk-card-title">Treasury Market Stress Indicators</span>
+                    </div>
+                    <div class="risk-card-body">
+                        <div class="metrics-row">
+                            <div class="metric-box">
+                                <div class="metric-label">Basis Trade Size</div>
+                                <div class="metric-value high">$1.0T+</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">Avg Leverage</div>
+                                <div class="metric-value critical">50-100x</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">MOVE Index</div>
+                                <div class="metric-value elevated">98</div>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <svg class="chart-svg" viewBox="0 0 400 140" preserveAspectRatio="none">
+                                <!-- Market depth visualization -->
+                                <text x="10" y="15" fill="#64748b" font-size="9">Treasury Market Depth (Bid-Ask)</text>
+                                
+                                <!-- Depth line (lower = worse) -->
+                                <path d="M20,40 L60,42 L100,48 L140,55 L180,50 L220,65 L260,70 L300,75 L340,72 L380,78" 
+                                      fill="none" stroke="#f59e0b" stroke-width="2.5"/>
+                                
+                                <!-- March 2020 spike -->
+                                <path d="M220,65 L222,120 L224,65" fill="none" stroke="#ef4444" stroke-width="2"/>
+                                <text x="222" y="135" fill="#ef4444" font-size="8" text-anchor="middle">Mar 2020</text>
+                                
+                                <!-- Current point -->
+                                <circle cx="380" cy="78" r="5" fill="#f59e0b"/>
+                                
+                                <!-- Dealer capacity line -->
+                                <line x1="20" y1="100" x2="380" y2="100" stroke="#64748b" stroke-width="1" stroke-dasharray="4"/>
+                                <text x="300" y="112" fill="#64748b" font-size="8">Dealer Capacity (Constrained)</text>
+                                
+                                <!-- Annotations -->
+                                <text x="100" y="65" fill="#94a3b8" font-size="8">Pre-COVID Normal</text>
+                                <text x="340" y="65" fill="#f59e0b" font-size="8">Now: Degraded</text>
+                            </svg>
+                        </div>
+                        <div class="interpretation">
+                            <strong>📈 Basis Trade Risk:</strong> Hedge funds hold $1T+ in leveraged Treasury basis trades (50-100x). 
+                            When volatility spikes, they must unwind — creating forced selling of "safe haven" assets exactly 
+                            when markets need them most. March 2020 required $1T+ Fed buying to restore function.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="risk-card">
+                    <div class="risk-card-header">
+                        <span class="risk-card-title">Market Structure Vulnerabilities</span>
+                    </div>
+                    <div class="risk-card-body">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Factor</th>
+                                    <th>Pre-GFC</th>
+                                    <th>Current</th>
+                                    <th>Risk</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Dealer Balance Sheet</td>
+                                    <td>$250B</td>
+                                    <td style="color: var(--accent-amber);">$180B</td>
+                                    <td style="color: var(--accent-orange);">↓ 28%</td>
+                                </tr>
+                                <tr>
+                                    <td>Treasury Outstanding</td>
+                                    <td>$5T</td>
+                                    <td style="color: var(--accent-red);">$34T</td>
+                                    <td style="color: var(--accent-red);">↑ 580%</td>
+                                </tr>
+                                <tr>
+                                    <td>Dealer Ratio*</td>
+                                    <td>5.0%</td>
+                                    <td style="color: var(--accent-red);">0.5%</td>
+                                    <td style="color: var(--accent-red);">↓ 90%</td>
+                                </tr>
+                                <tr>
+                                    <td>Basis Trade Size</td>
+                                    <td>~$100B</td>
+                                    <td style="color: var(--accent-red);">$1T+</td>
+                                    <td style="color: var(--accent-red);">↑ 900%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p style="font-size: 10px; color: var(--text-muted); margin-top: 8px;">*Dealer balance sheet / Treasuries outstanding</p>
+
+                        <div class="blind-spot">
+                            <div class="blind-spot-title">🙈 Why Humans Miss This</div>
+                            <p>
+                                Treasuries are "safe" — that's the whole point. People don't think about the market 
+                                structure that makes them function. When everyone rushes to sell risk assets and buy 
+                                Treasuries, there may not be enough market depth to handle the flow. The "flight to 
+                                safety" becomes its own source of contagion.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Risk 5: Geopolitical Correlation -->
+        <section class="risk-section">
+            <div class="risk-header">
+                <div class="risk-number">5</div>
+                <div class="risk-title-group">
+                    <h2 class="risk-title">Geopolitical Supply Chain "Correlation Bomb"</h2>
+                    <p class="risk-subtitle">Independent risks that could cascade into correlated shocks</p>
+                </div>
+                <span class="risk-badge badge-high">HIGH RISK</span>
+            </div>
+
+            <div class="risk-grid">
+                <div class="risk-card">
+                    <div class="risk-card-header">
+                        <span class="risk-card-title">Taiwan Semiconductor Dependency</span>
+                    </div>
+                    <div class="risk-card-body">
+                        <div class="metrics-row">
+                            <div class="metric-box">
+                                <div class="metric-label">TSMC Market Share</div>
+                                <div class="metric-value critical">92%</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">Advanced Chips</div>
+                                <div class="metric-value critical">100%</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">Rebuild Time</div>
+                                <div class="metric-value high">5+ Years</div>
+                            </div>
+                        </div>
+                        <div style="padding: 16px; background: var(--bg-tertiary); border-radius: 8px; margin: 16px 0;">
+                            <div style="text-align: center; margin-bottom: 12px;">
+                                <span style="font-size: 48px;">🇹🇼</span>
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-secondary); text-align: center; line-height: 1.7;">
+                                Taiwan produces <strong style="color: var(--accent-red);">92%</strong> of the world's most advanced semiconductors.<br>
+                                Any disruption = <strong style="color: var(--accent-red);">immediate halt</strong> to global tech production.<br>
+                                No iPhone. No data centers. No AI training. No modern cars.
+                            </div>
+                        </div>
+                        <div class="interpretation">
+                            <strong>🌐 Single Point of Failure:</strong> The global economy runs on TSMC. Markets price this 
+                            as "it won't happen" — but that's what they said about pandemics, European land wars, and 
+                            container ship blockages. The risk is severely underpriced.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="risk-card">
+                    <div class="risk-card-header">
+                        <span class="risk-card-title">Correlation Risk: Cascading Scenarios</span>
+                    </div>
+                    <div class="risk-card-body">
+                        <div style="display: grid; gap: 12px;">
+                            <div style="padding: 14px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px;">
+                                <div style="font-size: 12px; font-weight: 600; color: var(--accent-red); margin-bottom: 6px;">
+                                    🔴 Taiwan Strait Crisis
+                                </div>
+                                <div style="font-size: 11px; color: var(--text-secondary);">
+                                    Chip shortage → Tech crash → Supply chain halt → Global recession<br>
+                                    <strong>Impact:</strong> S&P -40%, GDP -8%, 18-month recovery minimum
+                                </div>
+                            </div>
+                            <div style="padding: 14px; background: rgba(249,115,22,0.1); border: 1px solid rgba(249,115,22,0.3); border-radius: 8px;">
+                                <div style="font-size: 12px; font-weight: 600; color: var(--accent-orange); margin-bottom: 6px;">
+                                    🟠 Middle East Escalation
+                                </div>
+                                <div style="font-size: 11px; color: var(--text-secondary);">
+                                    Oil to $150+ → Inflation spike → Fed can't cut → Stagflation<br>
+                                    <strong>Impact:</strong> S&P -25%, CPI +4%, earnings -30%
+                                </div>
+                            </div>
+                            <div style="padding: 14px; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); border-radius: 8px;">
+                                <div style="font-size: 12px; font-weight: 600; color: var(--accent-amber); margin-bottom: 6px;">
+                                    🟡 China Economic Collapse
+                                </div>
+                                <div style="font-size: 11px; color: var(--text-secondary);">
+                                    Yuan devaluation → Dollar spike → EM crisis → Commodity crash<br>
+                                    <strong>Impact:</strong> S&P -20%, EM -40%, commodities -30%
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="blind-spot">
+                            <div class="blind-spot-title">🙈 Why Humans Miss This</div>
+                            <p>
+                                Markets price each geopolitical risk independently. But they're correlated — Taiwan crisis 
+                                triggers China response, oil disruption, dollar spike, and EM contagion simultaneously. 
+                                Risk models assume independence; reality delivers correlation.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Synthesis Panel -->
+        <section class="synthesis-panel">
+            <h3 class="synthesis-title">🧠 AI Risk Synthesis: The Hidden Interconnections</h3>
+            <div class="synthesis-grid">
+                <div class="synthesis-item">
+                    <h4>Fragility Convergence</h4>
+                    <p>
+                        All 5 risks share a common feature: they're invisible until they're not. Passive flows, private credit, 
+                        CRE marks, Treasury liquidity, and geopolitical tail risks all appear "fine" until stress reveals 
+                        the hidden fragility. Traditional risk dashboards miss them because they're not in the daily data.
+                    </p>
+                </div>
+                <div class="synthesis-item">
+                    <h4>The Transmission Mechanism</h4>
+                    <p>
+                        A shock in any one area can cascade: Geopolitical event → Treasury basis trade unwind → 60/40 failure → 
+                        Passive flow reversal → Private credit discovery → Regional bank stress → Credit contraction. 
+                        The interconnections are the real risk — not any single factor.
+                    </p>
+                </div>
+                <div class="synthesis-item">
+                    <h4>Why Standard Models Fail</h4>
+                    <p>
+                        VaR models use historical correlations. But in crises, correlations spike to 1. The 2020 bond/equity 
+                        correlation breakdown, the 2022 crypto/equity correlation, the SVB/regional bank contagion — 
+                        these weren't in the models until after they happened.
+                    </p>
+                </div>
+                <div class="synthesis-item">
+                    <h4>Actionable Signal</h4>
+                    <p>
+                        Current composite hidden risk score of 75/100 suggests elevated vulnerability to left-tail events. 
+                        The combination of record passive concentration, opaque private credit, CRE maturity wall, 
+                        Treasury fragility, and geopolitical correlation creates conditions for a non-linear market event.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p class="footer-title">Hidden Systemic Risk Dashboard | AI-Identified Blind Spots</p>
+            <p class="footer-disclaimer">
+                This dashboard tracks under-monitored systemic risks identified through AI pattern recognition. 
+                These factors are deliberately excluded from or underweighted in traditional risk models. 
+                Analysis generated: January 2, 2026.
+            </p>
+            
+            <div class="legal-disclaimer">
+                <p>
+                    <strong>⚠️ IMPORTANT LEGAL DISCLAIMER:</strong> This dashboard and all information contained herein is provided for 
+                    <strong>informational and educational purposes only</strong> and does not constitute investment advice, financial advice, 
+                    trading advice, or any other sort of advice. <strong>Nothing on this dashboard should be construed as a recommendation 
+                    to buy, sell, or hold any security, cryptocurrency, derivative, or other financial instrument.</strong>
+                </p>
+                <p>
+                    The analysis presented is based on historical data, statistical models, and AI-generated interpretations which may contain 
+                    errors, inaccuracies, or omissions. <strong>Past performance is not indicative of future results.</strong> The "hidden risks" 
+                    identified are speculative assessments based on structural analysis and may not materialize. You should consult with a qualified 
+                    financial advisor, broker, or other licensed professional before making any investment decisions.
+                </p>
+                <p>
+                    The creators, developers, and distributors of this dashboard <strong>assume no responsibility or liability</strong> for any errors 
+                    or omissions in the content, or for any actions taken based on the information provided herein. By using this dashboard, 
+                    you acknowledge and agree that you are solely responsible for your own investment decisions and that you use this 
+                    information at your own risk.
+                </p>
+                <p class="copyright">
+                    © 2026 | Powered by Claude AI | Not affiliated with any broker, exchange, or financial institution.
+                </p>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
