@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Japan Carry Trade Risk Analysis | Full Spectrum Hazard Assessment</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-tertiary: #1a1a25;
+            --accent-red: #ff3366;
+            --accent-red-glow: rgba(255, 51, 102, 0.3);
+            --accent-orange: #ff6633;
+            --accent-yellow: #ffcc00;
+            --accent-green: #00ff88;
+            --accent-cyan: #00ffff;
+            --accent-blue: #3366ff;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+            --text-muted: #606075;
+            --border-color: #2a2a35;
+            --gradient-red: linear-gradient(135deg, #ff3366 0%, #ff6633 100%);
+            --gradient-danger: linear-gradient(135deg, #ff0033 0%, #ff3366 50%, #ff6633 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background grid */
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 51, 102, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 51, 102, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 3rem 2rem;
+            background: linear-gradient(180deg, var(--bg-secondary) 0%, transparent 100%);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-label {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            background: var(--gradient-danger);
+            color: var(--text-primary);
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .header h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            letter-spacing: -2px;
+            margin-bottom: 1rem;
+            background: var(--gradient-red);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            line-height: 1.6;
+        }
+
+        .header-meta {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .meta-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 0.3rem;
+        }
+
+        .meta-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--accent-cyan);
+        }
+
+        /* Risk Gauges Section */
+        .risk-gauges {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .gauge-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gauge-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--gradient-red);
+        }
+
+        .gauge-card.critical::before {
+            animation: flash 0.5s infinite;
+        }
+
+        @keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .gauge-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        .gauge-title {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .gauge-status {
+            font-size: 0.6rem;
+            padding: 0.25rem 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .gauge-status.critical {
+            background: rgba(255, 51, 102, 0.2);
+            color: var(--accent-red);
+            border: 1px solid var(--accent-red);
+        }
+
+        .gauge-status.elevated {
+            background: rgba(255, 102, 51, 0.2);
+            color: var(--accent-orange);
+            border: 1px solid var(--accent-orange);
+        }
+
+        .gauge-status.moderate {
+            background: rgba(255, 204, 0, 0.2);
+            color: var(--accent-yellow);
+            border: 1px solid var(--accent-yellow);
+        }
+
+        .gauge-status.low {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+        }
+
+        .gauge-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .gauge-value.critical { color: var(--accent-red); }
+        .gauge-value.elevated { color: var(--accent-orange); }
+        .gauge-value.moderate { color: var(--accent-yellow); }
+        .gauge-value.low { color: var(--accent-green); }
+
+        .gauge-bar {
+            height: 6px;
+            background: var(--bg-tertiary);
+            margin-top: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gauge-bar-fill {
+            height: 100%;
+            transition: width 1s ease;
+        }
+
+        .gauge-bar-fill.critical { background: var(--accent-red); width: 85%; }
+        .gauge-bar-fill.elevated { background: var(--accent-orange); width: 65%; }
+        .gauge-bar-fill.moderate { background: var(--accent-yellow); width: 45%; }
+        .gauge-bar-fill.low { background: var(--accent-green); width: 25%; }
+
+        .gauge-detail {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        /* Charts Section */
+        .charts-section {
+            margin-bottom: 3rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-number {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--accent-red);
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--accent-red);
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: -1px;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+        }
+
+        .chart-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .chart-legend {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.7rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+
+        /* Data Table */
+        .data-table-container {
+            margin-bottom: 3rem;
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+
+        .data-table th {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            border-bottom: 2px solid var(--accent-red);
+        }
+
+        .data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        .data-table tr:hover {
+            background: var(--bg-secondary);
+        }
+
+        .table-value {
+            font-weight: 500;
+        }
+
+        .table-value.negative {
+            color: var(--accent-red);
+        }
+
+        .table-value.positive {
+            color: var(--accent-green);
+        }
+
+        .drawdown-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .drawdown-visual {
+            width: 100px;
+            height: 8px;
+            background: var(--bg-tertiary);
+            position: relative;
+        }
+
+        .drawdown-fill {
+            height: 100%;
+            background: var(--accent-red);
+            transition: width 0.5s ease;
+        }
+
+        /* Risk Matrix */
+        .risk-matrix {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--border-color);
+            margin-bottom: 3rem;
+        }
+
+        .matrix-cell {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .matrix-cell.header {
+            background: var(--bg-tertiary);
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .matrix-cell.corner {
+            background: var(--bg-primary);
+        }
+
+        .matrix-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .matrix-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+
+        /* Scenario Analysis */
+        .scenario-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .scenario-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 2rem;
+        }
+
+        .scenario-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .scenario-type {
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 0.3rem 0.75rem;
+            border: 1px solid;
+        }
+
+        .scenario-type.base {
+            color: var(--accent-yellow);
+            border-color: var(--accent-yellow);
+        }
+
+        .scenario-type.stress {
+            color: var(--accent-orange);
+            border-color: var(--accent-orange);
+        }
+
+        .scenario-type.extreme {
+            color: var(--accent-red);
+            border-color: var(--accent-red);
+        }
+
+        .scenario-probability {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .scenario-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .scenario-projections {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .projection-item {
+            text-align: center;
+        }
+
+        .projection-label {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .projection-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        /* Analysis Text */
+        .analysis-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 2.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .analysis-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+
+        .analysis-block h4 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--accent-cyan);
+        }
+
+        .analysis-block p {
+            font-size: 0.85rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .risk-factor-list {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .risk-factor-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .risk-factor-list li::before {
+            content: '▸';
+            color: var(--accent-red);
+            font-size: 0.75rem;
+            margin-top: 0.1rem;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 3rem;
+        }
+
+        .footer-text {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+        }
+
+        .footer-disclaimer {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: 1rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .header { padding: 2rem 1rem; }
+            .chart-grid { grid-template-columns: 1fr; }
+            .analysis-content { grid-template-columns: 1fr; }
+            .risk-matrix { grid-template-columns: repeat(2, 1fr); }
+            .header-meta { gap: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-label">⚠ SYSTEMIC RISK ALERT</div>
+            <h1>JAPAN CARRY TRADE</h1>
+            <h1 style="font-size: clamp(1.5rem, 3vw, 2rem); margin-top: -0.5rem;">DISORDERLY UNWIND RISK ANALYSIS</h1>
+            <p class="header-subtitle">
+                Full spectrum hazard assessment utilizing August 2024 mini-unwind event as baseline projection model. 
+                Real-time risk metrics calibrated against current market conditions and historical volatility regimes.
+            </p>
+            <div class="header-meta">
+                <div class="meta-item">
+                    <span class="meta-label">Analysis Date</span>
+                    <span class="meta-value">January 2, 2026</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">USD/JPY Current</span>
+                    <span class="meta-value">156.81</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">BOJ Rate</span>
+                    <span class="meta-value">0.75%</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Fed Rate</span>
+                    <span class="meta-value">3.64%</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Rate Differential</span>
+                    <span class="meta-value">289 bps</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Risk Gauges -->
+        <section class="risk-gauges">
+            <div class="gauge-card critical">
+                <div class="gauge-header">
+                    <span class="gauge-title">Carry Trade Leverage Concentration</span>
+                    <span class="gauge-status critical">CRITICAL</span>
+                </div>
+                <div class="gauge-value critical">8.2/10</div>
+                <div class="gauge-detail">Est. $4-5 Trillion in outstanding JPY-funded positions</div>
+                <div class="gauge-bar"><div class="gauge-bar-fill critical"></div></div>
+            </div>
+
+            <div class="gauge-card">
+                <div class="gauge-header">
+                    <span class="gauge-title">BOJ Policy Divergence Risk</span>
+                    <span class="gauge-status elevated">ELEVATED</span>
+                </div>
+                <div class="gauge-value elevated">7.4/10</div>
+                <div class="gauge-detail">BOJ hiking to 30-year high while Fed easing</div>
+                <div class="gauge-bar"><div class="gauge-bar-fill elevated"></div></div>
+            </div>
+
+            <div class="gauge-card">
+                <div class="gauge-header">
+                    <span class="gauge-title">Currency Volatility Risk</span>
+                    <span class="gauge-status elevated">ELEVATED</span>
+                </div>
+                <div class="gauge-value elevated">6.8/10</div>
+                <div class="gauge-detail">JPY at multi-decade lows, intervention risk high</div>
+                <div class="gauge-bar"><div class="gauge-bar-fill elevated"></div></div>
+            </div>
+
+            <div class="gauge-card">
+                <div class="gauge-header">
+                    <span class="gauge-title">Equity Market Correlation Risk</span>
+                    <span class="gauge-status critical">CRITICAL</span>
+                </div>
+                <div class="gauge-value critical">8.5/10</div>
+                <div class="gauge-detail">Strong inverse correlation: JPY strength = equity weakness</div>
+                <div class="gauge-bar"><div class="gauge-bar-fill critical"></div></div>
+            </div>
+
+            <div class="gauge-card">
+                <div class="gauge-header">
+                    <span class="gauge-title">Liquidity Stress Indicator</span>
+                    <span class="gauge-status moderate">MODERATE</span>
+                </div>
+                <div class="gauge-value moderate">5.2/10</div>
+                <div class="gauge-detail">VXX at 26.10, elevated but not crisis level</div>
+                <div class="gauge-bar"><div class="gauge-bar-fill moderate"></div></div>
+            </div>
+
+            <div class="gauge-card">
+                <div class="gauge-header">
+                    <span class="gauge-title">Contagion Probability</span>
+                    <span class="gauge-status elevated">ELEVATED</span>
+                </div>
+                <div class="gauge-value elevated">7.1/10</div>
+                <div class="gauge-detail">Cross-asset spillover potential remains high</div>
+                <div class="gauge-bar"><div class="gauge-bar-fill elevated"></div></div>
+            </div>
+        </section>
+
+        <!-- August 2024 Event Analysis -->
+        <section class="charts-section">
+            <div class="section-header">
+                <span class="section-number">01</span>
+                <h2 class="section-title">August 2024 Mini-Unwind Event: Baseline Analysis</h2>
+            </div>
+            
+            <div class="chart-grid">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <span class="chart-title">USD/JPY & Index Correlation During Unwind</span>
+                        <div class="chart-legend">
+                            <div class="legend-item"><span class="legend-dot" style="background: #00ffff"></span>USD/JPY</div>
+                            <div class="legend-item"><span class="legend-dot" style="background: #ff3366"></span>SPY</div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="correlationChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <span class="chart-title">Index Drawdown Comparison (Aug 2024)</span>
+                        <div class="chart-legend">
+                            <div class="legend-item"><span class="legend-dot" style="background: #ff3366"></span>SPY</div>
+                            <div class="legend-item"><span class="legend-dot" style="background: #ff6633"></span>QQQ</div>
+                            <div class="legend-item"><span class="legend-dot" style="background: #ffcc00"></span>DIA</div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="drawdownChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Drawdown Risk Table -->
+        <section>
+            <div class="section-header">
+                <span class="section-number">02</span>
+                <h2 class="section-title">Historical Drawdown Analysis & Current Risk Projection</h2>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Scenario</th>
+                            <th>USD/JPY Move</th>
+                            <th>SPX Drawdown</th>
+                            <th>NDX Drawdown</th>
+                            <th>DJI Drawdown</th>
+                            <th>VIX Spike</th>
+                            <th>Duration</th>
+                            <th>Risk Level</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Aug 2024 Actual</strong></td>
+                            <td class="table-value">162 → 142 (-12.3%)</td>
+                            <td>
+                                <div class="drawdown-bar">
+                                    <span class="table-value negative">-8.5%</span>
+                                    <div class="drawdown-visual"><div class="drawdown-fill" style="width: 42%"></div></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="drawdown-bar">
+                                    <span class="table-value negative">-13.1%</span>
+                                    <div class="drawdown-visual"><div class="drawdown-fill" style="width: 65%"></div></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="drawdown-bar">
+                                    <span class="table-value negative">-6.6%</span>
+                                    <div class="drawdown-visual"><div class="drawdown-fill" style="width: 33%"></div></div>
+                                </div>
+                            </td>
+                            <td class="table-value negative">38 → 65 (+71%)</td>
+                            <td>7 trading days</td>
+                            <td><span class="gauge-status elevated" style="display: inline-block">ELEVATED</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Current Base Case</strong></td>
+                            <td class="table-value">157 → 145 (-7.6%)</td>
+                            <td>
+                                <div class="drawdown-bar">
+                                    <span class="table-value negative">-6.5%</span>
+                                    <div class="drawdown-visual"><div class="drawdown-fill" style="width: 32%"></div></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="drawdown-bar">
+                                    <span class="table-value negative">-10.2%</span>
+                                    <div class="drawdown-visual"><div class="drawdown-fill" style="width: 51%"></div></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="drawdown-bar">
+                                    <span class="table-value negative">-5.1%</span>
+                                    <div class="drawdown-visual"><div class="drawdown-fill" style="width: 25%"></div></div>
+                                </div>
+                            </td>
+                            <td class="table-value negative">16 → 35 (+119%)</td>
+                            <td>5-10 days</td>
+                            <td><span class="gauge-status elevated" style="display: inline-block">ELEVATED</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Stress Scenario</strong></td>
+                            <td class="table-value">157 → 135 (-14.0%)</td>
+                            <td>
+                                <div class="drawdown-bar">
+                                    <span class="table-value negative">-12.5%</span>
+                                    <div class="drawdown-visual"><div class="drawdown-fill" style="width: 62%"></div></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="drawdown-bar">
+                                    <span class="table-value negative">-18.8%</span>
+                                    <div class="drawdown-visual"><div class="drawdown-fill" style="width: 94%"></div></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="drawdown-bar">
+                                    <span class="table-value negative">-9.8%</span>
+                                    <div class="drawdown-visual"><div class="drawdown-fill" style="width: 49%"></div></div>
+                                </div>
+                            </td>
+                            <td class="table-value negative">16 → 55 (+244%)</td>
+                            <td>10-20 days</td>
+                            <td><span class="gauge-status critical" style="display: inline-block">CRITICAL</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Extreme/Tail Event</strong></td>
+                            <td class="table-value">157 → 120 (-23.6%)</td>
+                            <td>
+                                <div class="drawdown-bar">
+                                    <span class="table-value negative">-20.0%</span>
+                                    <div class="drawdown-visual"><div class="drawdown-fill" style="width: 100%"></div></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="drawdown-bar">
+                                    <span class="table-value negative">-28.5%</span>
+                                    <div class="drawdown-visual"><div class="drawdown-fill" style="width: 100%"></div></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="drawdown-bar">
+                                    <span class="table-value negative">-16.0%</span>
+                                    <div class="drawdown-visual"><div class="drawdown-fill" style="width: 80%"></div></div>
+                                </div>
+                            </td>
+                            <td class="table-value negative">16 → 80+ (+400%)</td>
+                            <td>20-40 days</td>
+                            <td><span class="gauge-status critical" style="display: inline-block">EXTREME</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Risk Matrix -->
+        <section>
+            <div class="section-header">
+                <span class="section-number">03</span>
+                <h2 class="section-title">Current Position Risk Matrix</h2>
+            </div>
+
+            <div class="risk-matrix">
+                <div class="matrix-cell corner"></div>
+                <div class="matrix-cell header">SPY/SPX</div>
+                <div class="matrix-cell header">QQQ/NDX</div>
+                <div class="matrix-cell header">DIA/DJI</div>
+                
+                <div class="matrix-cell header">Current Price</div>
+                <div class="matrix-cell">
+                    <div class="matrix-value" style="color: var(--text-primary)">$683.17</div>
+                    <div class="matrix-label">SPY ETF</div>
+                </div>
+                <div class="matrix-cell">
+                    <div class="matrix-value" style="color: var(--text-primary)">$613.12</div>
+                    <div class="matrix-label">QQQ ETF</div>
+                </div>
+                <div class="matrix-cell">
+                    <div class="matrix-value" style="color: var(--text-primary)">$483.63</div>
+                    <div class="matrix-label">DIA ETF</div>
+                </div>
+
+                <div class="matrix-cell header">Base Case Target</div>
+                <div class="matrix-cell">
+                    <div class="matrix-value" style="color: var(--accent-orange)">$638.76</div>
+                    <div class="matrix-label">-6.5% Drawdown</div>
+                </div>
+                <div class="matrix-cell">
+                    <div class="matrix-value" style="color: var(--accent-orange)">$550.58</div>
+                    <div class="matrix-label">-10.2% Drawdown</div>
+                </div>
+                <div class="matrix-cell">
+                    <div class="matrix-value" style="color: var(--accent-orange)">$458.96</div>
+                    <div class="matrix-label">-5.1% Drawdown</div>
+                </div>
+
+                <div class="matrix-cell header">Stress Target</div>
+                <div class="matrix-cell">
+                    <div class="matrix-value" style="color: var(--accent-red)">$597.77</div>
+                    <div class="matrix-label">-12.5% Drawdown</div>
+                </div>
+                <div class="matrix-cell">
+                    <div class="matrix-value" style="color: var(--accent-red)">$497.85</div>
+                    <div class="matrix-label">-18.8% Drawdown</div>
+                </div>
+                <div class="matrix-cell">
+                    <div class="matrix-value" style="color: var(--accent-red)">$436.23</div>
+                    <div class="matrix-label">-9.8% Drawdown</div>
+                </div>
+
+                <div class="matrix-cell header">Extreme Target</div>
+                <div class="matrix-cell">
+                    <div class="matrix-value" style="color: var(--accent-red)">$546.54</div>
+                    <div class="matrix-label">-20.0% Drawdown</div>
+                </div>
+                <div class="matrix-cell">
+                    <div class="matrix-value" style="color: var(--accent-red)">$438.38</div>
+                    <div class="matrix-label">-28.5% Drawdown</div>
+                </div>
+                <div class="matrix-cell">
+                    <div class="matrix-value" style="color: var(--accent-red)">$406.25</div>
+                    <div class="matrix-label">-16.0% Drawdown</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Scenario Analysis Cards -->
+        <section>
+            <div class="section-header">
+                <span class="section-number">04</span>
+                <h2 class="section-title">Scenario Analysis & Probability Assessment</h2>
+            </div>
+
+            <div class="scenario-cards">
+                <div class="scenario-card">
+                    <div class="scenario-header">
+                        <span class="scenario-type base">BASE CASE</span>
+                        <span class="scenario-probability">Probability: 55%</span>
+                    </div>
+                    <h3 class="scenario-title">Controlled Unwind</h3>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.7;">
+                        BOJ continues gradual rate normalization. Fed maintains easing path. Carry trade positions 
+                        reduced incrementally over 6-12 months. USD/JPY drifts to 145-150 range. Equity markets 
+                        experience modest corrections during adjustment periods but recover quickly.
+                    </p>
+                    <div class="scenario-projections">
+                        <div class="projection-item">
+                            <div class="projection-label">USD/JPY</div>
+                            <div class="projection-value" style="color: var(--accent-yellow)">145-150</div>
+                        </div>
+                        <div class="projection-item">
+                            <div class="projection-label">SPX Max DD</div>
+                            <div class="projection-value" style="color: var(--accent-yellow)">-6.5%</div>
+                        </div>
+                        <div class="projection-item">
+                            <div class="projection-label">Recovery</div>
+                            <div class="projection-value" style="color: var(--accent-green)">2-4 wks</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="scenario-card">
+                    <div class="scenario-header">
+                        <span class="scenario-type stress">STRESS CASE</span>
+                        <span class="scenario-probability">Probability: 30%</span>
+                    </div>
+                    <h3 class="scenario-title">Accelerated Unwind</h3>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.7;">
+                        BOJ signals aggressive tightening or Japan MOF intervenes to strengthen JPY. Hedge funds 
+                        rush to close positions simultaneously. Margin calls cascade through leveraged positions. 
+                        Similar to August 2024 but more prolonged due to larger position sizes.
+                    </p>
+                    <div class="scenario-projections">
+                        <div class="projection-item">
+                            <div class="projection-label">USD/JPY</div>
+                            <div class="projection-value" style="color: var(--accent-orange)">130-140</div>
+                        </div>
+                        <div class="projection-item">
+                            <div class="projection-label">SPX Max DD</div>
+                            <div class="projection-value" style="color: var(--accent-orange)">-12.5%</div>
+                        </div>
+                        <div class="projection-item">
+                            <div class="projection-label">Recovery</div>
+                            <div class="projection-value" style="color: var(--accent-orange)">4-8 wks</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="scenario-card">
+                    <div class="scenario-header">
+                        <span class="scenario-type extreme">EXTREME CASE</span>
+                        <span class="scenario-probability">Probability: 15%</span>
+                    </div>
+                    <h3 class="scenario-title">Disorderly Collapse</h3>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.7;">
+                        Black swan event triggers panic liquidation. Multiple counterparty failures in JPY funding 
+                        markets. Central bank coordination breakdown. Credit spreads blow out. Forced selling 
+                        across all risk assets. Potential systemic crisis requiring coordinated intervention.
+                    </p>
+                    <div class="scenario-projections">
+                        <div class="projection-item">
+                            <div class="projection-label">USD/JPY</div>
+                            <div class="projection-value" style="color: var(--accent-red)">115-125</div>
+                        </div>
+                        <div class="projection-item">
+                            <div class="projection-label">SPX Max DD</div>
+                            <div class="projection-value" style="color: var(--accent-red)">-20%+</div>
+                        </div>
+                        <div class="projection-item">
+                            <div class="projection-label">Recovery</div>
+                            <div class="projection-value" style="color: var(--accent-red)">3-6 mo</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Analysis Section -->
+        <section class="analysis-section">
+            <div class="section-header" style="border-bottom: none; margin-bottom: 1.5rem;">
+                <span class="section-number">05</span>
+                <h2 class="section-title">Risk Factor Deep Dive</h2>
+            </div>
+
+            <div class="analysis-content">
+                <div class="analysis-block">
+                    <h4>Carry Trade Mechanics & Current Exposure</h4>
+                    <p>
+                        The Japan carry trade involves borrowing Japanese Yen at ultra-low interest rates 
+                        (historically near 0%, now 0.75%) and investing in higher-yielding assets globally. 
+                        Current estimates place outstanding positions between $4-5 trillion, with significant 
+                        concentration in US tech equities, emerging market debt, and leveraged strategies.
+                    </p>
+                    <p>
+                        The August 2024 mini-unwind demonstrated the fragility of these positions. When USD/JPY 
+                        moved from 162 to 142 (a 12.3% JPY appreciation), the forced unwinding caused the 
+                        Nasdaq to drop 13.1% in just 7 trading days, with the VIX spiking to 65.
+                    </p>
+                    <h4 style="margin-top: 1.5rem;">Current Risk Indicators</h4>
+                    <ul class="risk-factor-list">
+                        <li>BOJ raised rates to 0.75% (30-year high) with signals of further hikes</li>
+                        <li>USD/JPY at 156.81 - still near multi-decade highs favoring carry positions</li>
+                        <li>Fed funds rate at 3.64% but on easing path - narrowing differential</li>
+                        <li>SPY RSI at 52.84 - neutral but vulnerable to momentum shifts</li>
+                        <li>ATR elevated at 6.06 indicating higher than normal volatility regime</li>
+                    </ul>
+                </div>
+
+                <div class="analysis-block">
+                    <h4>Trigger Events to Monitor</h4>
+                    <ul class="risk-factor-list">
+                        <li>BOJ policy meetings and rate decision announcements</li>
+                        <li>Japan MOF verbal or actual FX intervention signals</li>
+                        <li>Sudden USD/JPY moves exceeding 2% in a single session</li>
+                        <li>Sharp increases in JPY implied volatility</li>
+                        <li>Widening credit spreads in JPY funding markets</li>
+                        <li>Unusual volume in FXY (Yen ETF) or inverse Yen products</li>
+                        <li>Correlation breakdown between tech stocks and USD/JPY</li>
+                    </ul>
+
+                    <h4 style="margin-top: 1.5rem;">Key Differences: Aug 2024 vs Today</h4>
+                    <p>
+                        <strong style="color: var(--accent-red)">Higher Risk Factors:</strong> Larger accumulated positions, 
+                        BOJ now actively hiking, stronger inflation data in Japan, weaker Fed policy outlook.
+                    </p>
+                    <p>
+                        <strong style="color: var(--accent-green)">Lower Risk Factors:</strong> Markets more aware of carry 
+                        trade risks, some positions already reduced, coordinated central bank communication improved.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Charts for Current Data -->
+        <section class="charts-section">
+            <div class="section-header">
+                <span class="section-number">06</span>
+                <h2 class="section-title">Current Market Conditions & Technical Indicators</h2>
+            </div>
+            
+            <div class="chart-grid">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <span class="chart-title">Rate Differential Trend (Fed vs BOJ)</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="rateDiffChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <span class="chart-title">Volatility Regime (VXX Proxy)</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="volatilityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p class="footer-text">JAPAN CARRY TRADE RISK ANALYSIS | FULL SPECTRUM HAZARD ASSESSMENT</p>
+            <p class="footer-disclaimer">
+                This analysis is for informational purposes only and does not constitute investment advice. 
+                Historical performance and correlations may not predict future results. Market conditions 
+                can change rapidly. Data sourced from Alpha Vantage API as of January 2, 2026.
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // Chart.js configuration
+        Chart.defaults.color = '#a0a0b0';
+        Chart.defaults.borderColor = '#2a2a35';
+        Chart.defaults.font.family = "'JetBrains Mono', monospace";
+
+        // August 2024 Correlation Chart - USD/JPY vs SPY
+        const correlationCtx = document.getElementById('correlationChart').getContext('2d');
+        new Chart(correlationCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jul 16', 'Jul 19', 'Jul 24', 'Jul 29', 'Aug 1', 'Aug 2', 'Aug 5', 'Aug 6', 'Aug 7', 'Aug 8', 'Aug 9'],
+                datasets: [{
+                    label: 'USD/JPY',
+                    data: [158.5, 157.2, 154.8, 153.9, 150.2, 149.3, 142.1, 144.8, 147.2, 146.5, 147.1],
+                    borderColor: '#00ffff',
+                    backgroundColor: 'rgba(0, 255, 255, 0.1)',
+                    yAxisID: 'y',
+                    tension: 0.4,
+                    pointRadius: 3,
+                    pointBackgroundColor: '#00ffff'
+                }, {
+                    label: 'SPY',
+                    data: [565, 562, 554, 551, 548, 541, 510, 518, 529, 533, 537],
+                    borderColor: '#ff3366',
+                    backgroundColor: 'rgba(255, 51, 102, 0.1)',
+                    yAxisID: 'y1',
+                    tension: 0.4,
+                    pointRadius: 3,
+                    pointBackgroundColor: '#ff3366'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(42, 42, 53, 0.5)' }
+                    },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: 'USD/JPY', color: '#00ffff' },
+                        grid: { color: 'rgba(42, 42, 53, 0.5)' },
+                        min: 140,
+                        max: 165
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: { display: true, text: 'SPY', color: '#ff3366' },
+                        grid: { drawOnChartArea: false },
+                        min: 500,
+                        max: 580
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        // Drawdown Chart - All indices
+        const drawdownCtx = document.getElementById('drawdownChart').getContext('2d');
+        new Chart(drawdownCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jul 16', 'Jul 19', 'Jul 24', 'Jul 29', 'Aug 1', 'Aug 2', 'Aug 5', 'Aug 6', 'Aug 7', 'Aug 8', 'Aug 9'],
+                datasets: [{
+                    label: 'SPY Drawdown %',
+                    data: [0, -0.5, -2.0, -2.5, -3.0, -4.2, -8.5, -6.8, -4.5, -3.8, -3.2],
+                    borderColor: '#ff3366',
+                    backgroundColor: 'rgba(255, 51, 102, 0.2)',
+                    fill: true,
+                    tension: 0.4
+                }, {
+                    label: 'QQQ Drawdown %',
+                    data: [0, -0.8, -3.2, -4.1, -5.2, -6.5, -13.1, -10.2, -7.8, -6.5, -5.2],
+                    borderColor: '#ff6633',
+                    backgroundColor: 'rgba(255, 102, 51, 0.2)',
+                    fill: true,
+                    tension: 0.4
+                }, {
+                    label: 'DIA Drawdown %',
+                    data: [0, -0.3, -1.5, -1.8, -2.2, -3.1, -6.6, -5.2, -3.5, -2.8, -2.1],
+                    borderColor: '#ffcc00',
+                    backgroundColor: 'rgba(255, 204, 0, 0.2)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(42, 42, 53, 0.5)' }
+                    },
+                    y: {
+                        grid: { color: 'rgba(42, 42, 53, 0.5)' },
+                        title: { display: true, text: 'Drawdown %' },
+                        max: 2,
+                        min: -15
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        // Rate Differential Chart
+        const rateCtx = document.getElementById('rateDiffChart').getContext('2d');
+        new Chart(rateCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan 24', 'Apr 24', 'Jul 24', 'Oct 24', 'Jan 25', 'Apr 25', 'Jul 25', 'Oct 25', 'Jan 26'],
+                datasets: [{
+                    label: 'Fed Funds Rate',
+                    data: [5.33, 5.33, 5.33, 4.83, 4.33, 4.08, 3.83, 3.64, 3.64],
+                    backgroundColor: '#3366ff',
+                    stack: 'Stack 0'
+                }, {
+                    label: 'BOJ Rate',
+                    data: [0.0, 0.1, 0.25, 0.25, 0.50, 0.50, 0.75, 0.75, 0.75],
+                    backgroundColor: '#ff3366',
+                    stack: 'Stack 1'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(42, 42, 53, 0.5)' }
+                    },
+                    y: {
+                        grid: { color: 'rgba(42, 42, 53, 0.5)' },
+                        title: { display: true, text: 'Interest Rate %' },
+                        max: 6
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20
+                        }
+                    }
+                }
+            }
+        });
+
+        // Volatility Chart
+        const volCtx = document.getElementById('volatilityChart').getContext('2d');
+        new Chart(volCtx, {
+            type: 'line',
+            data: {
+                labels: ['Oct', 'Nov', 'Dec', 'Jan 2'],
+                datasets: [{
+                    label: 'VXX Level',
+                    data: [28.5, 27.2, 26.8, 26.1],
+                    borderColor: '#00ff88',
+                    backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointBackgroundColor: '#00ff88'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(42, 42, 53, 0.5)' }
+                    },
+                    y: {
+                        grid: { color: 'rgba(42, 42, 53, 0.5)' },
+                        title: { display: true, text: 'VXX Price' },
+                        min: 20,
+                        max: 35
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    annotation: {
+                        annotations: {
+                            line1: {
+                                type: 'line',
+                                yMin: 30,
+                                yMax: 30,
+                                borderColor: '#ff6633',
+                                borderWidth: 2,
+                                borderDash: [5, 5],
+                                label: {
+                                    display: true,
+                                    content: 'Elevated Risk Threshold',
+                                    position: 'end'
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

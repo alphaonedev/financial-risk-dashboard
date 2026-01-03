@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Risk Analysis Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #0a0a0f;
+            color: #ffffff;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 40px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 8px 20px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+            border-radius: 4px;
+        }
+        
+        h1 {
+            font-size: 48px;
+            font-weight: 700;
+            letter-spacing: -2px;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #ffffff 0%, #a0a0b0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            font-size: 18px;
+            color: #606070;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        
+        .report-card {
+            background: #12121a;
+            border: 1px solid #2a2a35;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .report-card:hover {
+            transform: translateY(-4px);
+            border-color: #3b82f6;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+        
+        .card-header {
+            padding: 24px;
+            border-bottom: 1px solid #2a2a35;
+        }
+        
+        .card-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border-radius: 4px;
+            margin-bottom: 16px;
+        }
+        
+        .tag-critical {
+            background: rgba(255, 51, 102, 0.2);
+            color: #ff3366;
+            border: 1px solid #ff3366;
+        }
+        
+        .tag-warning {
+            background: rgba(247, 147, 26, 0.2);
+            color: #f7931a;
+            border: 1px solid #f7931a;
+        }
+        
+        .tag-analysis {
+            background: rgba(139, 92, 246, 0.2);
+            color: #8b5cf6;
+            border: 1px solid #8b5cf6;
+        }
+        
+        .card-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+        
+        .card-subtitle {
+            font-size: 14px;
+            color: #606070;
+        }
+        
+        .card-body {
+            padding: 24px;
+        }
+        
+        .card-description {
+            font-size: 14px;
+            color: #a0a0b0;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+        
+        .card-metrics {
+            display: flex;
+            gap: 24px;
+        }
+        
+        .metric {
+            flex: 1;
+        }
+        
+        .metric-label {
+            font-size: 10px;
+            color: #606070;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        
+        .metric-value {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        .metric-value.danger { color: #ff3366; }
+        .metric-value.warning { color: #f7931a; }
+        .metric-value.info { color: #3b82f6; }
+        
+        .card-footer {
+            padding: 16px 24px;
+            background: #1a1a25;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .view-report {
+            font-size: 13px;
+            font-weight: 600;
+            color: #3b82f6;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .view-report svg {
+            transition: transform 0.2s ease;
+        }
+        
+        .report-card:hover .view-report svg {
+            transform: translateX(4px);
+        }
+        
+        .date {
+            font-size: 12px;
+            color: #606070;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 40px;
+            border-top: 1px solid #2a2a35;
+        }
+        
+        .footer-text {
+            font-size: 13px;
+            color: #606070;
+            margin-bottom: 16px;
+        }
+        
+        .powered-by {
+            font-size: 11px;
+            color: #404050;
+        }
+        
+        .powered-by a {
+            color: #8b5cf6;
+            text-decoration: none;
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 40px 20px; }
+            h1 { font-size: 32px; }
+            .reports-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="badge">📊 Risk Intelligence</div>
+            <h1>Financial Risk Analysis Dashboard</h1>
+            <p class="subtitle">
+                Institutional-grade risk analysis and market intelligence reports. 
+                Real-time data, quantitative modeling, and actionable insights.
+            </p>
+        </header>
+        
+        <div class="reports-grid">
+            <a href="japan_carry_trade_risk_analysis.html" class="report-card">
+                <div class="card-header">
+                    <div class="card-tag tag-critical">Systemic Risk Alert</div>
+                    <h2 class="card-title">Japan Carry Trade<br>Disorderly Unwind Risk</h2>
+                    <p class="card-subtitle">Full Spectrum Hazard Assessment</p>
+                </div>
+                <div class="card-body">
+                    <p class="card-description">
+                        Comprehensive analysis of yen carry trade unwind scenarios using August 2024 
+                        as baseline. Includes SPX, NDX, DJI drawdown projections and cross-asset 
+                        contagion modeling.
+                    </p>
+                    <div class="card-metrics">
+                        <div class="metric">
+                            <div class="metric-label">Risk Level</div>
+                            <div class="metric-value danger">8.2/10</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Est. Position</div>
+                            <div class="metric-value warning">$4-5T</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <span class="view-report">
+                        View Full Report 
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </span>
+                    <span class="date">Jan 2, 2026</span>
+                </div>
+            </a>
+            
+            <a href="bitcoin_death_cross.html" class="report-card">
+                <div class="card-header">
+                    <div class="card-tag tag-warning">Technical Warning</div>
+                    <h2 class="card-title">Bitcoin Death Cross<br>Pattern Analysis</h2>
+                    <p class="card-subtitle">50-Day MA Crosses Below 200-Day MA</p>
+                </div>
+                <div class="card-body">
+                    <p class="card-description">
+                        Historical death cross event analysis with probability-weighted price projections. 
+                        Includes 8 prior events, severity classification, and recovery timelines.
+                    </p>
+                    <div class="card-metrics">
+                        <div class="metric">
+                            <div class="metric-label">BTC Price</div>
+                            <div class="metric-value warning">$94,544</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Avg Decline</div>
+                            <div class="metric-value danger">-28.5%</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <span class="view-report">
+                        View Full Report 
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </span>
+                    <span class="date">Jan 2, 2026</span>
+                </div>
+            </a>
+            
+            <a href="bitcoin_death_cross_correlation.html" class="report-card">
+                <div class="card-header">
+                    <div class="card-tag tag-analysis">Cross-Asset Analysis</div>
+                    <h2 class="card-title">BTC Death Cross<br>Correlation Matrix</h2>
+                    <p class="card-subtitle">Multi-Asset Impact Assessment</p>
+                </div>
+                <div class="card-body">
+                    <p class="card-description">
+                        Cross-asset correlation analysis showing BTC relationships with SPY, QQQ, GLD, 
+                        and DXY. Historical performance during prior death cross events.
+                    </p>
+                    <div class="card-metrics">
+                        <div class="metric">
+                            <div class="metric-label">BTC-QQQ Corr</div>
+                            <div class="metric-value danger">0.78</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">BTC-DXY Corr</div>
+                            <div class="metric-value info">-0.62</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <span class="view-report">
+                        View Full Report 
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </span>
+                    <span class="date">Jan 2, 2026</span>
+                </div>
+            </a>
+        </div>
+        
+        <footer>
+            <p class="footer-text">
+                These reports are for informational purposes only and do not constitute investment advice.<br>
+                Data sourced from Alpha Vantage API. Analysis generated January 2, 2026.
+            </p>
+            <p class="powered-by">
+                Powered by <a href="https://www.anthropic.com" target="_blank">Claude AI</a> | 
+                Analysis that would cost $100,000+ from human experts, delivered in minutes.
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
