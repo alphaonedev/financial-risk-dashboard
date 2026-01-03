@@ -167,6 +167,17 @@
             box-shadow: 0 20px 40px rgba(251, 191, 36, 0.2);
         }
         
+        .tag-ai-deflation {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%);
+            color: #00d4ff;
+            border: 1px solid #00d4ff;
+        }
+        
+        .report-card.ai-deflation:hover {
+            border-color: #00d4ff;
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.3);
+        }
+        
         .card-title {
             font-size: 22px;
             font-weight: 600;
@@ -220,6 +231,7 @@
         .metric-value.indigo { color: #6366f1; }
         .metric-value.pink { color: #ec4899; }
         .metric-value.gold { color: #fbbf24; }
+        .metric-value.cyan { color: #00d4ff; }
         
         .card-footer {
             padding: 16px 24px;
@@ -256,6 +268,10 @@
         
         .report-card.defensive .view-report {
             color: #fbbf24;
+        }
+        
+        .report-card.ai-deflation .view-report {
+            color: #00d4ff;
         }
         
         .view-report svg {
@@ -502,6 +518,39 @@
                 </div>
             </a>
             
+            <a href="ai_deflation_risk_dashboard.html" class="report-card ai-deflation">
+                <div class="card-header">
+                    <div class="card-tag tag-ai-deflation">⚡ AI Efficiency Risk</div>
+                    <h2 class="card-title">AI Deflation & Repricing<br>Risk Monitor</h2>
+                    <p class="card-subtitle">DeepSeek R1 Case Study + Future Shock Scenarios</p>
+                </div>
+                <div class="card-body">
+                    <p class="card-description">
+                        Complete visualization of the Jan 27, 2025 DeepSeek R1 shock: NVDA −17% (−$593B), SOX −9.2%, 
+                        Mag 7 ~$1T rout. Tracking efficiency breakthroughs that trigger multiple compression without demand collapse.
+                    </p>
+                    <div class="card-metrics">
+                        <div class="metric">
+                            <div class="metric-label">Repricing Risk</div>
+                            <div class="metric-value cyan">80/100</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">NVDA 1-Day Loss</div>
+                            <div class="metric-value danger">−$593B</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <span class="view-report">
+                        View Full Report 
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </span>
+                    <span class="date">Jan 2, 2026</span>
+                </div>
+            </a>
+            
             <a href="bitcoin_death_cross.html" class="report-card">
                 <div class="card-header">
                     <div class="card-tag tag-warning">Technical Warning</div>
@@ -636,18 +685,12 @@
                 Powered by <a href="https://www.anthropic.com" target="_blank">Claude AI</a> | 
                 Analysis that would cost $100,000+ from human experts, delivered in minutes.
             </p>
-        
-            <div class="cc-license" style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #1e293b; text-align: center;">
-                <p style="font-size: 11px; color: #64748b; line-height: 1.8;">
-                    <a href="https://alphaonedev.github.io/financial-risk-dashboard/" style="color: #94a3b8; text-decoration: none;">Financial Risk Analysis Dashboard</a> © 2026 by <a href="https://github.com/alphaonedev" style="color: #94a3b8; text-decoration: none;">AlphaOne LLC</a> is licensed under <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" style="color: #94a3b8; text-decoration: none;">Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International</a>
-                    <img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="CC" style="max-width: 1em; max-height: 1em; margin-left: .2em; vertical-align: middle;">
-                    <img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="BY" style="max-width: 1em; max-height: 1em; margin-left: .2em; vertical-align: middle;">
-                    <img src="https://mirrors.creativecommons.org/presskit/icons/nc.svg" alt="NC" style="max-width: 1em; max-height: 1em; margin-left: .2em; vertical-align: middle;">
-                    <img src="https://mirrors.creativecommons.org/presskit/icons/nd.svg" alt="ND" style="max-width: 1em; max-height: 1em; margin-left: .2em; vertical-align: middle;">
-                </p>
-            </div>
-
         </footer>
     </div>
+
+            <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #1e293b; text-align: center; font-size: 11px; color: #94a3b8;">
+                <a href="https://alphaonedev.github.io/financial-risk-dashboard/">Financial Risk Analysis Dashboard</a> © 2026 by <a href="https://github.com/alphaonedev">AlphaOne LLC</a> is licensed under <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International</a><img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/nc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/nd.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;">
+            </div>
+
 </body>
 </html>

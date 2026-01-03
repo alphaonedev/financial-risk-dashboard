@@ -1,0 +1,1718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Deflation Risk Dashboard | Efficiency-Driven Repricing Monitor</title>
+    <style>
+        :root {
+            --bg-primary: #04060a;
+            --bg-secondary: #080c12;
+            --bg-tertiary: #0c1018;
+            --bg-card: #101620;
+            --accent-ai: #00d4ff;
+            --accent-ai-dark: #0099cc;
+            --accent-nvidia: #76b900;
+            --accent-red: #ef4444;
+            --accent-orange: #f97316;
+            --accent-amber: #f59e0b;
+            --accent-green: #22c55e;
+            --accent-purple: #a855f7;
+            --accent-pink: #ec4899;
+            --accent-cyan: #06b6d4;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: #1e293b;
+            --gradient-ai: linear-gradient(135deg, #00d4ff 0%, #a855f7 50%, #ec4899 100%);
+            --gradient-danger: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        .bg-grid {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(ellipse at top, rgba(0, 212, 255, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom right, rgba(168, 85, 247, 0.04) 0%, transparent 50%),
+                linear-gradient(rgba(0, 212, 255, 0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.015) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 50px 50px, 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding: 48px 24px;
+            background: linear-gradient(180deg, var(--bg-secondary) 0%, transparent 100%);
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 500px; height: 3px;
+            background: var(--gradient-ai);
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            background: var(--gradient-ai);
+            color: #000;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            border-radius: 24px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.4); }
+            50% { box-shadow: 0 0 20px 10px rgba(0, 212, 255, 0); }
+        }
+
+        .header h1 {
+            font-size: clamp(26px, 4vw, 44px);
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #00d4ff 0%, #f8fafc 40%, #a855f7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header h2 {
+            font-size: 16px;
+            color: var(--text-secondary);
+            font-weight: 400;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* DeepSeek Event Banner */
+        .event-banner {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(249, 115, 22, 0.15) 100%);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 32px;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .event-icon {
+            font-size: 48px;
+        }
+
+        .event-content h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--accent-red);
+            margin-bottom: 6px;
+        }
+
+        .event-content p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .event-stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .event-stat {
+            text-align: center;
+            padding: 12px 20px;
+            background: rgba(239, 68, 68, 0.2);
+            border-radius: 8px;
+        }
+
+        .event-stat-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--accent-red);
+        }
+
+        .event-stat-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Risk Gauge Panel */
+        .risk-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 32px;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .risk-gauge {
+            text-align: center;
+        }
+
+        .gauge-circle {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 16px;
+            position: relative;
+        }
+
+        .gauge-circle svg {
+            transform: rotate(-90deg);
+        }
+
+        .gauge-bg { fill: none; stroke: var(--bg-tertiary); stroke-width: 16; }
+        .gauge-fill { fill: none; stroke-width: 16; stroke-linecap: round; }
+
+        .gauge-center {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .gauge-score {
+            font-size: 52px;
+            font-weight: 800;
+            background: var(--gradient-danger);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gauge-max {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .gauge-label {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent-red);
+        }
+
+        .risk-factors {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .risk-factor {
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+            border-left: 3px solid;
+        }
+
+        .risk-factor.critical { border-color: var(--accent-red); }
+        .risk-factor.high { border-color: var(--accent-orange); }
+        .risk-factor.elevated { border-color: var(--accent-amber); }
+
+        .factor-icon { font-size: 24px; margin-bottom: 8px; }
+        .factor-name { font-size: 10px; color: var(--text-muted); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px; line-height: 1.3; }
+        .factor-score { font-size: 20px; font-weight: 700; }
+        .factor-score.critical { color: var(--accent-red); }
+        .factor-score.high { color: var(--accent-orange); }
+        .factor-score.elevated { color: var(--accent-amber); }
+
+        /* Key Thesis */
+        .thesis-box {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .thesis-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--accent-ai);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .thesis-content {
+            font-size: 15px;
+            color: var(--text-primary);
+            line-height: 1.8;
+        }
+
+        .thesis-content strong {
+            color: var(--accent-pink);
+        }
+
+        .thesis-highlight {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid var(--accent-red);
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+            text-align: center;
+        }
+
+        .thesis-highlight p {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--accent-red);
+        }
+
+        /* Section */
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-number {
+            width: 48px; height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-ai);
+            border-radius: 12px;
+            font-size: 20px;
+            font-weight: 800;
+            color: #000;
+        }
+
+        .section-title-group { flex: 1; }
+        .section-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+        .section-subtitle { font-size: 13px; color: var(--text-muted); }
+
+        .section-badge {
+            font-size: 11px;
+            padding: 6px 16px;
+            border-radius: 6px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .badge-critical { background: rgba(239,68,68,0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
+        .badge-high { background: rgba(249,115,22,0.2); color: var(--accent-orange); border: 1px solid var(--accent-orange); }
+        .badge-elevated { background: rgba(245,158,11,0.2); color: var(--accent-amber); border: 1px solid var(--accent-amber); }
+
+        /* Card Grid */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title { font-size: 13px; font-weight: 600; }
+        .card-body { padding: 20px; }
+
+        /* Metrics */
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .metric-box {
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: 9px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .metric-value {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .metric-value.critical { color: var(--accent-red); }
+        .metric-value.high { color: var(--accent-orange); }
+        .metric-value.elevated { color: var(--accent-amber); }
+        .metric-value.ai { color: var(--accent-ai); }
+        .metric-value.nvidia { color: var(--accent-nvidia); }
+
+        /* Chart */
+        .chart-container {
+            height: 180px;
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .chart-svg { width: 100%; height: 100%; }
+
+        /* Interpretation */
+        .interpretation {
+            font-size: 12px;
+            color: var(--text-secondary);
+            padding: 14px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            line-height: 1.7;
+            border-left: 3px solid var(--accent-ai);
+        }
+
+        .interpretation strong { color: var(--accent-ai); }
+        .interpretation.warning { border-color: var(--accent-red); }
+        .interpretation.warning strong { color: var(--accent-red); }
+
+        /* Drawdown Table */
+        .drawdown-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .drawdown-table th {
+            background: var(--bg-tertiary);
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .drawdown-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .drawdown-table tr:hover { background: var(--bg-secondary); }
+
+        .drawdown-range {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .drawdown-bar {
+            flex: 1;
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .drawdown-fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+
+        /* Catalyst Grid */
+        .catalyst-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .catalyst-card {
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+            padding: 16px;
+            border-top: 3px solid;
+        }
+
+        .catalyst-card.efficiency { border-color: var(--accent-ai); }
+        .catalyst-card.competition { border-color: var(--accent-orange); }
+        .catalyst-card.adoption { border-color: var(--accent-purple); }
+        .catalyst-card.china { border-color: var(--accent-red); }
+        .catalyst-card.energy { border-color: var(--accent-green); }
+        .catalyst-card.capex { border-color: var(--accent-amber); }
+
+        .catalyst-icon { font-size: 28px; margin-bottom: 10px; }
+        .catalyst-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+        .catalyst-desc { font-size: 11px; color: var(--text-secondary); line-height: 1.6; }
+        .catalyst-impact { font-size: 10px; color: var(--accent-red); font-weight: 600; margin-top: 10px; }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, var(--accent-ai) 0%, var(--accent-red) 100%);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+            padding-left: 20px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -26px;
+            top: 6px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--accent-ai);
+            border: 2px solid var(--bg-primary);
+        }
+
+        .timeline-item.warning::before { background: var(--accent-orange); }
+        .timeline-item.danger::before { background: var(--accent-red); }
+
+        .timeline-date {
+            font-size: 10px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .timeline-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .timeline-desc {
+            font-size: 11px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Cost Deflation Chart */
+        .cost-chart {
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .cost-chart-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--accent-ai);
+        }
+
+        .cost-bar-item {
+            margin-bottom: 14px;
+        }
+
+        .cost-bar-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 11px;
+        }
+
+        .cost-bar-label { color: var(--text-secondary); }
+        .cost-bar-value { font-weight: 600; }
+
+        .cost-bar {
+            height: 24px;
+            background: var(--bg-card);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .cost-bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            font-size: 10px;
+            font-weight: 600;
+            color: #000;
+        }
+
+        /* AI Synthesis */
+        .synthesis-panel {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.08) 0%, rgba(168, 85, 247, 0.08) 100%);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 32px;
+        }
+
+        .synthesis-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--accent-ai);
+        }
+
+        .synthesis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .synthesis-item h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--accent-purple);
+        }
+
+        .synthesis-item p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* Full Width */
+        .full-width { grid-column: 1 / -1; }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 32px;
+            border-top: 1px solid var(--border-color);
+            margin-top: 40px;
+        }
+
+        .footer-title {
+            font-size: 12px;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .footer-disclaimer {
+            font-size: 11px;
+            color: var(--text-muted);
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .legal-disclaimer {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .legal-disclaimer p {
+            font-size: 11px;
+            color: var(--text-muted);
+            line-height: 1.8;
+            max-width: 900px;
+            margin: 0 auto 16px auto;
+        }
+
+        .legal-disclaimer strong { color: var(--text-secondary); }
+
+        .copyright {
+            font-size: 10px;
+            color: #475569;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 1200px) {
+            .risk-panel { grid-template-columns: 1fr; }
+            .risk-factors { grid-template-columns: repeat(3, 1fr); }
+            .card-grid { grid-template-columns: 1fr; }
+            .catalyst-grid { grid-template-columns: repeat(2, 1fr); }
+            .event-banner { grid-template-columns: 1fr; text-align: center; }
+            .event-stats { justify-content: center; }
+        }
+
+        @media (max-width: 768px) {
+            .risk-factors { grid-template-columns: repeat(2, 1fr); }
+            .metrics-row { grid-template-columns: repeat(2, 1fr); }
+            .catalyst-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-badge">⚡ AI Efficiency Risk Monitor</div>
+            <h1>AI DEFLATION & REPRICING RISK DASHBOARD</h1>
+            <h2>Tracking efficiency breakthroughs that could trigger multiple compression in AI leaders — without demand collapse</h2>
+        </header>
+
+        <!-- DeepSeek R1 Event Case Study -->
+        <div class="event-banner">
+            <div class="event-icon">🚨</div>
+            <div class="event-content">
+                <h3>HISTORICAL PROOF-OF-CONCEPT: DeepSeek R1 Shock (January 27, 2025)</h3>
+                <p>
+                    The release of <strong>DeepSeek-R1</strong> (Jan 20, 2025) triggered the sharpest single-day AI efficiency repricing event in market history. 
+                    Markets violently reassessed the assumption that AI progress requires ever-increasing GPU spend. This was a 
+                    <strong>valuation shock, not an earnings collapse</strong> — proving that open-source efficiency breakthroughs can compress 
+                    multiples of GPU-centric AI leaders in hours, not months.
+                </p>
+            </div>
+            <div class="event-stats">
+                <div class="event-stat">
+                    <div class="event-stat-value">-17%</div>
+                    <div class="event-stat-label">NVDA Single Day</div>
+                </div>
+                <div class="event-stat">
+                    <div class="event-stat-value">$593B</div>
+                    <div class="event-stat-label">NVDA Cap Lost</div>
+                </div>
+                <div class="event-stat">
+                    <div class="event-stat-value">~$1T</div>
+                    <div class="event-stat-label">Mag 7 Rout</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DeepSeek R1 Full Case Study Section -->
+        <section class="section" style="margin-bottom: 40px;">
+            <div class="section-header">
+                <div class="section-number" style="background: var(--gradient-danger);">📊</div>
+                <div class="section-title-group">
+                    <h2 class="section-title">DeepSeek R1 Case Study: The Efficiency Black Swan</h2>
+                    <p class="section-subtitle">Complete market impact analysis — January 27, 2025 shock day</p>
+                </div>
+                <span class="section-badge badge-critical">HISTORICAL EVENT</span>
+            </div>
+
+            <!-- Event Timeline -->
+            <div class="card-grid">
+                <div class="card full-width">
+                    <div class="card-header">
+                        <span class="card-title">📅 Event Timeline</span>
+                    </div>
+                    <div class="card-body">
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+                            <div style="background: var(--bg-tertiary); border-radius: 10px; padding: 16px; text-align: center; border-top: 3px solid var(--accent-ai);">
+                                <div style="font-size: 11px; color: var(--text-muted); letter-spacing: 1px; margin-bottom: 6px;">JAN 20, 2025</div>
+                                <div style="font-size: 14px; font-weight: 700; color: var(--accent-ai); margin-bottom: 4px;">DeepSeek-R1 Release</div>
+                                <div style="font-size: 11px; color: var(--text-secondary);">Open-source model released, matching frontier capabilities</div>
+                            </div>
+                            <div style="background: var(--bg-tertiary); border-radius: 10px; padding: 16px; text-align: center; border-top: 3px solid var(--accent-red);">
+                                <div style="font-size: 11px; color: var(--text-muted); letter-spacing: 1px; margin-bottom: 6px;">JAN 27, 2025</div>
+                                <div style="font-size: 14px; font-weight: 700; color: var(--accent-red); margin-bottom: 4px;">SHOCK DAY</div>
+                                <div style="font-size: 11px; color: var(--text-secondary);">Markets reprice AI capex thesis, violent factor rotation</div>
+                            </div>
+                            <div style="background: var(--bg-tertiary); border-radius: 10px; padding: 16px; text-align: center; border-top: 3px solid var(--accent-green);">
+                                <div style="font-size: 11px; color: var(--text-muted); letter-spacing: 1px; margin-bottom: 6px;">JAN 28-29, 2025</div>
+                                <div style="font-size: 14px; font-weight: 700; color: var(--accent-green); margin-bottom: 4px;">Index Rebound</div>
+                                <div style="font-size: 11px; color: var(--text-secondary);">Nasdaq +2%, S&P +0.9%, indices recover in days</div>
+                            </div>
+                            <div style="background: var(--bg-tertiary); border-radius: 10px; padding: 16px; text-align: center; border-top: 3px solid var(--accent-amber);">
+                                <div style="font-size: 11px; color: var(--text-muted); letter-spacing: 1px; margin-bottom: 6px;">FEB 18, 2025</div>
+                                <div style="font-size: 14px; font-weight: 700; color: var(--accent-amber); margin-bottom: 4px;">NVDA Recovery</div>
+                                <div style="font-size: 11px; color: var(--text-secondary);">Nvidia almost fully recovered — took ~3 weeks</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Index Impact Table -->
+            <div class="card-grid" style="margin-top: 20px;">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">📉 Major Index Impact (Jan 27, 2025)</span>
+                    </div>
+                    <div class="card-body">
+                        <table class="drawdown-table">
+                            <thead>
+                                <tr>
+                                    <th>Index</th>
+                                    <th>Close</th>
+                                    <th>Change</th>
+                                    <th>Points</th>
+                                    <th>Visualization</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="font-weight: 600;">S&P 500 (SPX)</td>
+                                    <td>6,012.28</td>
+                                    <td style="color: var(--accent-red); font-weight: 700;">−1.46%</td>
+                                    <td style="color: var(--accent-red);">−88.96 pts</td>
+                                    <td>
+                                        <div class="drawdown-range">
+                                            <div class="drawdown-bar">
+                                                <div class="drawdown-fill" style="width: 29%; background: linear-gradient(90deg, #f97316, #ef4444);"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: 600;">Nasdaq 100 (NDX)</td>
+                                    <td>—</td>
+                                    <td style="color: var(--accent-red); font-weight: 700;">−3.0%</td>
+                                    <td style="color: var(--accent-red);">—</td>
+                                    <td>
+                                        <div class="drawdown-range">
+                                            <div class="drawdown-bar">
+                                                <div class="drawdown-fill" style="width: 60%; background: linear-gradient(90deg, #ef4444, #dc2626);"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: 600;">Nasdaq Composite</td>
+                                    <td>—</td>
+                                    <td style="color: var(--accent-red); font-weight: 700;">−3.07%</td>
+                                    <td style="color: var(--accent-red);">—</td>
+                                    <td>
+                                        <div class="drawdown-range">
+                                            <div class="drawdown-bar">
+                                                <div class="drawdown-fill" style="width: 61%; background: linear-gradient(90deg, #ef4444, #dc2626);"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: 600;">Dow Jones (DJI)</td>
+                                    <td>44,713.58</td>
+                                    <td style="color: var(--accent-green); font-weight: 700;">+0.65%</td>
+                                    <td style="color: var(--accent-green);">+289.33 pts</td>
+                                    <td>
+                                        <div class="drawdown-range">
+                                            <div class="drawdown-bar">
+                                                <div class="drawdown-fill" style="width: 13%; background: linear-gradient(90deg, #22c55e, #16a34a);"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr style="background: rgba(239, 68, 68, 0.1);">
+                                    <td style="font-weight: 600; color: var(--accent-red);">SOX (Semis)</td>
+                                    <td>—</td>
+                                    <td style="color: var(--accent-red); font-weight: 700;">−9.2%</td>
+                                    <td style="color: var(--accent-red);">Largest since Mar 2020</td>
+                                    <td>
+                                        <div class="drawdown-range">
+                                            <div class="drawdown-bar">
+                                                <div class="drawdown-fill" style="width: 100%; background: linear-gradient(90deg, #dc2626, #991b1b);"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="interpretation warning" style="margin-top: 16px;">
+                            <strong>⚠️ KEY INSIGHT — Violent Factor Rotation:</strong> The unusual combination of <strong>Dow UP</strong> while 
+                            <strong>S&P and Nasdaq DOWN sharply</strong> indicates violent factor rotation rather than uniform risk-off. 
+                            This was a concentrated AI/semis repricing, not a broad market crash.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">🎯 Market Breadth Analysis</span>
+                    </div>
+                    <div class="card-body">
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <div style="position: relative; width: 180px; height: 180px; margin: 0 auto;">
+                                <svg viewBox="0 0 100 100" style="transform: rotate(-90deg);">
+                                    <circle cx="50" cy="50" r="40" fill="none" stroke="var(--bg-tertiary)" stroke-width="20"/>
+                                    <circle cx="50" cy="50" r="40" fill="none" stroke="var(--accent-green)" stroke-width="20"
+                                            stroke-dasharray="175.9" stroke-dashoffset="52.8"/>
+                                    <circle cx="50" cy="50" r="40" fill="none" stroke="var(--accent-red)" stroke-width="20"
+                                            stroke-dasharray="175.9" stroke-dashoffset="228.7"/>
+                                </svg>
+                                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                                    <div style="font-size: 28px; font-weight: 800; color: var(--accent-green);">70%</div>
+                                    <div style="font-size: 10px; color: var(--text-muted);">S&P GREEN</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                            <div style="background: rgba(34, 197, 94, 0.15); border: 1px solid var(--accent-green); border-radius: 8px; padding: 12px; text-align: center;">
+                                <div style="font-size: 24px; font-weight: 800; color: var(--accent-green);">~70%</div>
+                                <div style="font-size: 10px; color: var(--text-secondary);">S&P 500 Stocks POSITIVE</div>
+                            </div>
+                            <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid var(--accent-red); border-radius: 8px; padding: 12px; text-align: center;">
+                                <div style="font-size: 24px; font-weight: 800; color: var(--accent-red);">~30%</div>
+                                <div style="font-size: 10px; color: var(--text-secondary);">S&P 500 Stocks NEGATIVE</div>
+                            </div>
+                        </div>
+                        <div class="interpretation">
+                            <strong>Narrow Crash, Not Market Crash:</strong> ~70% of the S&P 500 posted a positive return on Jan 27. 
+                            Even <strong>3 of the Magnificent Seven were positive</strong>. The selloff was concentrated in 
+                            AI-capex/semis/theme — not "everything everywhere down." This is the signature of efficiency repricing.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Magnificent Seven + Sector Impact -->
+            <div class="card-grid" style="margin-top: 20px;">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">💎 Magnificent Seven Impact</span>
+                    </div>
+                    <div class="card-body">
+                        <div style="display: grid; gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: rgba(239, 68, 68, 0.15); border-radius: 8px; border-left: 4px solid var(--accent-red);">
+                                <div style="font-size: 24px;">🟢</div>
+                                <div style="flex: 1;">
+                                    <div style="font-size: 13px; font-weight: 700;">NVIDIA (NVDA)</div>
+                                    <div style="font-size: 11px; color: var(--text-secondary);">Record single-day market cap loss</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 20px; font-weight: 800; color: var(--accent-red);">−17%</div>
+                                    <div style="font-size: 10px; color: var(--accent-red);">−$593B</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: rgba(249, 115, 22, 0.1); border-radius: 8px; border-left: 4px solid var(--accent-orange);">
+                                <div style="font-size: 24px;">🔵</div>
+                                <div style="flex: 1;">
+                                    <div style="font-size: 13px; font-weight: 700;">Alphabet (GOOGL)</div>
+                                    <div style="font-size: 11px; color: var(--text-secondary);">AI infrastructure exposure</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 20px; font-weight: 800; color: var(--accent-orange);">−4.2%</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: rgba(245, 158, 11, 0.1); border-radius: 8px; border-left: 4px solid var(--accent-amber);">
+                                <div style="font-size: 24px;">🪟</div>
+                                <div style="flex: 1;">
+                                    <div style="font-size: 13px; font-weight: 700;">Microsoft (MSFT)</div>
+                                    <div style="font-size: 11px; color: var(--text-secondary);">Azure AI capex repricing</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 20px; font-weight: 800; color: var(--accent-amber);">−2.1%</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: rgba(34, 197, 94, 0.1); border-radius: 8px; border-left: 4px solid var(--accent-green);">
+                                <div style="font-size: 24px;">📘</div>
+                                <div style="flex: 1;">
+                                    <div style="font-size: 13px; font-weight: 700;">Meta (META)</div>
+                                    <div style="font-size: 11px; color: var(--text-secondary);">"Open source wins" narrative beneficiary</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 20px; font-weight: 800; color: var(--accent-green);">+Positive</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 16px; padding: 12px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; text-align: center;">
+                            <div style="font-size: 12px; color: var(--text-secondary);">Mag 7 Combined Estimated Loss</div>
+                            <div style="font-size: 32px; font-weight: 800; color: var(--accent-red);">~$1 TRILLION</div>
+                            <div style="font-size: 10px; color: var(--text-muted);">Source: Axios, Business Insider</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">🔥 AI Complex Contagion</span>
+                    </div>
+                    <div class="card-body">
+                        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">Non-Mag 7 AI Ecosystem Damage</div>
+                        <div style="display: grid; gap: 8px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: var(--bg-tertiary); border-radius: 6px;">
+                                <span style="font-size: 12px;">Vertiv (VRT)</span>
+                                <span style="font-size: 14px; font-weight: 700; color: var(--accent-red);">−29.9%</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: var(--bg-tertiary); border-radius: 6px;">
+                                <span style="font-size: 12px;">Vistra (VST)</span>
+                                <span style="font-size: 14px; font-weight: 700; color: var(--accent-red);">−28.3%</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: var(--bg-tertiary); border-radius: 6px;">
+                                <span style="font-size: 12px;">Constellation Energy (CEG)</span>
+                                <span style="font-size: 14px; font-weight: 700; color: var(--accent-red);">−20.8%</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: var(--bg-tertiary); border-radius: 6px;">
+                                <span style="font-size: 12px;">Broadcom (AVGO)</span>
+                                <span style="font-size: 14px; font-weight: 700; color: var(--accent-red);">−17.4%</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: var(--bg-tertiary); border-radius: 6px;">
+                                <span style="font-size: 12px;">Oracle (ORCL)</span>
+                                <span style="font-size: 14px; font-weight: 700; color: var(--accent-red);">−13.8%</span>
+                            </div>
+                        </div>
+                        <div class="interpretation warning" style="margin-top: 16px;">
+                            <strong>Thematic Contagion:</strong> The repricing spread beyond chips to the entire "AI needs more power/data centers" 
+                            trade. Data center infra, power providers, and networking all got hit as markets questioned the 
+                            <strong>"AI capex infinity" thesis</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recovery Timeline & Safe Haven -->
+            <div class="card-grid" style="margin-top: 20px;">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">📈 Recovery Analysis</span>
+                    </div>
+                    <div class="card-body">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                            <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid var(--accent-green); border-radius: 10px; padding: 16px; text-align: center;">
+                                <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">INDEX RECOVERY</div>
+                                <div style="font-size: 28px; font-weight: 800; color: var(--accent-green);">1-2 Days</div>
+                                <div style="font-size: 11px; color: var(--text-secondary); margin-top: 6px;">
+                                    Jan 28: Nasdaq +2.03%<br>
+                                    Jan 28: S&P +0.92%<br>
+                                    Jan 28: Dow +0.4%
+                                </div>
+                            </div>
+                            <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid var(--accent-amber); border-radius: 10px; padding: 16px; text-align: center;">
+                                <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">NVDA RECOVERY</div>
+                                <div style="font-size: 28px; font-weight: 800; color: var(--accent-amber);">~3 Weeks</div>
+                                <div style="font-size: 11px; color: var(--text-secondary); margin-top: 6px;">
+                                    Almost fully recovered<br>
+                                    by Feb 18, 2025<br>
+                                    (Barron's)
+                                </div>
+                            </div>
+                        </div>
+                        <div class="interpretation">
+                            <strong>Recovery Pattern:</strong> Indices recovered quickly (days), but the most crowded AI hardware names 
+                            took weeks. This asymmetry is important: <strong>broad market resilience masks concentrated single-name risk</strong>. 
+                            A more sustained efficiency shock could extend recovery timelines significantly.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">🛡️ Safe Haven Response</span>
+                    </div>
+                    <div class="card-body">
+                        <div style="text-align: center; margin-bottom: 16px;">
+                            <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">10Y TREASURY YIELD (FLIGHT TO SAFETY)</div>
+                            <div style="font-size: 48px; font-weight: 800; color: var(--accent-ai);">4.53%</div>
+                            <div style="font-size: 12px; color: var(--accent-green);">↓ Yields fell as investors fled to bonds</div>
+                        </div>
+                        <div style="padding: 14px; background: var(--bg-tertiary); border-radius: 8px;">
+                            <div style="font-size: 12px; font-weight: 600; color: var(--accent-ai); margin-bottom: 8px;">VIX "Fear Gauge"</div>
+                            <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
+                                Reuters reported the "fear gauge" jumping that day, indicating a spike in implied volatility 
+                                as the market absorbed the efficiency shock. Classic risk-off behavior despite narrow breadth.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Lessons Box -->
+            <div style="margin-top: 20px; background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 12px; padding: 24px;">
+                <div style="font-size: 16px; font-weight: 700; color: var(--accent-red); margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+                    🎯 KEY LESSONS FROM DEEPSEEK R1 EVENT
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 28px; margin-bottom: 8px;">⚡</div>
+                        <div style="font-size: 12px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">Speed of Repricing</div>
+                        <div style="font-size: 11px; color: var(--text-secondary);">$593B evaporated in hours, not days. Efficiency shocks hit instantly.</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 28px; margin-bottom: 8px;">🎯</div>
+                        <div style="font-size: 12px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">Concentration Risk</div>
+                        <div style="font-size: 11px; color: var(--text-secondary);">70% of S&P was green. The damage was surgical, not systemic.</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 28px; margin-bottom: 8px;">📊</div>
+                        <div style="font-size: 12px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">Valuation Shock</div>
+                        <div style="font-size: 11px; color: var(--text-secondary);">Not earnings collapse. AI progress continued; only capex assumptions changed.</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 28px; margin-bottom: 8px;">🌐</div>
+                        <div style="font-size: 12px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">Open Source Threat</div>
+                        <div style="font-size: 11px; color: var(--text-secondary);">A Chinese lab released a model that repriced $1T in US market cap.</div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; padding: 16px; background: rgba(0, 0, 0, 0.3); border-radius: 8px; text-align: center;">
+                    <div style="font-size: 14px; color: var(--text-primary); font-weight: 600;">
+                        "This was a <span style="color: var(--accent-red);">proof-of-concept</span> that AI efficiency breakthroughs can trigger 
+                        <span style="color: var(--accent-red);">multiple compression without demand collapse</span>. 
+                        The next shock could be larger and longer-lasting."
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Risk Gauge Panel -->
+        <div class="risk-panel">
+            <div class="risk-gauge">
+                <div class="gauge-circle">
+                    <svg width="200" height="200" viewBox="0 0 200 200">
+                        <defs>
+                            <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#22c55e"/>
+                                <stop offset="50%" stop-color="#f59e0b"/>
+                                <stop offset="100%" stop-color="#ef4444"/>
+                            </linearGradient>
+                        </defs>
+                        <circle class="gauge-bg" cx="100" cy="100" r="80"></circle>
+                        <circle class="gauge-fill" cx="100" cy="100" r="80" 
+                                stroke="url(#gaugeGradient)"
+                                stroke-dasharray="502"
+                                stroke-dashoffset="100"></circle>
+                    </svg>
+                    <div class="gauge-center">
+                        <div class="gauge-score">80</div>
+                        <div class="gauge-max">/ 100</div>
+                    </div>
+                </div>
+                <div class="gauge-label">🚨 HIGH REPRICING RISK</div>
+            </div>
+            <div class="risk-factors">
+                <div class="risk-factor critical">
+                    <div class="factor-icon">🧠</div>
+                    <div class="factor-name">Model Efficiency Gains</div>
+                    <div class="factor-score critical">88</div>
+                </div>
+                <div class="risk-factor critical">
+                    <div class="factor-icon">🇨🇳</div>
+                    <div class="factor-name">China AI Competition</div>
+                    <div class="factor-score critical">85</div>
+                </div>
+                <div class="risk-factor high">
+                    <div class="factor-icon">⚡</div>
+                    <div class="factor-name">Energy Optimization</div>
+                    <div class="factor-score high">78</div>
+                </div>
+                <div class="risk-factor high">
+                    <div class="factor-icon">📉</div>
+                    <div class="factor-name">Capex Deflation</div>
+                    <div class="factor-score high">75</div>
+                </div>
+                <div class="risk-factor elevated">
+                    <div class="factor-icon">🔧</div>
+                    <div class="factor-name">Workload Specialization</div>
+                    <div class="factor-score elevated">72</div>
+                </div>
+                <div class="risk-factor elevated">
+                    <div class="factor-icon">📊</div>
+                    <div class="factor-name">Multiple Compression</div>
+                    <div class="factor-score elevated">70</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Thesis -->
+        <div class="thesis-box">
+            <div class="thesis-title">💡 CORE THESIS: The AI Bubble Deflates Via Multiple Compression, Not Demand Collapse</div>
+            <div class="thesis-content">
+                <p>
+                    If frontier AI owners achieve exponential efficiency gains through <strong>distillation, sparsity, and optimized inference</strong>, 
+                    AI progress will continue while <strong>compute and capex requirements fall sharply</strong>. This breaks the market's core assumption 
+                    that AI advancement requires ever-increasing GPU deployment.
+                </p>
+                <p style="margin-top: 12px;">
+                    The result is a <strong>valuation shock, not a technological failure</strong>. AGI-level systems would rapidly optimize architectures, 
+                    training regimes, and inference pathways, sharply <strong>reducing marginal compute required per unit of intelligence</strong>. 
+                    This invalidates the core valuation premise behind GPU-centric AI leaders: perpetual brute-force scaling.
+                </p>
+                <div class="thesis-highlight">
+                    <p>🎯 KEY POINT: Triggering multiple compression (−35% to −65%) in AI leaders <strong>WITHOUT</strong> an AI demand collapse.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 1: Expected Drawdowns -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-number">1</div>
+                <div class="section-title-group">
+                    <h2 class="section-title">Expected Drawdowns by Category</h2>
+                    <p class="section-subtitle">Valuation reset scenarios if efficiency supplants brute-force scaling</p>
+                </div>
+                <span class="section-badge badge-critical">CRITICAL</span>
+            </div>
+
+            <div class="card-grid">
+                <div class="card full-width">
+                    <div class="card-header">
+                        <span class="card-title">AI Efficiency Shock — Projected Drawdowns (2026)</span>
+                    </div>
+                    <div class="card-body">
+                        <table class="drawdown-table">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Examples</th>
+                                    <th>Drawdown Range</th>
+                                    <th>Visualization</th>
+                                    <th>Primary Driver</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="font-weight: 600; color: var(--accent-nvidia);">GPU / Compute Leaders</td>
+                                    <td>NVDA, AMD, AVGO</td>
+                                    <td style="color: var(--accent-red); font-weight: 700;">−40% to −65%</td>
+                                    <td>
+                                        <div class="drawdown-range">
+                                            <div class="drawdown-bar">
+                                                <div class="drawdown-fill" style="width: 65%; background: linear-gradient(90deg, #ef4444 40%, #dc2626 100%);"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="font-size: 11px; color: var(--text-secondary);">Multiple compression, ASP normalization, hyperscaler capex pauses</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: 600; color: var(--accent-ai);">Hyperscalers / AI Platforms</td>
+                                    <td>MSFT, GOOGL, AMZN, META</td>
+                                    <td style="color: var(--accent-orange); font-weight: 700;">−25% to −40%</td>
+                                    <td>
+                                        <div class="drawdown-range">
+                                            <div class="drawdown-bar">
+                                                <div class="drawdown-fill" style="width: 40%; background: linear-gradient(90deg, #f97316 40%, #ea580c 100%);"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="font-size: 11px; color: var(--text-secondary);">Overbuilt infrastructure, near-term ROIC dilution</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: 600; color: var(--accent-purple);">AI-Themed Indices / ETFs</td>
+                                    <td>BOTZ, ROBO, AIQ, SMH</td>
+                                    <td style="color: var(--accent-orange); font-weight: 700;">−35% to −50%</td>
+                                    <td>
+                                        <div class="drawdown-range">
+                                            <div class="drawdown-bar">
+                                                <div class="drawdown-fill" style="width: 50%; background: linear-gradient(90deg, #f97316 40%, #ef4444 100%);"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="font-size: 11px; color: var(--text-secondary);">Passive concentration in compute suppliers, forced de-risking</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: 600;">S&P 500</td>
+                                    <td>SPY, SPX</td>
+                                    <td style="color: var(--accent-amber); font-weight: 700;">−10% to −18%</td>
+                                    <td>
+                                        <div class="drawdown-range">
+                                            <div class="drawdown-bar">
+                                                <div class="drawdown-fill" style="width: 18%; background: linear-gradient(90deg, #f59e0b 40%, #f97316 100%);"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="font-size: 11px; color: var(--text-secondary);">Contained valuation shock (AI = 40% of S&P 500 cap)</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: 600;">NASDAQ</td>
+                                    <td>QQQ, NDX</td>
+                                    <td style="color: var(--accent-orange); font-weight: 700;">−18% to −30%</td>
+                                    <td>
+                                        <div class="drawdown-range">
+                                            <div class="drawdown-bar">
+                                                <div class="drawdown-fill" style="width: 30%; background: linear-gradient(90deg, #f97316 40%, #ef4444 100%);"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="font-size: 11px; color: var(--text-secondary);">Tech-heavy index, compute-heavy construction</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="interpretation warning" style="margin-top: 16px;">
+                            <strong>⚠️ CRITICAL:</strong> These drawdowns occur via <strong>multiple compression, not earnings collapse</strong>. 
+                            AI continues to advance, but capital rotates from brute-force compute to algorithmic efficiency, specialized silicon, 
+                            and edge-optimized architectures. The bubble deflates through repricing, creating a clean transition from 
+                            scale-driven AI to efficiency-driven AI economics.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Six Deflation Catalysts -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-number">2</div>
+                <div class="section-title-group">
+                    <h2 class="section-title">Six AI Deflation Catalysts</h2>
+                    <p class="section-subtitle">Forces driving efficiency-based repricing in 2026</p>
+                </div>
+                <span class="section-badge badge-high">HIGH RISK</span>
+            </div>
+
+            <div class="catalyst-grid">
+                <div class="catalyst-card efficiency">
+                    <div class="catalyst-icon">🤖</div>
+                    <div class="catalyst-title">1. Agentic AI Reaches Human-Level</div>
+                    <div class="catalyst-desc">
+                        By mid-2026, advanced agentic AI systems handle complex, multi-step tasks autonomously, 
+                        drastically reducing costs for expertise in knowledge-based industries. Near-zero marginal 
+                        costs disrupt SaaS models, leading to margin erosion for Big-7 firms.
+                    </div>
+                    <div class="catalyst-impact">Impact: Margin erosion, index drawdowns as AI value diffuses beyond hyperscalers</div>
+                </div>
+                <div class="catalyst-card efficiency">
+                    <div class="catalyst-icon">🧬</div>
+                    <div class="catalyst-title">2. Domain-Specific Efficient Models</div>
+                    <div class="catalyst-desc">
+                        Shift from massive LLMs to specialized, lightweight models (IBM Granite, Meta Llama) that 
+                        outperform on targeted tasks with far less compute. This efficiency deflates GPU demand, 
+                        pressuring Nvidia while commoditizing AI tech.
+                    </div>
+                    <div class="catalyst-impact">Impact: GPU oversupply, stock corrections where 40% of S&P is AI-tied</div>
+                </div>
+                <div class="catalyst-card adoption">
+                    <div class="catalyst-icon">📈</div>
+                    <div class="catalyst-title">3. AI Productivity Surges</div>
+                    <div class="catalyst-desc">
+                        Broad AI integration automating 7.5-15% of work hours by 2028, with 30% productivity gains 
+                        in early adopters. Deflationary across sectors, but 25-30% probability of AI disappointment 
+                        triggering growth slowdowns.
+                    </div>
+                    <div class="catalyst-impact">Impact: Big Tech margin erosion amid $450B+ capex, volatility in tech indices</div>
+                </div>
+                <div class="catalyst-card china">
+                    <div class="catalyst-icon">🇨🇳</div>
+                    <div class="catalyst-title">4. Chinese AI Chip Advances</div>
+                    <div class="catalyst-desc">
+                        Significant progress in China's AI semiconductor sector with competitive, lower-cost alternatives 
+                        to U.S. chips. LightGen all-optical chip achieves 100× energy efficiency. This deflates global 
+                        hardware prices, undermining Nvidia's dominance.
+                    </div>
+                    <div class="catalyst-impact">Impact: Trade tensions, margin compression from oversupply, Big-7 moat erosion</div>
+                </div>
+                <div class="catalyst-card energy">
+                    <div class="catalyst-icon">⚡</div>
+                    <div class="catalyst-title">5. Energy & Power Optimization</div>
+                    <div class="catalyst-desc">
+                        Innovations addressing power bottlenecks with more efficient data centers and low-power algorithms, 
+                        reducing operational costs. Curbs hyperscaler spending binges, but could pop the AI bubble if 
+                        buildouts falter.
+                    </div>
+                    <div class="catalyst-impact">Impact: Debt-fueled crashes in AMZN, MSFT; S&P 500 air pockets</div>
+                </div>
+                <div class="catalyst-card capex">
+                    <div class="catalyst-icon">💰</div>
+                    <div class="catalyst-title">6. Depreciation & Capex Efficiency</div>
+                    <div class="catalyst-desc">
+                        Accelerated depreciation of AI hardware (5-year lifecycles) forces better resource allocation. 
+                        Exposes overborrowing ($121B debt issuance in 2025, $100B more in 2026), causing profitability 
+                        shortfalls as hype deflates.
+                    </div>
+                    <div class="catalyst-impact">Impact: AI-centric index drawdowns amid recession risks</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Cost Deflation Evidence -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-number">3</div>
+                <div class="section-title-group">
+                    <h2 class="section-title">AI Cost Deflation Evidence</h2>
+                    <p class="section-subtitle">The cost of AI has fallen precipitously — breaking the GPU scaling assumption</p>
+                </div>
+                <span class="section-badge badge-critical">CRITICAL</span>
+            </div>
+
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Model Cost per Million Tokens (Log Scale)</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="cost-chart">
+                            <div class="cost-chart-title">Cost Efficiency Frontier — Price per 1M Tokens</div>
+                            
+                            <div class="cost-bar-item">
+                                <div class="cost-bar-header">
+                                    <span class="cost-bar-label">GPT-4 (Mar '23)</span>
+                                    <span class="cost-bar-value" style="color: var(--accent-red);">$37.50</span>
+                                </div>
+                                <div class="cost-bar">
+                                    <div class="cost-bar-fill" style="width: 100%; background: linear-gradient(90deg, #ef4444, #dc2626);">$37.50</div>
+                                </div>
+                            </div>
+                            
+                            <div class="cost-bar-item">
+                                <div class="cost-bar-header">
+                                    <span class="cost-bar-label">Claude 3 Opus (Mar '24)</span>
+                                    <span class="cost-bar-value" style="color: var(--accent-orange);">$15.00</span>
+                                </div>
+                                <div class="cost-bar">
+                                    <div class="cost-bar-fill" style="width: 40%; background: linear-gradient(90deg, #f97316, #ea580c);">$15.00</div>
+                                </div>
+                            </div>
+                            
+                            <div class="cost-bar-item">
+                                <div class="cost-bar-header">
+                                    <span class="cost-bar-label">Claude 3.5 Sonnet (Jun '24)</span>
+                                    <span class="cost-bar-value" style="color: var(--accent-amber);">$3.00</span>
+                                </div>
+                                <div class="cost-bar">
+                                    <div class="cost-bar-fill" style="width: 8%; background: linear-gradient(90deg, #f59e0b, #d97706);">$3.00</div>
+                                </div>
+                            </div>
+                            
+                            <div class="cost-bar-item">
+                                <div class="cost-bar-header">
+                                    <span class="cost-bar-label">DeepSeek r1 (Jan '25)</span>
+                                    <span class="cost-bar-value" style="color: var(--accent-cyan);">$2.19</span>
+                                </div>
+                                <div class="cost-bar">
+                                    <div class="cost-bar-fill" style="width: 5.8%; background: linear-gradient(90deg, #06b6d4, #0891b2);">$2.19</div>
+                                </div>
+                            </div>
+                            
+                            <div class="cost-bar-item">
+                                <div class="cost-bar-header">
+                                    <span class="cost-bar-label">GPT-5 Nano (Aug '25)</span>
+                                    <span class="cost-bar-value" style="color: var(--accent-green);">$0.14</span>
+                                </div>
+                                <div class="cost-bar">
+                                    <div class="cost-bar-fill" style="width: 0.4%; background: linear-gradient(90deg, #22c55e, #16a34a);"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="interpretation">
+                            <strong>📉 -99.6% Cost Reduction in 2.5 Years:</strong> From $37.50/1M tokens (GPT-4) to $0.14/1M tokens 
+                            (GPT-5 Nano). This is the deflation in action — AI capability advancing while compute requirements collapse. 
+                            Source: J.P. Morgan Asset Management, Epoch AI.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">What This Means for GPU Demand</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="metrics-row">
+                            <div class="metric-box">
+                                <div class="metric-label">Cost Decline</div>
+                                <div class="metric-value critical">-99.6%</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">Efficiency Gain</div>
+                                <div class="metric-value ai">268x</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">Timeline</div>
+                                <div class="metric-value">2.5 yrs</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">Trend</div>
+                                <div class="metric-value critical">↓ Accelerating</div>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline" style="margin-top: 20px;">
+                            <div class="timeline-item">
+                                <div class="timeline-date">Mar 2023</div>
+                                <div class="timeline-title">GPT-4 Launch — $37.50/1M tokens</div>
+                                <div class="timeline-desc">Peak pricing, maximum compute assumption</div>
+                            </div>
+                            <div class="timeline-item warning">
+                                <div class="timeline-date">Jan 2025</div>
+                                <div class="timeline-title">DeepSeek V1 Shock — -93% cost</div>
+                                <div class="timeline-desc">NVDA -17% single session, $590B evaporated</div>
+                            </div>
+                            <div class="timeline-item danger">
+                                <div class="timeline-date">Aug 2025</div>
+                                <div class="timeline-title">GPT-5 Nano — $0.14/1M tokens</div>
+                                <div class="timeline-desc">-99.6% from GPT-4, efficiency dominates</div>
+                            </div>
+                            <div class="timeline-item danger">
+                                <div class="timeline-date">2026</div>
+                                <div class="timeline-title">Efficiency Shock Scenario</div>
+                                <div class="timeline-desc">Multiple compression without demand collapse</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: China Competition -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-number">4</div>
+                <div class="section-title-group">
+                    <h2 class="section-title">China AI Competition Risk</h2>
+                    <p class="section-subtitle">Alternative compute paradigms bypassing US GPU dominance</p>
+                </div>
+                <span class="section-badge badge-critical">CRITICAL</span>
+            </div>
+
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">LightGen: All-Optical AI Chip</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="metrics-row">
+                            <div class="metric-box">
+                                <div class="metric-label">Energy Efficiency</div>
+                                <div class="metric-value critical">100×</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">Photonic Neurons</div>
+                                <div class="metric-value ai">Millions</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">Origin</div>
+                                <div class="metric-value" style="color: var(--accent-red);">🇨🇳 China</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">GPU Threat</div>
+                                <div class="metric-value critical">HIGH</div>
+                            </div>
+                        </div>
+                        
+                        <div class="interpretation warning" style="margin-top: 16px;">
+                            <strong>🚨 Paradigm Shift:</strong> Chinese researchers have unveiled "LightGen," an all-optical computing chip 
+                            integrating millions of photonic neurons capable of performing generative AI tasks at energy efficiencies 
+                            <strong>up to 100× greater than conventional electronic processors</strong>. This development underscores 
+                            China's push toward alternative compute paradigms under export constraints.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Market Implications</span>
+                    </div>
+                    <div class="card-body">
+                        <div style="display: grid; gap: 12px;">
+                            <div style="padding: 14px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px;">
+                                <div style="font-size: 12px; font-weight: 600; color: var(--accent-red); margin-bottom: 6px;">
+                                    🔴 GPU Commoditization
+                                </div>
+                                <div style="font-size: 11px; color: var(--text-secondary);">
+                                    Competitive alternatives deflate global hardware prices, undermining Nvidia dominance 
+                                    and Big-7 infrastructure moats
+                                </div>
+                            </div>
+                            <div style="padding: 14px; background: rgba(249,115,22,0.1); border: 1px solid rgba(249,115,22,0.3); border-radius: 8px;">
+                                <div style="font-size: 12px; font-weight: 600; color: var(--accent-orange); margin-bottom: 6px;">
+                                    🟠 Trade Tensions
+                                </div>
+                                <div style="font-size: 11px; color: var(--text-secondary);">
+                                    China retrofitting ASML DUV lithography to extend advanced-node capabilities despite 
+                                    export constraints — escalation risk
+                                </div>
+                            </div>
+                            <div style="padding: 14px; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); border-radius: 8px;">
+                                <div style="font-size: 12px; font-weight: 600; color: var(--accent-amber); margin-bottom: 6px;">
+                                    🟡 Alternative IPOs
+                                </div>
+                                <div style="font-size: 11px; color: var(--text-secondary);">
+                                    Cerebras preparing Q2 2026 IPO, capitalizing on demand for large-scale inference 
+                                    where performance-per-watt dominates raw FLOPS
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Workload Specialization -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-number">5</div>
+                <div class="section-title-group">
+                    <h2 class="section-title">Workload Specialization Over GPU Scaling</h2>
+                    <p class="section-subtitle">Markets obsessing over GPUs while missing the specialization transition</p>
+                </div>
+                <span class="section-badge badge-high">HIGH RISK</span>
+            </div>
+
+            <div class="card-grid">
+                <div class="card full-width">
+                    <div class="card-header">
+                        <span class="card-title">The Mispricing: GPU-Centric vs Workload-Specific Architectures</span>
+                    </div>
+                    <div class="card-body">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                            <div style="padding: 20px; background: rgba(118, 185, 0, 0.1); border: 1px solid rgba(118, 185, 0, 0.3); border-radius: 12px;">
+                                <div style="font-size: 14px; font-weight: 700; color: var(--accent-nvidia); margin-bottom: 12px;">
+                                    🎮 Current Market Assumption
+                                </div>
+                                <ul style="font-size: 12px; color: var(--text-secondary); line-height: 1.8; padding-left: 20px;">
+                                    <li>AI = GPU-centric scaling story</li>
+                                    <li>Intelligence gains require ever-greater compute</li>
+                                    <li>General-purpose GPUs dominate forever</li>
+                                    <li>Training demand extrapolates indefinitely</li>
+                                    <li>Raw FLOPS = value</li>
+                                </ul>
+                            </div>
+                            <div style="padding: 20px; background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 12px;">
+                                <div style="font-size: 14px; font-weight: 700; color: var(--accent-ai); margin-bottom: 12px;">
+                                    ⚡ Economic Reality
+                                </div>
+                                <ul style="font-size: 12px; color: var(--text-secondary); line-height: 1.8; padding-left: 20px;">
+                                    <li>High-value workloads favor <strong>workload-specific architectures</strong></li>
+                                    <li>ASICs, heterogeneous accelerators, edge SoCs dominate</li>
+                                    <li>Performance comes from <strong>specialization & optimization</strong></li>
+                                    <li>Inference economics > training demand</li>
+                                    <li>Algorithmic efficiency + domain-specific silicon = value</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="interpretation" style="margin-top: 20px;">
+                            <strong>💡 The Market Has Not Priced This Transition:</strong> As AI matures, performance gains increasingly 
+                            come from <strong>specialization, optimization, and system-level integration</strong>, not raw FLOPS. 
+                            This shifts value away from generalized compute suppliers toward algorithmic efficiency, domain-specific 
+                            silicon, and verticalized AI stacks. The transition marks the deflation of the AI bubble through 
+                            <strong>multiple compression rather than technological failure</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Synthesis -->
+        <section class="synthesis-panel">
+            <h3 class="synthesis-title">🧠 AI Synthesis: The Efficiency Shock Scenario</h3>
+            <div class="synthesis-grid">
+                <div class="synthesis-item">
+                    <h4>The Core Dynamic</h4>
+                    <p>
+                        AI progress continues while compute requirements collapse. This is not a failure of AI — 
+                        it's a success that invalidates the brute-force scaling thesis. The market has priced 
+                        perpetual GPU demand growth; efficiency gains break that assumption.
+                    </p>
+                </div>
+                <div class="synthesis-item">
+                    <h4>Valuation Mechanics</h4>
+                    <p>
+                        GPU leaders face −40% to −65% drawdowns driven by multiple compression, ASP normalization, 
+                        and hyperscaler capex pauses — <strong>despite continued AI progress</strong>. This is a 
+                        valuation shock, not an earnings collapse.
+                    </p>
+                </div>
+                <div class="synthesis-item">
+                    <h4>Capital Rotation</h4>
+                    <p>
+                        Money rotates from brute-force compute toward algorithmic efficiency, specialized silicon, 
+                        and edge-optimized architectures. Winners: inference-optimized chips, domain-specific accelerators, 
+                        software efficiency plays. Losers: general-purpose GPU suppliers.
+                    </p>
+                </div>
+                <div class="synthesis-item">
+                    <h4>Timeline Risk</h4>
+                    <p>
+                        DeepSeek V1 (Jan 2025) proved this can happen fast: -17% NVDA in one session. The next 
+                        efficiency breakthrough — whether from AGI optimization, Chinese alternatives, or 
+                        specialization — could trigger a larger, more sustained repricing event.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p class="footer-title">AI Deflation Risk Dashboard | Efficiency-Driven Repricing Monitor</p>
+            <p class="footer-disclaimer">
+                This dashboard tracks AI efficiency breakthroughs that could trigger multiple compression in 
+                AI-centric equities without demand collapse. Analysis generated: January 2, 2026.
+            </p>
+            
+            <div class="legal-disclaimer">
+                <p>
+                    <strong>⚠️ IMPORTANT LEGAL DISCLAIMER:</strong> This dashboard and all information contained herein is provided for 
+                    <strong>informational and educational purposes only</strong> and does not constitute investment advice, financial advice, 
+                    trading advice, or any other sort of advice. <strong>Nothing on this dashboard should be construed as a recommendation 
+                    to buy, sell, or hold any security, cryptocurrency, derivative, or other financial instrument.</strong>
+                </p>
+                <p>
+                    The analysis presented is based on historical data, statistical models, and AI-generated interpretations which may contain 
+                    errors, inaccuracies, or omissions. <strong>Past performance is not indicative of future results.</strong> The scenarios 
+                    presented are speculative assessments and may not materialize. You should consult with a qualified financial advisor, 
+                    broker, or other licensed professional before making any investment decisions.
+                </p>
+                <p>
+                    The creators, developers, and distributors of this dashboard <strong>assume no responsibility or liability</strong> for any errors 
+                    or omissions in the content, or for any actions taken based on the information provided herein. By using this dashboard, 
+                    you acknowledge and agree that you are solely responsible for your own investment decisions and that you use this 
+                    information at your own risk.
+                </p>
+                <p class="copyright">
+                    © 2026 | Powered by Claude AI | Not affiliated with any broker, exchange, or financial institution.
+                </p>
+            </div>
+            
+            <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #1e293b; text-align: center; font-size: 11px; color: #94a3b8;">
+                <a href="https://alphaonedev.github.io/financial-risk-dashboard/">Financial Risk Analysis Dashboard</a> © 2026 by <a href="https://github.com/alphaonedev">AlphaOne LLC</a> is licensed under <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International</a><img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/nc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/nd.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;">
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
