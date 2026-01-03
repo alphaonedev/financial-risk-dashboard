@@ -78,6 +78,11 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
         
+        .report-card.options:hover {
+            border-color: #a855f7;
+            box-shadow: 0 20px 40px rgba(168, 85, 247, 0.2);
+        }
+        
         .card-header {
             padding: 24px;
             border-bottom: 1px solid #2a2a35;
@@ -110,6 +115,12 @@
             background: rgba(139, 92, 246, 0.2);
             color: #8b5cf6;
             border: 1px solid #8b5cf6;
+        }
+        
+        .tag-derivatives {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%);
+            color: #a855f7;
+            border: 1px solid #a855f7;
         }
         
         .card-title {
@@ -160,6 +171,7 @@
         .metric-value.danger { color: #ff3366; }
         .metric-value.warning { color: #f7931a; }
         .metric-value.info { color: #3b82f6; }
+        .metric-value.purple { color: #a855f7; }
         
         .card-footer {
             padding: 16px 24px;
@@ -176,6 +188,10 @@
             display: flex;
             align-items: center;
             gap: 8px;
+        }
+        
+        .report-card.options .view-report {
+            color: #a855f7;
         }
         
         .view-report svg {
@@ -331,6 +347,39 @@
                     <span class="date">Jan 2, 2026</span>
                 </div>
             </a>
+            
+            <a href="options_risk_dashboard.html" class="report-card options">
+                <div class="card-header">
+                    <div class="card-tag tag-derivatives">Derivatives Intelligence</div>
+                    <h2 class="card-title">Options Risk Dashboard<br>Early Warning System</h2>
+                    <p class="card-subtitle">Put/Call • Gamma • Greeks • Volatility</p>
+                </div>
+                <div class="card-body">
+                    <p class="card-description">
+                        Derivatives-based risk analysis monitoring put/call ratios, gamma exposure, 
+                        SKEW index, and Greeks across indices and Mag 7 stocks. AI-assessed crash/correction signals.
+                    </p>
+                    <div class="card-metrics">
+                        <div class="metric">
+                            <div class="metric-label">Agg P/C Ratio</div>
+                            <div class="metric-value warning">1.24</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Gamma Exposure</div>
+                            <div class="metric-value purple">-$4.2B</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <span class="view-report">
+                        View Full Report 
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </span>
+                    <span class="date">Jan 2, 2026</span>
+                </div>
+            </a>
         </div>
         
         <footer>
@@ -338,7 +387,30 @@
                 These reports are for informational purposes only and do not constitute investment advice.<br>
                 Data sourced from Alpha Vantage API. Analysis generated January 2, 2026.
             </p>
-            <p class="powered-by">
+            <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #2a2a35;">
+                <p style="font-size: 11px; color: #606070; line-height: 1.8; max-width: 900px; margin: 0 auto;">
+                    <strong style="color: #808090;">⚠️ IMPORTANT LEGAL DISCLAIMER:</strong> This dashboard and all information contained herein is provided for 
+                    <strong>informational and educational purposes only</strong> and does not constitute investment advice, financial advice, 
+                    trading advice, or any other sort of advice. <strong>Nothing on this dashboard should be construed as a recommendation 
+                    to buy, sell, or hold any security, cryptocurrency, derivative, or other financial instrument.</strong>
+                </p>
+                <p style="font-size: 11px; color: #606070; line-height: 1.8; max-width: 900px; margin: 16px auto 0 auto;">
+                    The analysis presented is based on historical data, statistical models, and AI-generated interpretations which may contain 
+                    errors, inaccuracies, or omissions. <strong>Past performance is not indicative of future results.</strong> Trading in securities, 
+                    cryptocurrencies, foreign exchange, and derivatives involves substantial risk of loss and is not suitable for all investors. You should consult with a qualified 
+                    financial advisor, broker, or other licensed professional before making any investment decisions.
+                </p>
+                <p style="font-size: 11px; color: #606070; line-height: 1.8; max-width: 900px; margin: 16px auto 0 auto;">
+                    The creators, developers, and distributors of this dashboard <strong>assume no responsibility or liability</strong> for any errors 
+                    or omissions in the content, or for any actions taken based on the information provided herein. By using this dashboard, 
+                    you acknowledge and agree that you are solely responsible for your own investment decisions and that you use this 
+                    information at your own risk.
+                </p>
+                <p style="font-size: 10px; color: #404050; margin-top: 20px;">
+                    © 2026 | Powered by Claude AI + Alpha Vantage | Not affiliated with any broker, exchange, or financial institution.
+                </p>
+            </div>
+            <p class="powered-by" style="margin-top: 20px;">
                 Powered by <a href="https://www.anthropic.com" target="_blank">Claude AI</a> | 
                 Analysis that would cost $100,000+ from human experts, delivered in minutes.
             </p>

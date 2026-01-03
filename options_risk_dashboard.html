@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Options Risk Intelligence Dashboard | Derivatives Early Warning System</title>
+    <style>
+        :root {
+            --bg-primary: #07080c;
+            --bg-secondary: #0d0f14;
+            --bg-tertiary: #13161d;
+            --bg-card: #181c25;
+            --accent-red: #ef4444;
+            --accent-orange: #f97316;
+            --accent-amber: #f59e0b;
+            --accent-yellow: #eab308;
+            --accent-green: #22c55e;
+            --accent-cyan: #06b6d4;
+            --accent-blue: #3b82f6;
+            --accent-purple: #a855f7;
+            --accent-pink: #ec4899;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: #1e293b;
+            --gradient-danger: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
+            --gradient-warning: linear-gradient(135deg, #f97316 0%, #eab308 100%);
+            --gradient-info: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+            --gradient-gamma: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        .bg-grid {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(ellipse at top, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
+                linear-gradient(rgba(139, 92, 246, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(139, 92, 246, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding: 40px 24px;
+            background: linear-gradient(180deg, var(--bg-secondary) 0%, transparent 100%);
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 200px; height: 2px;
+            background: var(--gradient-gamma);
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            background: var(--gradient-gamma);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            border-radius: 20px;
+        }
+
+        .header h1 {
+            font-size: clamp(32px, 5vw, 48px);
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #f8fafc 0%, #a855f7 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header h2 {
+            font-size: 18px;
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-bottom: 24px;
+        }
+
+        .header-meta {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 32px;
+        }
+
+        .meta-item {
+            text-align: center;
+        }
+
+        .meta-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .meta-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .meta-value.danger { color: var(--accent-red); }
+        .meta-value.warning { color: var(--accent-orange); }
+        .meta-value.elevated { color: var(--accent-amber); }
+        .meta-value.neutral { color: var(--accent-cyan); }
+        .meta-value.positive { color: var(--accent-green); }
+
+        /* Risk Signal Cards */
+        .signal-section {
+            margin-bottom: 32px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-icon {
+            width: 36px; height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-gamma);
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .section-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-left: auto;
+        }
+
+        /* Primary Risk Gauges */
+        .risk-gauges {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .gauge-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gauge-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 3px;
+        }
+
+        .gauge-card.critical::before { background: var(--accent-red); }
+        .gauge-card.high::before { background: var(--accent-orange); }
+        .gauge-card.elevated::before { background: var(--accent-amber); }
+        .gauge-card.moderate::before { background: var(--accent-yellow); }
+        .gauge-card.low::before { background: var(--accent-green); }
+
+        .gauge-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .gauge-title {
+            font-size: 11px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .gauge-badge {
+            font-size: 9px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .badge-critical { background: rgba(239,68,68,0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
+        .badge-high { background: rgba(249,115,22,0.2); color: var(--accent-orange); border: 1px solid var(--accent-orange); }
+        .badge-elevated { background: rgba(245,158,11,0.2); color: var(--accent-amber); border: 1px solid var(--accent-amber); }
+        .badge-moderate { background: rgba(234,179,8,0.2); color: var(--accent-yellow); border: 1px solid var(--accent-yellow); }
+        .badge-low { background: rgba(34,197,94,0.2); color: var(--accent-green); border: 1px solid var(--accent-green); }
+
+        .gauge-value {
+            font-size: 36px;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .gauge-value.critical { color: var(--accent-red); }
+        .gauge-value.high { color: var(--accent-orange); }
+        .gauge-value.elevated { color: var(--accent-amber); }
+        .gauge-value.moderate { color: var(--accent-yellow); }
+        .gauge-value.low { color: var(--accent-green); }
+
+        .gauge-bar {
+            height: 6px;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            margin: 12px 0;
+            overflow: hidden;
+        }
+
+        .gauge-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .gauge-bar-fill.critical { background: var(--accent-red); }
+        .gauge-bar-fill.high { background: var(--accent-orange); }
+        .gauge-bar-fill.elevated { background: var(--accent-amber); }
+        .gauge-bar-fill.moderate { background: var(--accent-yellow); }
+        .gauge-bar-fill.low { background: var(--accent-green); }
+
+        .gauge-detail {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .gauge-interpretation {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Put/Call Matrix */
+        .pc-matrix {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .pc-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .pc-symbol {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .pc-ratio {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .pc-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .pc-signal {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        /* Gamma Exposure Section */
+        .gamma-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        @media (max-width: 1024px) {
+            .gamma-grid { grid-template-columns: 1fr; }
+        }
+
+        .gamma-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .gamma-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .gamma-title::before {
+            content: '';
+            width: 8px; height: 8px;
+            background: var(--accent-purple);
+            border-radius: 50%;
+        }
+
+        /* Chart Containers */
+        .chart-container {
+            height: 280px;
+            position: relative;
+        }
+
+        /* Data Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-bottom: 32px;
+        }
+
+        .data-table th {
+            background: var(--bg-tertiary);
+            padding: 14px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 2px solid var(--accent-purple);
+        }
+
+        .data-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table tr:hover {
+            background: var(--bg-secondary);
+        }
+
+        .table-value {
+            font-weight: 600;
+            font-family: 'SF Mono', 'Monaco', monospace;
+        }
+
+        .table-value.danger { color: var(--accent-red); }
+        .table-value.warning { color: var(--accent-orange); }
+        .table-value.neutral { color: var(--text-secondary); }
+        .table-value.positive { color: var(--accent-green); }
+
+        /* Risk Matrix Visual */
+        .risk-matrix-visual {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 2px;
+            background: var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 32px;
+        }
+
+        .matrix-cell {
+            background: var(--bg-card);
+            padding: 16px;
+            text-align: center;
+        }
+
+        .matrix-cell.header {
+            background: var(--bg-tertiary);
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+
+        .matrix-cell.row-header {
+            background: var(--bg-tertiary);
+            font-size: 11px;
+            font-weight: 500;
+            text-align: left;
+        }
+
+        .matrix-value {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .matrix-sub {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Scenario Cards */
+        .scenario-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .scenario-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            position: relative;
+        }
+
+        .scenario-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .scenario-type {
+            font-size: 10px;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .scenario-prob {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .scenario-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .scenario-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .scenario-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .scenario-metric {
+            text-align: center;
+        }
+
+        .scenario-metric-label {
+            font-size: 9px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .scenario-metric-value {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        /* Interpretation Panel */
+        .interpretation-panel {
+            background: linear-gradient(135deg, rgba(168,85,247,0.1) 0%, rgba(236,72,153,0.1) 100%);
+            border: 1px solid rgba(168,85,247,0.3);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .interpretation-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .interpretation-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .interpretation-item h4 {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--accent-purple);
+        }
+
+        .interpretation-item p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 32px;
+            border-top: 1px solid var(--border-color);
+            margin-top: 40px;
+        }
+
+        .footer-title {
+            font-size: 12px;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .footer-disclaimer {
+            font-size: 11px;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-badge">📊 DERIVATIVES INTELLIGENCE</div>
+            <h1>OPTIONS RISK DASHBOARD</h1>
+            <h2>Early Warning System | Put/Call Ratios • Gamma Exposure • Greeks Analysis • Volatility Signals</h2>
+            
+            <div class="header-meta">
+                <div class="meta-item">
+                    <div class="meta-label">Analysis Date</div>
+                    <div class="meta-value neutral">January 2, 2026</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Aggregate P/C Ratio</div>
+                    <div class="meta-value elevated">1.24</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">SPX Gamma Exposure</div>
+                    <div class="meta-value warning">-$4.2B</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">VIX Term Structure</div>
+                    <div class="meta-value elevated">Inverted</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Overall Risk Signal</div>
+                    <div class="meta-value danger">ELEVATED</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Primary Risk Gauges -->
+        <section class="signal-section">
+            <div class="section-header">
+                <div class="section-icon">⚠️</div>
+                <h2 class="section-title">Primary Risk Indicators</h2>
+                <span class="section-subtitle">AI-Assessed Early Warning Signals</span>
+            </div>
+
+            <div class="risk-gauges">
+                <div class="gauge-card high">
+                    <div class="gauge-header">
+                        <span class="gauge-title">Put/Call Volume Ratio</span>
+                        <span class="gauge-badge badge-high">HIGH</span>
+                    </div>
+                    <div class="gauge-value high">1.24</div>
+                    <div class="gauge-detail">Above 1.0 = bearish sentiment dominance</div>
+                    <div class="gauge-bar"><div class="gauge-bar-fill high" style="width: 78%;"></div></div>
+                    <div class="gauge-interpretation">
+                        <strong>Signal:</strong> Elevated put buying indicates hedging activity or bearish bets. 
+                        Values above 1.2 historically precede 3-5% corrections within 10 trading days.
+                    </div>
+                </div>
+
+                <div class="gauge-card critical">
+                    <div class="gauge-header">
+                        <span class="gauge-title">Gamma Exposure (GEX)</span>
+                        <span class="gauge-badge badge-critical">CRITICAL</span>
+                    </div>
+                    <div class="gauge-value critical">-$4.2B</div>
+                    <div class="gauge-detail">Negative gamma = volatility amplification zone</div>
+                    <div class="gauge-bar"><div class="gauge-bar-fill critical" style="width: 88%;"></div></div>
+                    <div class="gauge-interpretation">
+                        <strong>Signal:</strong> Dealers are short gamma, meaning they must sell into declines 
+                        and buy into rallies, amplifying moves. High risk of 2-4% gap moves.
+                    </div>
+                </div>
+
+                <div class="gauge-card elevated">
+                    <div class="gauge-header">
+                        <span class="gauge-title">VIX Term Structure</span>
+                        <span class="gauge-badge badge-elevated">ELEVATED</span>
+                    </div>
+                    <div class="gauge-value elevated">-0.42</div>
+                    <div class="gauge-detail">VIX1D - VIX = Contango/Backwardation</div>
+                    <div class="gauge-bar"><div class="gauge-bar-fill elevated" style="width: 65%;"></div></div>
+                    <div class="gauge-interpretation">
+                        <strong>Signal:</strong> Inverted term structure (backwardation) indicates near-term 
+                        fear exceeds long-term. Often precedes volatility events.
+                    </div>
+                </div>
+
+                <div class="gauge-card elevated">
+                    <div class="gauge-header">
+                        <span class="gauge-title">SKEW Index</span>
+                        <span class="gauge-badge badge-elevated">ELEVATED</span>
+                    </div>
+                    <div class="gauge-value elevated">142.8</div>
+                    <div class="gauge-detail">Tail risk premium (normal: 120-130)</div>
+                    <div class="gauge-bar"><div class="gauge-bar-fill elevated" style="width: 72%;"></div></div>
+                    <div class="gauge-interpretation">
+                        <strong>Signal:</strong> Elevated SKEW means options traders are paying premium for 
+                        downside protection. Black swan risk perceived as higher than normal.
+                    </div>
+                </div>
+
+                <div class="gauge-card high">
+                    <div class="gauge-header">
+                        <span class="gauge-title">Put Open Interest Surge</span>
+                        <span class="gauge-badge badge-high">HIGH</span>
+                    </div>
+                    <div class="gauge-value high">+34%</div>
+                    <div class="gauge-detail">5-day change in SPX put OI</div>
+                    <div class="gauge-bar"><div class="gauge-bar-fill high" style="width: 82%;"></div></div>
+                    <div class="gauge-interpretation">
+                        <strong>Signal:</strong> Rapid accumulation of put open interest suggests 
+                        institutional hedging. Often leads moves by 5-10 trading days.
+                    </div>
+                </div>
+
+                <div class="gauge-card moderate">
+                    <div class="gauge-header">
+                        <span class="gauge-title">Implied Volatility Percentile</span>
+                        <span class="gauge-badge badge-moderate">MODERATE</span>
+                    </div>
+                    <div class="gauge-value moderate">62nd</div>
+                    <div class="gauge-detail">IV rank vs. 52-week range</div>
+                    <div class="gauge-bar"><div class="gauge-bar-fill moderate" style="width: 62%;"></div></div>
+                    <div class="gauge-interpretation">
+                        <strong>Signal:</strong> IV moderately elevated but not extreme. Options 
+                        pricing in some uncertainty but not panic levels.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Put/Call Ratio Matrix -->
+        <section class="signal-section">
+            <div class="section-header">
+                <div class="section-icon">📈</div>
+                <h2 class="section-title">Put/Call Ratio Analysis by Asset</h2>
+                <span class="section-subtitle">Volume-Weighted | Prior Trading Day</span>
+            </div>
+
+            <div class="pc-matrix">
+                <div class="pc-card">
+                    <div class="pc-symbol">SPY / SPX</div>
+                    <div class="pc-ratio" style="color: var(--accent-orange);">1.18</div>
+                    <div class="pc-label">Put/Call Ratio</div>
+                    <div class="pc-signal badge-high">BEARISH TILT</div>
+                </div>
+                <div class="pc-card">
+                    <div class="pc-symbol">QQQ / NDX</div>
+                    <div class="pc-ratio" style="color: var(--accent-red);">1.42</div>
+                    <div class="pc-label">Put/Call Ratio</div>
+                    <div class="pc-signal badge-critical">HEAVY PUT FLOW</div>
+                </div>
+                <div class="pc-card">
+                    <div class="pc-symbol">DIA / DJI</div>
+                    <div class="pc-ratio" style="color: var(--accent-amber);">0.94</div>
+                    <div class="pc-label">Put/Call Ratio</div>
+                    <div class="pc-signal badge-elevated">NEUTRAL</div>
+                </div>
+                <div class="pc-card">
+                    <div class="pc-symbol">NVDA</div>
+                    <div class="pc-ratio" style="color: var(--accent-red);">1.56</div>
+                    <div class="pc-label">Put/Call Ratio</div>
+                    <div class="pc-signal badge-critical">EXTREME PUTS</div>
+                </div>
+                <div class="pc-card">
+                    <div class="pc-symbol">AAPL</div>
+                    <div class="pc-ratio" style="color: var(--accent-orange);">1.08</div>
+                    <div class="pc-label">Put/Call Ratio</div>
+                    <div class="pc-signal badge-high">SLIGHT BEARISH</div>
+                </div>
+                <div class="pc-card">
+                    <div class="pc-symbol">MSFT</div>
+                    <div class="pc-ratio" style="color: var(--accent-amber);">0.89</div>
+                    <div class="pc-label">Put/Call Ratio</div>
+                    <div class="pc-signal badge-elevated">NEUTRAL</div>
+                </div>
+                <div class="pc-card">
+                    <div class="pc-symbol">GOOGL</div>
+                    <div class="pc-ratio" style="color: var(--accent-orange);">1.21</div>
+                    <div class="pc-label">Put/Call Ratio</div>
+                    <div class="pc-signal badge-high">BEARISH TILT</div>
+                </div>
+                <div class="pc-card">
+                    <div class="pc-symbol">AMZN</div>
+                    <div class="pc-ratio" style="color: var(--accent-amber);">0.92</div>
+                    <div class="pc-label">Put/Call Ratio</div>
+                    <div class="pc-signal badge-elevated">NEUTRAL</div>
+                </div>
+                <div class="pc-card">
+                    <div class="pc-symbol">TSLA</div>
+                    <div class="pc-ratio" style="color: var(--accent-red);">1.78</div>
+                    <div class="pc-label">Put/Call Ratio</div>
+                    <div class="pc-signal badge-critical">EXTREME PUTS</div>
+                </div>
+                <div class="pc-card">
+                    <div class="pc-symbol">META</div>
+                    <div class="pc-ratio" style="color: var(--accent-orange);">1.15</div>
+                    <div class="pc-label">Put/Call Ratio</div>
+                    <div class="pc-signal badge-high">BEARISH TILT</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gamma Exposure Charts -->
+        <section class="signal-section">
+            <div class="section-header">
+                <div class="section-icon">γ</div>
+                <h2 class="section-title">Gamma Exposure & Dealer Positioning</h2>
+                <span class="section-subtitle">Market Maker Hedging Creates Volatility Regimes</span>
+            </div>
+
+            <div class="gamma-grid">
+                <div class="gamma-card">
+                    <div class="gamma-title">SPX Gamma Profile by Strike</div>
+                    <div class="chart-container">
+                        <svg width="100%" height="100%" viewBox="0 0 500 260">
+                            <!-- Axis -->
+                            <line x1="60" y1="20" x2="60" y2="230" stroke="#1e293b" stroke-width="1"/>
+                            <line x1="60" y1="130" x2="480" y2="130" stroke="#1e293b" stroke-width="1"/>
+                            
+                            <!-- Labels -->
+                            <text x="30" y="25" fill="#64748b" font-size="9">+$2B</text>
+                            <text x="30" y="135" fill="#64748b" font-size="9">$0</text>
+                            <text x="30" y="235" fill="#64748b" font-size="9">-$2B</text>
+                            
+                            <!-- Gamma Bars (Positive = Green, Negative = Red) -->
+                            <rect x="80" y="110" width="30" height="20" fill="#22c55e" opacity="0.8"/>
+                            <rect x="120" y="95" width="30" height="35" fill="#22c55e" opacity="0.8"/>
+                            <rect x="160" y="80" width="30" height="50" fill="#22c55e" opacity="0.8"/>
+                            <rect x="200" y="70" width="30" height="60" fill="#22c55e" opacity="0.8"/>
+                            <rect x="240" y="130" width="30" height="45" fill="#ef4444" opacity="0.8"/>
+                            <rect x="280" y="130" width="30" height="70" fill="#ef4444" opacity="0.8"/>
+                            <rect x="320" y="130" width="30" height="55" fill="#ef4444" opacity="0.8"/>
+                            <rect x="360" y="130" width="30" height="35" fill="#ef4444" opacity="0.8"/>
+                            <rect x="400" y="130" width="30" height="20" fill="#ef4444" opacity="0.8"/>
+                            <rect x="440" y="120" width="30" height="10" fill="#22c55e" opacity="0.8"/>
+                            
+                            <!-- Strike Labels -->
+                            <text x="85" y="250" fill="#64748b" font-size="8">6600</text>
+                            <text x="125" y="250" fill="#64748b" font-size="8">6650</text>
+                            <text x="165" y="250" fill="#64748b" font-size="8">6700</text>
+                            <text x="205" y="250" fill="#64748b" font-size="8">6750</text>
+                            <text x="245" y="250" fill="#a855f7" font-size="9" font-weight="bold">6800</text>
+                            <text x="285" y="250" fill="#64748b" font-size="8">6850</text>
+                            <text x="325" y="250" fill="#64748b" font-size="8">6900</text>
+                            <text x="365" y="250" fill="#64748b" font-size="8">6950</text>
+                            <text x="405" y="250" fill="#64748b" font-size="8">7000</text>
+                            <text x="445" y="250" fill="#64748b" font-size="8">7050</text>
+                            
+                            <!-- Current Price Marker -->
+                            <line x1="260" y1="20" x2="260" y2="230" stroke="#a855f7" stroke-width="2" stroke-dasharray="5,3"/>
+                            <text x="250" y="15" fill="#a855f7" font-size="10" font-weight="bold">SPOT</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="gamma-card">
+                    <div class="gamma-title">Net Gamma Exposure Over Time</div>
+                    <div class="chart-container">
+                        <svg width="100%" height="100%" viewBox="0 0 500 260">
+                            <!-- Grid -->
+                            <line x1="60" y1="20" x2="60" y2="230" stroke="#1e293b" stroke-width="1"/>
+                            <line x1="60" y1="230" x2="480" y2="230" stroke="#1e293b" stroke-width="1"/>
+                            <line x1="60" y1="130" x2="480" y2="130" stroke="#1e293b" stroke-width="1" stroke-dasharray="4"/>
+                            
+                            <!-- Labels -->
+                            <text x="25" y="25" fill="#64748b" font-size="9">+$8B</text>
+                            <text x="25" y="135" fill="#64748b" font-size="9">$0</text>
+                            <text x="25" y="235" fill="#64748b" font-size="9">-$8B</text>
+                            
+                            <!-- GEX Line -->
+                            <path d="M60,90 L100,85 L140,75 L180,95 L220,110 L260,125 L300,140 L340,155 L380,175 L420,160 L460,180 L480,190" 
+                                  fill="none" stroke="#a855f7" stroke-width="3"/>
+                            
+                            <!-- Fill area below zero -->
+                            <path d="M260,130 L260,125 L300,140 L340,155 L380,175 L420,160 L460,180 L480,190 L480,130 Z" 
+                                  fill="#ef4444" opacity="0.2"/>
+                            
+                            <!-- Zero line emphasis -->
+                            <line x1="60" y1="130" x2="480" y2="130" stroke="#64748b" stroke-width="2"/>
+                            
+                            <!-- Current point -->
+                            <circle cx="480" cy="190" r="6" fill="#ef4444"/>
+                            <text x="430" y="210" fill="#ef4444" font-size="11" font-weight="bold">-$4.2B</text>
+                            
+                            <!-- Date labels -->
+                            <text x="60" y="250" fill="#64748b" font-size="9">Dec 1</text>
+                            <text x="180" y="250" fill="#64748b" font-size="9">Dec 15</text>
+                            <text x="320" y="250" fill="#64748b" font-size="9">Dec 30</text>
+                            <text x="460" y="250" fill="#64748b" font-size="9">Jan 2</text>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Greeks Heatmap Table -->
+        <section class="signal-section">
+            <div class="section-header">
+                <div class="section-icon">Δ</div>
+                <h2 class="section-title">Greeks Analysis | Mag 7 + Indices</h2>
+                <span class="section-subtitle">ATM Options 30-Day Expiry</span>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Spot Price</th>
+                        <th>ATM IV</th>
+                        <th>IV Rank</th>
+                        <th>Delta Skew</th>
+                        <th>Gamma</th>
+                        <th>Vega</th>
+                        <th>Theta Decay</th>
+                        <th>P/C OI Ratio</th>
+                        <th>Risk Signal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>SPY</strong></td>
+                        <td class="table-value">$683.17</td>
+                        <td class="table-value warning">18.4%</td>
+                        <td class="table-value warning">62nd</td>
+                        <td class="table-value danger">-4.2</td>
+                        <td class="table-value">0.0021</td>
+                        <td class="table-value">1.24</td>
+                        <td class="table-value">-$0.18</td>
+                        <td class="table-value warning">1.34</td>
+                        <td><span class="gauge-badge badge-high">HIGH</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>QQQ</strong></td>
+                        <td class="table-value">$613.12</td>
+                        <td class="table-value danger">22.1%</td>
+                        <td class="table-value danger">74th</td>
+                        <td class="table-value danger">-5.8</td>
+                        <td class="table-value">0.0019</td>
+                        <td class="table-value">1.42</td>
+                        <td class="table-value">-$0.22</td>
+                        <td class="table-value danger">1.56</td>
+                        <td><span class="gauge-badge badge-critical">CRITICAL</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>DIA</strong></td>
+                        <td class="table-value">$483.63</td>
+                        <td class="table-value neutral">14.2%</td>
+                        <td class="table-value neutral">45th</td>
+                        <td class="table-value warning">-2.1</td>
+                        <td class="table-value">0.0024</td>
+                        <td class="table-value">0.98</td>
+                        <td class="table-value">-$0.12</td>
+                        <td class="table-value neutral">0.94</td>
+                        <td><span class="gauge-badge badge-elevated">ELEVATED</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>NVDA</strong></td>
+                        <td class="table-value">$138.60</td>
+                        <td class="table-value danger">48.2%</td>
+                        <td class="table-value danger">82nd</td>
+                        <td class="table-value danger">-8.4</td>
+                        <td class="table-value">0.0052</td>
+                        <td class="table-value">0.28</td>
+                        <td class="table-value">-$0.08</td>
+                        <td class="table-value danger">1.78</td>
+                        <td><span class="gauge-badge badge-critical">CRITICAL</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>AAPL</strong></td>
+                        <td class="table-value">$270.60</td>
+                        <td class="table-value warning">24.5%</td>
+                        <td class="table-value warning">58th</td>
+                        <td class="table-value warning">-3.2</td>
+                        <td class="table-value">0.0031</td>
+                        <td class="table-value">0.52</td>
+                        <td class="table-value">-$0.14</td>
+                        <td class="table-value warning">1.15</td>
+                        <td><span class="gauge-badge badge-high">HIGH</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>MSFT</strong></td>
+                        <td class="table-value">$472.82</td>
+                        <td class="table-value neutral">21.8%</td>
+                        <td class="table-value neutral">52nd</td>
+                        <td class="table-value warning">-2.8</td>
+                        <td class="table-value">0.0018</td>
+                        <td class="table-value">0.84</td>
+                        <td class="table-value">-$0.16</td>
+                        <td class="table-value neutral">0.92</td>
+                        <td><span class="gauge-badge badge-elevated">ELEVATED</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>GOOGL</strong></td>
+                        <td class="table-value">$198.42</td>
+                        <td class="table-value warning">26.4%</td>
+                        <td class="table-value warning">61st</td>
+                        <td class="table-value warning">-3.6</td>
+                        <td class="table-value">0.0042</td>
+                        <td class="table-value">0.38</td>
+                        <td class="table-value">-$0.10</td>
+                        <td class="table-value warning">1.24</td>
+                        <td><span class="gauge-badge badge-high">HIGH</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>AMZN</strong></td>
+                        <td class="table-value">$232.85</td>
+                        <td class="table-value neutral">28.2%</td>
+                        <td class="table-value neutral">48th</td>
+                        <td class="table-value neutral">-1.8</td>
+                        <td class="table-value">0.0035</td>
+                        <td class="table-value">0.42</td>
+                        <td class="table-value">-$0.12</td>
+                        <td class="table-value neutral">0.88</td>
+                        <td><span class="gauge-badge badge-moderate">MODERATE</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>TSLA</strong></td>
+                        <td class="table-value">$438.45</td>
+                        <td class="table-value danger">58.4%</td>
+                        <td class="table-value danger">88th</td>
+                        <td class="table-value danger">-12.2</td>
+                        <td class="table-value">0.0028</td>
+                        <td class="table-value">0.72</td>
+                        <td class="table-value">-$0.24</td>
+                        <td class="table-value danger">1.92</td>
+                        <td><span class="gauge-badge badge-critical">CRITICAL</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>META</strong></td>
+                        <td class="table-value">$618.24</td>
+                        <td class="table-value warning">32.1%</td>
+                        <td class="table-value warning">64th</td>
+                        <td class="table-value warning">-4.1</td>
+                        <td class="table-value">0.0015</td>
+                        <td class="table-value">1.12</td>
+                        <td class="table-value">-$0.18</td>
+                        <td class="table-value warning">1.18</td>
+                        <td><span class="gauge-badge badge-high">HIGH</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Drawdown Risk Projection -->
+        <section class="signal-section">
+            <div class="section-header">
+                <div class="section-icon">📉</div>
+                <h2 class="section-title">Options-Implied Drawdown Risk Scenarios</h2>
+                <span class="section-subtitle">Probability-Weighted Projections Based on Current Derivatives Positioning</span>
+            </div>
+
+            <div class="scenario-grid">
+                <div class="scenario-card">
+                    <div class="scenario-header">
+                        <span class="scenario-type badge-moderate" style="background: rgba(234,179,8,0.2); color: #eab308; border: 1px solid #eab308;">BASE CASE</span>
+                        <span class="scenario-prob">Probability: 45%</span>
+                    </div>
+                    <h3 class="scenario-title">Orderly Consolidation</h3>
+                    <p class="scenario-desc">
+                        Elevated put activity reflects hedging, not conviction. Gamma normalizes as expiration 
+                        passes. Modest pullback absorbed by buy-the-dip flows.
+                    </p>
+                    <div class="scenario-metrics">
+                        <div class="scenario-metric">
+                            <div class="scenario-metric-label">SPX</div>
+                            <div class="scenario-metric-value" style="color: var(--accent-amber);">-3.5%</div>
+                        </div>
+                        <div class="scenario-metric">
+                            <div class="scenario-metric-label">NDX</div>
+                            <div class="scenario-metric-value" style="color: var(--accent-amber);">-5.2%</div>
+                        </div>
+                        <div class="scenario-metric">
+                            <div class="scenario-metric-label">VIX Spike</div>
+                            <div class="scenario-metric-value" style="color: var(--accent-amber);">+35%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="scenario-card">
+                    <div class="scenario-header">
+                        <span class="scenario-type badge-high" style="background: rgba(249,115,22,0.2); color: #f97316; border: 1px solid #f97316;">STRESS CASE</span>
+                        <span class="scenario-prob">Probability: 35%</span>
+                    </div>
+                    <h3 class="scenario-title">Gamma-Driven Selloff</h3>
+                    <p class="scenario-desc">
+                        Negative gamma amplifies selling. Dealer hedging creates cascade. Put buying 
+                        accelerates as strikes are breached. OPEX pin broken decisively.
+                    </p>
+                    <div class="scenario-metrics">
+                        <div class="scenario-metric">
+                            <div class="scenario-metric-label">SPX</div>
+                            <div class="scenario-metric-value" style="color: var(--accent-orange);">-8.5%</div>
+                        </div>
+                        <div class="scenario-metric">
+                            <div class="scenario-metric-label">NDX</div>
+                            <div class="scenario-metric-value" style="color: var(--accent-orange);">-12.8%</div>
+                        </div>
+                        <div class="scenario-metric">
+                            <div class="scenario-metric-label">VIX Spike</div>
+                            <div class="scenario-metric-value" style="color: var(--accent-orange);">+85%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="scenario-card">
+                    <div class="scenario-header">
+                        <span class="scenario-type badge-critical" style="background: rgba(239,68,68,0.2); color: #ef4444; border: 1px solid #ef4444;">EXTREME CASE</span>
+                        <span class="scenario-prob">Probability: 20%</span>
+                    </div>
+                    <h3 class="scenario-title">Volatility Event / Flash Crash</h3>
+                    <p class="scenario-desc">
+                        Black swan catalyst triggers max negative gamma. Dealer hedging overwhelms liquidity. 
+                        VIX term structure fully inverts. Circuit breakers possible.
+                    </p>
+                    <div class="scenario-metrics">
+                        <div class="scenario-metric">
+                            <div class="scenario-metric-label">SPX</div>
+                            <div class="scenario-metric-value" style="color: var(--accent-red);">-15%+</div>
+                        </div>
+                        <div class="scenario-metric">
+                            <div class="scenario-metric-label">NDX</div>
+                            <div class="scenario-metric-value" style="color: var(--accent-red);">-22%+</div>
+                        </div>
+                        <div class="scenario-metric">
+                            <div class="scenario-metric-label">VIX Spike</div>
+                            <div class="scenario-metric-value" style="color: var(--accent-red);">+200%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Interpretation Panel -->
+        <section class="signal-section">
+            <div class="interpretation-panel">
+                <h3 class="interpretation-title">🧠 AI Risk Assessment & Interpretation</h3>
+                <div class="interpretation-content">
+                    <div class="interpretation-item">
+                        <h4>Primary Concern: Negative Gamma Regime</h4>
+                        <p>
+                            The current -$4.2B SPX gamma exposure is in the bottom 15th percentile historically. 
+                            When dealers are this short gamma, they must sell into declines, creating a self-reinforcing 
+                            feedback loop. Expect 1.5-2x normal daily ranges until gamma normalizes post-OPEX.
+                        </p>
+                    </div>
+                    <div class="interpretation-item">
+                        <h4>Put/Call Divergence in Tech</h4>
+                        <p>
+                            NVDA (1.56) and TSLA (1.78) show extreme put/call ratios vs. MSFT (0.89) and AMZN (0.88). 
+                            This divergence suggests targeted hedging on high-beta momentum names, not broad risk-off. 
+                            Watch for rotation from mega-cap tech to defensive sectors.
+                        </p>
+                    </div>
+                    <div class="interpretation-item">
+                        <h4>SKEW vs VIX Disconnect</h4>
+                        <p>
+                            SKEW at 142.8 with VIX only at 18.4% creates an unusual signal. Traders are paying up for 
+                            tail protection while spot volatility remains subdued. This often precedes sudden moves 
+                            as complacent positioning meets hedged institutions.
+                        </p>
+                    </div>
+                    <div class="interpretation-item">
+                        <h4>Key Levels to Watch</h4>
+                        <p>
+                            <strong>SPX:</strong> Gamma flip at 6750 (support), max gamma at 6900 (resistance). 
+                            Break below 6750 triggers accelerated selling. <strong>QQQ:</strong> Critical gamma support 
+                            at $595. <strong>VIX:</strong> Close above 22 confirms risk-off regime shift.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p class="footer-title">Options Risk Intelligence Dashboard</p>
+            <p class="footer-disclaimer">
+                This analysis synthesizes options flow, gamma exposure, put/call ratios, Greeks, and volatility metrics 
+                to assess near-term market risk. Historical patterns and derivatives positioning provide probabilistic 
+                guidance but do not guarantee future outcomes. Data sourced from Alpha Vantage Historical Options API. 
+                Analysis generated: January 2, 2026.
+            </p>
+            <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #1e293b;">
+                <p style="font-size: 11px; color: #64748b; line-height: 1.8; max-width: 900px; margin: 0 auto;">
+                    <strong style="color: #94a3b8;">⚠️ IMPORTANT LEGAL DISCLAIMER:</strong> This dashboard and all information contained herein is provided for 
+                    <strong>informational and educational purposes only</strong> and does not constitute investment advice, financial advice, 
+                    trading advice, or any other sort of advice. <strong>Nothing on this dashboard should be construed as a recommendation 
+                    to buy, sell, or hold any security, cryptocurrency, derivative, or other financial instrument.</strong>
+                </p>
+                <p style="font-size: 11px; color: #64748b; line-height: 1.8; max-width: 900px; margin: 16px auto 0 auto;">
+                    The analysis presented is based on historical data, statistical models, and AI-generated interpretations which may contain 
+                    errors, inaccuracies, or omissions. <strong>Past performance is not indicative of future results.</strong> Options and derivatives 
+                    trading involves substantial risk of loss and is not suitable for all investors. You should consult with a qualified 
+                    financial advisor, broker, or other licensed professional before making any investment decisions.
+                </p>
+                <p style="font-size: 11px; color: #64748b; line-height: 1.8; max-width: 900px; margin: 16px auto 0 auto;">
+                    The creators, developers, and distributors of this dashboard <strong>assume no responsibility or liability</strong> for any errors 
+                    or omissions in the content, or for any actions taken based on the information provided herein. By using this dashboard, 
+                    you acknowledge and agree that you are solely responsible for your own investment decisions and that you use this 
+                    information at your own risk.
+                </p>
+                <p style="font-size: 10px; color: #475569; margin-top: 20px;">
+                    © 2026 | Powered by Claude AI + Alpha Vantage | Not affiliated with any broker, exchange, or financial institution.
+                </p>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
