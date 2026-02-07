@@ -600,7 +600,7 @@
                 </div>
                 <div class="meta-item">
                     <div class="meta-label">Aggregate P/C Ratio</div>
-                    <div class="meta-value elevated">1.18</div>
+                    <div class="meta-value positive">0.76</div>
                 </div>
                 <div class="meta-item">
                     <div class="meta-label">SPX Gamma Exposure</div>
@@ -608,11 +608,11 @@
                 </div>
                 <div class="meta-item">
                     <div class="meta-label">VIX Term Structure</div>
-                    <div class="meta-value warning">Inverted</div>
+                    <div class="meta-value neutral">Contango</div>
                 </div>
                 <div class="meta-item">
                     <div class="meta-label">Overall Risk Signal</div>
-                    <div class="meta-value danger">HIGH RISK</div>
+                    <div class="meta-value elevated">ELEVATED</div>
                 </div>
             </div>
         </header>
@@ -626,17 +626,17 @@
             </div>
 
             <div class="risk-gauges">
-                <div class="gauge-card high">
+                <div class="gauge-card low">
                     <div class="gauge-header">
                         <span class="gauge-title">Put/Call Volume Ratio</span>
-                        <span class="gauge-badge badge-high">HIGH</span>
+                        <span class="gauge-badge badge-low">BULLISH</span>
                     </div>
-                    <div class="gauge-value high">1.18</div>
-                    <div class="gauge-detail">Above 1.0 = bearish sentiment dominance</div>
-                    <div class="gauge-bar"><div class="gauge-bar-fill high" style="width: 74%;"></div></div>
+                    <div class="gauge-value low">0.76</div>
+                    <div class="gauge-detail">Below 1.0 = bullish sentiment dominance | Equity P/C: 0.63</div>
+                    <div class="gauge-bar"><div class="gauge-bar-fill low" style="width: 38%;"></div></div>
                     <div class="gauge-interpretation">
-                        <strong>Signal:</strong> Elevated put buying indicates hedging activity amid tariff uncertainty.
-                        Values above 1.15 historically precede 3-5% corrections within 10 trading days.
+                        <strong>Signal:</strong> P/C ratio well below 1.0 indicates bullish call-buying activity outpacing put demand.
+                        Equity P/C at 0.63 confirms strong risk appetite. Low readings can signal complacency but currently reflect broad optimism.
                     </div>
                 </div>
 
@@ -654,31 +654,31 @@
                     </div>
                 </div>
 
-                <div class="gauge-card high">
+                <div class="gauge-card elevated">
                     <div class="gauge-header">
                         <span class="gauge-title">VIX Term Structure</span>
-                        <span class="gauge-badge badge-high">HIGH</span>
+                        <span class="gauge-badge badge-elevated">ELEVATED</span>
                     </div>
-                    <div class="gauge-value high">-1.18</div>
-                    <div class="gauge-detail">VIX1D - VIX = Contango/Backwardation | VIX at 19.5</div>
-                    <div class="gauge-bar"><div class="gauge-bar-fill high" style="width: 78%;"></div></div>
+                    <div class="gauge-value elevated">17.76</div>
+                    <div class="gauge-detail">VIX Feb 6 Close | 52-week range: 13.38 - 60.13</div>
+                    <div class="gauge-bar"><div class="gauge-bar-fill elevated" style="width: 42%;"></div></div>
                     <div class="gauge-interpretation">
-                        <strong>Signal:</strong> Deeply inverted term structure (backwardation) with VIX surging to 19.5 from 14.5 in January.
-                        Near-term fear sharply exceeds long-term, driven by tariff escalation concerns.
+                        <strong>Signal:</strong> VIX at 17.76 sits in the moderate range, above the 52-week low of 13.38 but far below
+                        the 60.13 peak. Term structure in normal contango. Intraday Feb 7 reading near 15.06 suggests further calming.
                     </div>
                 </div>
 
-                <div class="gauge-card high">
+                <div class="gauge-card elevated">
                     <div class="gauge-header">
                         <span class="gauge-title">SKEW Index</span>
-                        <span class="gauge-badge badge-high">HIGH</span>
+                        <span class="gauge-badge badge-elevated">ELEVATED</span>
                     </div>
-                    <div class="gauge-value high">148.0</div>
-                    <div class="gauge-detail">Tail risk premium (normal: 120-130)</div>
-                    <div class="gauge-bar"><div class="gauge-bar-fill high" style="width: 82%;"></div></div>
+                    <div class="gauge-value elevated">143.85</div>
+                    <div class="gauge-detail">Tail risk premium (normal: 120-130) | Feb 3, 2026</div>
+                    <div class="gauge-bar"><div class="gauge-bar-fill elevated" style="width: 65%;"></div></div>
                     <div class="gauge-interpretation">
-                        <strong>Signal:</strong> SKEW at 148 reflects extreme demand for OTM put protection.
-                        Options traders pricing in significant tail risk from tariff escalation and geopolitical uncertainty.
+                        <strong>Signal:</strong> SKEW at 143.85 is above the normal 120-130 range but contained.
+                        Indicates moderate demand for OTM put protection; tail risk pricing is present but not extreme.
                     </div>
                 </div>
 
@@ -696,17 +696,17 @@
                     </div>
                 </div>
 
-                <div class="gauge-card high">
+                <div class="gauge-card low">
                     <div class="gauge-header">
                         <span class="gauge-title">Implied Volatility Percentile</span>
-                        <span class="gauge-badge badge-high">HIGH</span>
+                        <span class="gauge-badge badge-low">LOW</span>
                     </div>
-                    <div class="gauge-value high">78th</div>
-                    <div class="gauge-detail">IV rank vs. 52-week range</div>
-                    <div class="gauge-bar"><div class="gauge-bar-fill high" style="width: 78%;"></div></div>
+                    <div class="gauge-value low">9th</div>
+                    <div class="gauge-detail">IV rank vs. 52-week range (13.38 - 60.13)</div>
+                    <div class="gauge-bar"><div class="gauge-bar-fill low" style="width: 9%;"></div></div>
                     <div class="gauge-interpretation">
-                        <strong>Signal:</strong> IV elevated significantly with VIX at 19.5, up 34% from January levels.
-                        Options pricing in tariff-driven uncertainty and potential for further escalation.
+                        <strong>Signal:</strong> With VIX at 17.76 within a 52-week range of 13.38-60.13, IV percentile sits at just 9%.
+                        Volatility is near the low end of its annual range, reflecting complacent markets. Options are relatively cheap.
                     </div>
                 </div>
             </div>
@@ -723,15 +723,15 @@
             <div class="pc-matrix">
                 <div class="pc-card">
                     <div class="pc-symbol">SPY / SPX</div>
-                    <div class="pc-ratio" style="color: var(--accent-orange);">1.15</div>
+                    <div class="pc-ratio" style="color: var(--accent-green);">0.85</div>
                     <div class="pc-label">Put/Call Ratio</div>
-                    <div class="pc-signal badge-high">BEARISH TILT</div>
+                    <div class="pc-signal badge-low">BULLISH</div>
                 </div>
                 <div class="pc-card">
                     <div class="pc-symbol">QQQ / NDX</div>
-                    <div class="pc-ratio" style="color: var(--accent-red);">1.22</div>
+                    <div class="pc-ratio" style="color: var(--accent-green);">0.82</div>
                     <div class="pc-label">Put/Call Ratio</div>
-                    <div class="pc-signal badge-high">HEAVY PUT FLOW</div>
+                    <div class="pc-signal badge-low">BULLISH</div>
                 </div>
                 <div class="pc-card">
                     <div class="pc-symbol">DIA / DJI</div>
@@ -904,26 +904,26 @@
                     <tr>
                         <td><strong>SPY</strong></td>
                         <td class="table-value">$690.62</td>
-                        <td class="table-value danger">22.8%</td>
-                        <td class="table-value danger">78th</td>
-                        <td class="table-value danger">-5.1</td>
+                        <td class="table-value neutral">18.2%</td>
+                        <td class="table-value positive">9th</td>
+                        <td class="table-value warning">-2.8</td>
                         <td class="table-value">0.0019</td>
                         <td class="table-value">1.38</td>
                         <td class="table-value">-$0.22</td>
-                        <td class="table-value warning">1.28</td>
-                        <td><span class="gauge-badge badge-high">HIGH</span></td>
+                        <td class="table-value positive">0.85</td>
+                        <td><span class="gauge-badge badge-elevated">ELEVATED</span></td>
                     </tr>
                     <tr>
                         <td><strong>QQQ</strong></td>
                         <td class="table-value">$609.65</td>
-                        <td class="table-value danger">26.4%</td>
-                        <td class="table-value danger">82nd</td>
-                        <td class="table-value danger">-6.4</td>
+                        <td class="table-value neutral">21.2%</td>
+                        <td class="table-value positive">12th</td>
+                        <td class="table-value warning">-3.1</td>
                         <td class="table-value">0.0017</td>
                         <td class="table-value">1.52</td>
                         <td class="table-value">-$0.26</td>
-                        <td class="table-value danger">1.42</td>
-                        <td><span class="gauge-badge badge-critical">CRITICAL</span></td>
+                        <td class="table-value positive">0.82</td>
+                        <td><span class="gauge-badge badge-elevated">ELEVATED</span></td>
                     </tr>
                     <tr>
                         <td><strong>DIA</strong></td>
@@ -1037,12 +1037,12 @@
                 <div class="scenario-card">
                     <div class="scenario-header">
                         <span class="scenario-type badge-moderate" style="background: rgba(234,179,8,0.2); color: #eab308; border: 1px solid #eab308;">BASE CASE</span>
-                        <span class="scenario-prob">Probability: 40%</span>
+                        <span class="scenario-prob">Probability: 55%</span>
                     </div>
-                    <h3 class="scenario-title">Tariff Negotiation / Orderly Pullback</h3>
+                    <h3 class="scenario-title">Continued Bullish Momentum / Orderly Pullback</h3>
                     <p class="scenario-desc">
-                        Tariff rhetoric softens through diplomatic channels. Elevated put activity reflects hedging,
-                        not conviction. VIX mean-reverts from 19.5 toward 16. Modest pullback absorbed by buy-the-dip flows.
+                        Bullish P/C ratios (0.76 aggregate, 0.63 equity) reflect strong call-buying activity and risk appetite.
+                        VIX at 17.76 is moderate. Any pullback likely absorbed by buy-the-dip flows given strong sentiment.
                     </p>
                     <div class="scenario-metrics">
                         <div class="scenario-metric">
@@ -1063,7 +1063,7 @@
                 <div class="scenario-card">
                     <div class="scenario-header">
                         <span class="scenario-type badge-high" style="background: rgba(249,115,22,0.2); color: #f97316; border: 1px solid #f97316;">STRESS CASE</span>
-                        <span class="scenario-prob">Probability: 38%</span>
+                        <span class="scenario-prob">Probability: 30%</span>
                     </div>
                     <h3 class="scenario-title">Tariff Escalation + Gamma Cascade</h3>
                     <p class="scenario-desc">
@@ -1089,7 +1089,7 @@
                 <div class="scenario-card">
                     <div class="scenario-header">
                         <span class="scenario-type badge-critical" style="background: rgba(239,68,68,0.2); color: #ef4444; border: 1px solid #ef4444;">EXTREME CASE</span>
-                        <span class="scenario-prob">Probability: 22%</span>
+                        <span class="scenario-prob">Probability: 15%</span>
                     </div>
                     <h3 class="scenario-title">Trade War Shock / Liquidity Crisis</h3>
                     <p class="scenario-desc">
@@ -1120,28 +1120,28 @@
                 <h3 class="interpretation-title">🧠 AI Risk Assessment & Interpretation</h3>
                 <div class="interpretation-content">
                     <div class="interpretation-item">
-                        <h4>Primary Concern: Deep Negative Gamma + Tariff Escalation</h4>
+                        <h4>Primary Signal: Bullish P/C Ratios + Negative Gamma</h4>
                         <p>
-                            The current -$5.1B SPX gamma exposure is in the bottom 10th percentile historically, worsening
-                            from -$4.2B in early January. When dealers are this short gamma amid tariff-driven uncertainty,
-                            they must sell into declines, creating a self-reinforcing feedback loop. Expect 2-3x normal
-                            daily ranges until gamma normalizes post-February OPEX.
+                            Aggregate P/C at 0.76 and equity P/C at 0.63 are firmly bullish, indicating strong call-buying
+                            activity and risk appetite. However, the -$5.1B SPX gamma exposure remains a concern. Dealers are
+                            short gamma, which can amplify moves in either direction. The bullish sentiment backdrop
+                            means upside gamma squeezes are possible alongside downside risk.
                         </p>
                     </div>
                     <div class="interpretation-item">
-                        <h4>Put/Call Divergence: Tariff-Exposed Names</h4>
+                        <h4>Put/Call Divergence: Select Names Hedged</h4>
                         <p>
-                            NVDA (1.48) and TSLA (1.65) show extreme put/call ratios vs. MSFT (0.95) and AMZN (0.96).
-                            This divergence suggests targeted hedging on names with significant China/tariff exposure.
-                            Supply chain repricing risk is being concentrated in semiconductor and EV sectors.
+                            NVDA (1.48) and TSLA (1.65) show elevated put/call ratios vs. MSFT (0.95) and AMZN (0.96).
+                            While the broad market P/C is bullish, targeted hedging persists on high-beta names with
+                            China/tariff exposure. This selective hedging is healthy and does not contradict overall bullish positioning.
                         </p>
                     </div>
                     <div class="interpretation-item">
-                        <h4>VIX Surge + Elevated SKEW = High Tail Risk</h4>
+                        <h4>Moderate VIX + Contained SKEW = Manageable Risk</h4>
                         <p>
-                            VIX at 19.5 (up 34% from January's 14.5) with SKEW at 148 signals both realized and tail
-                            risk are being repriced higher. The VIX surge reflects tariff implementation fears, while
-                            elevated SKEW shows institutions paying extreme premiums for black swan protection.
+                            VIX at 17.76 (Feb 6 close) with SKEW at 143.85 signals moderate volatility expectations.
+                            The VIX sits at just the 9th percentile of its 52-week range (13.38-60.13), meaning implied
+                            volatility is relatively cheap. SKEW above 130 shows some tail-risk hedging but not extreme levels.
                         </p>
                     </div>
                     <div class="interpretation-item">
@@ -1149,8 +1149,8 @@
                         <p>
                             <strong>SPX:</strong> Gamma flip at 6800 (support), max gamma at 6950 (resistance).
                             Break below 6800 triggers accelerated selling. <strong>QQQ:</strong> Critical gamma support
-                            at $590. <strong>VIX:</strong> Close above 24 confirms risk-off regime shift. Currently at 19.5,
-                            already well above January's complacent 14.5 level.
+                            at $590. <strong>VIX:</strong> Close above 24 would confirm risk-off regime shift. Currently at 17.76,
+                            with intraday Feb 7 near 15.06, suggesting near-term calming.
                         </p>
                     </div>
                 </div>

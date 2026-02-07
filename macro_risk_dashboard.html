@@ -548,7 +548,7 @@
                         <circle class="gauge-fill" cx="110" cy="110" r="90" 
                                 stroke="url(#gaugeGradient)"
                                 stroke-dasharray="565"
-                                stroke-dashoffset="215"></circle>
+                                stroke-dashoffset="237"></circle>
                         <defs>
                             <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                                 <stop offset="0%" stop-color="#22c55e"/>
@@ -558,27 +558,27 @@
                         </defs>
                     </svg>
                     <div class="gauge-center">
-                        <div class="gauge-score" style="color: var(--accent-orange);">62</div>
+                        <div class="gauge-score" style="color: var(--accent-amber);">58</div>
                         <div class="gauge-max">/ 100</div>
                     </div>
                 </div>
-                <div class="gauge-label" style="color: var(--accent-orange);">⚠️ HIGH RISK</div>
+                <div class="gauge-label" style="color: var(--accent-amber);">⚠️ ELEVATED</div>
             </div>
             <div class="gauge-drivers">
                 <div class="driver-item">
                     <div class="driver-name">Yield Curve</div>
-                    <div class="driver-value metric-elevated">+42 bps</div>
-                    <span class="driver-status status-elevated">FLATTENING</span>
+                    <div class="driver-value metric-low">+72 bps</div>
+                    <span class="driver-status status-low">STEEPENING</span>
                 </div>
                 <div class="driver-item">
                     <div class="driver-name">PMI Gap</div>
-                    <div class="driver-value metric-elevated">-3.2</div>
-                    <span class="driver-status status-elevated">NARROWING</span>
+                    <div class="driver-value metric-low">-1.2</div>
+                    <span class="driver-status status-low">CONVERGING</span>
                 </div>
                 <div class="driver-item">
                     <div class="driver-name">HY Spread</div>
-                    <div class="driver-value metric-high">330 bps</div>
-                    <span class="driver-status status-high">WIDENING</span>
+                    <div class="driver-value metric-low">281 bps</div>
+                    <span class="driver-status status-low">TIGHT</span>
                 </div>
                 <div class="driver-item">
                     <div class="driver-name">SOFR-FF</div>
@@ -587,8 +587,8 @@
                 </div>
                 <div class="driver-item">
                     <div class="driver-name">Jobless Claims</div>
-                    <div class="driver-value metric-moderate">232K</div>
-                    <span class="driver-status status-moderate">STABLE</span>
+                    <div class="driver-value metric-low">212K</div>
+                    <span class="driver-status status-low">STABLE</span>
                 </div>
                 <div class="driver-item">
                     <div class="driver-name">Bankruptcies</div>
@@ -610,21 +610,21 @@
                 <div class="risk-card">
                     <div class="risk-card-header">
                         <span class="risk-card-title">Current Yield Curve Status</span>
-                        <span class="risk-card-badge badge-elevated">ELEVATED</span>
+                        <span class="risk-card-badge badge-moderate">MODERATE</span>
                     </div>
                     <div class="risk-card-body">
                         <div class="risk-metrics">
                             <div class="risk-metric">
                                 <div class="risk-metric-label">2Y-10Y Spread</div>
-                                <div class="risk-metric-value metric-elevated">+42 bps</div>
+                                <div class="risk-metric-value metric-low">+72 bps</div>
                             </div>
                             <div class="risk-metric">
                                 <div class="risk-metric-label">10Y Yield</div>
-                                <div class="risk-metric-value metric-neutral">4.49%</div>
+                                <div class="risk-metric-value metric-neutral">4.22%</div>
                             </div>
                             <div class="risk-metric">
                                 <div class="risk-metric-label">2Y Yield</div>
-                                <div class="risk-metric-value metric-neutral">4.07%</div>
+                                <div class="risk-metric-value metric-neutral">3.50%</div>
                             </div>
                         </div>
                         <div class="chart-container">
@@ -642,12 +642,12 @@
                                       fill="none" stroke="#6366f1" stroke-width="3"/>
                                 
                                 <!-- Current point -->
-                                <circle cx="390" cy="45" r="6" fill="#f59e0b"/>
-                                <text x="375" y="35" fill="#f59e0b" font-size="10" font-weight="bold">+42 bps</text>
+                                <circle cx="390" cy="35" r="6" fill="#22c55e"/>
+                                <text x="375" y="25" fill="#22c55e" font-size="10" font-weight="bold">+72 bps</text>
 
-                                <!-- Flattening arrow -->
-                                <path d="M360,30 L385,42" fill="none" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrow)"/>
-                                <text x="330" y="25" fill="#f59e0b" font-size="9">Flattening</text>
+                                <!-- Steepening arrow -->
+                                <path d="M360,30 L385,35" fill="none" stroke="#22c55e" stroke-width="2" marker-end="url(#arrow)"/>
+                                <text x="330" y="25" fill="#22c55e" font-size="9">Steepening</text>
                                 
                                 <!-- Time labels -->
                                 <text x="10" y="145" fill="#64748b" font-size="9">2022</text>
@@ -657,9 +657,9 @@
                             </svg>
                         </div>
                         <div class="risk-interpretation">
-                            <strong>⚠️ ELEVATED SIGNAL:</strong> The yield curve re-steepened sharply after prolonged inversion but has since flattened from +71 bps to +42 bps.
-                            The Fed remains on hold at 4.25-4.50% amid tariff uncertainty and sticky inflation. Flattening suggests the market is repricing
-                            the rate-cut timeline lower. Recession risk remains elevated given the historical post-inversion pattern.
+                            <strong>MODERATE SIGNAL:</strong> The yield curve has re-steepened to +72 bps after prolonged inversion (10Y: 4.22%, 2Y: 3.50%).
+                            The Fed held steady at 3.50-3.75% at the Jan 28 FOMC meeting. The steeper curve reflects rate-cut expectations being priced into the short end.
+                            Recession risk persists given the historical post-inversion pattern, though the healthy spread is a more constructive signal.
                         </div>
                     </div>
                 </div>
@@ -720,7 +720,7 @@
                         </table>
                         <div class="risk-interpretation" style="margin-top: 16px;">
                             <strong>Pattern:</strong> Average lag from re-steepening to recession onset is 4-6 months.
-                            Current re-steepening began ~Sep 2024. The curve is now flattening again, implying elevated recession risk persists through H1 2026.
+                            Current re-steepening began ~Sep 2024. The curve continues to steepen at +72 bps, but the historical post-inversion recession pattern remains in play through H1 2026.
                         </div>
                     </div>
                 </div>
@@ -739,21 +739,21 @@
                 <div class="risk-card">
                     <div class="risk-card-header">
                         <span class="risk-card-title">Manufacturing PMI Components</span>
-                        <span class="risk-card-badge badge-elevated">ELEVATED</span>
+                        <span class="risk-card-badge badge-low">EXPANSION</span>
                     </div>
                     <div class="risk-card-body">
                         <div class="risk-metrics">
                             <div class="risk-metric">
                                 <div class="risk-metric-label">New Orders</div>
-                                <div class="risk-metric-value metric-elevated">49.2</div>
+                                <div class="risk-metric-value metric-low">57.1</div>
                             </div>
                             <div class="risk-metric">
                                 <div class="risk-metric-label">Output</div>
-                                <div class="risk-metric-value metric-low">52.4</div>
+                                <div class="risk-metric-value metric-low">55.9</div>
                             </div>
                             <div class="risk-metric">
                                 <div class="risk-metric-label">Gap (O-NO)</div>
-                                <div class="risk-metric-value metric-elevated">+3.2</div>
+                                <div class="risk-metric-value metric-low">-1.2</div>
                             </div>
                         </div>
                         <div class="chart-container">
@@ -763,18 +763,18 @@
                                 <text x="5" y="72" fill="#64748b" font-size="9">50 (Expansion)</text>
                                 
                                 <!-- Output line (blue) -->
-                                <path d="M10,60 L60,55 L120,58 L180,62 L240,55 L300,60 L360,58 L390,65" 
+                                <path d="M10,60 L60,58 L120,62 L180,65 L240,60 L300,62 L360,55 L390,42"
                                       fill="none" stroke="#3b82f6" stroke-width="2.5"/>
-                                <text x="340" y="50" fill="#3b82f6" font-size="9">Output: 52.4</text>
-                                
-                                <!-- New Orders line (red) -->
-                                <path d="M10,65 L60,68 L120,72 L180,78 L240,85 L300,90 L360,95 L390,100" 
-                                      fill="none" stroke="#ef4444" stroke-width="2.5"/>
-                                <text x="300" y="115" fill="#ef4444" font-size="9">New Orders: 49.2</text>
-                                
-                                <!-- Gap shading -->
-                                <path d="M10,60 L60,55 L120,58 L180,62 L240,55 L300,60 L360,58 L390,65 L390,100 L360,95 L300,90 L240,85 L180,78 L120,72 L60,68 L10,65 Z" 
-                                      fill="rgba(249,115,22,0.2)"/>
+                                <text x="340" y="35" fill="#3b82f6" font-size="9">Output: 55.9</text>
+
+                                <!-- New Orders line (green - now above 50) -->
+                                <path d="M10,65 L60,68 L120,72 L180,78 L240,85 L300,90 L360,80 L390,35"
+                                      fill="none" stroke="#22c55e" stroke-width="2.5"/>
+                                <text x="300" y="28" fill="#22c55e" font-size="9">New Orders: 57.1</text>
+
+                                <!-- Gap shading (minimal - lines converging) -->
+                                <path d="M10,60 L60,58 L120,62 L180,65 L240,60 L300,62 L360,55 L390,42 L390,35 L360,80 L300,90 L240,85 L180,78 L120,72 L60,68 L10,65 Z"
+                                      fill="rgba(34,197,94,0.1)"/>
                                 
                                 <!-- Time labels -->
                                 <text x="10" y="145" fill="#64748b" font-size="9">Apr '25</text>
@@ -785,9 +785,9 @@
                             </svg>
                         </div>
                         <div class="risk-interpretation">
-                            <strong>⚠️ "Wile E. Coyote" Warning:</strong> Manufacturing PMI at 50.8 shows slight expansion, but New Orders (49.2) remain
-                            below the expansion threshold while Output (52.4) stays above. The gap is narrowing from 4.2 to 3.2, suggesting
-                            tentative stabilization. However, tariff uncertainty clouds the outlook and could reverse recent improvement.
+                            <strong>Expansion Signal:</strong> Manufacturing PMI surged to 52.6 in January 2026, the highest in 4 years (up from 47.9 in Dec).
+                            New Orders jumped to 57.1 (from 47.4) and Output rose to 55.9 (from 50.7). Both components are now firmly above 50.
+                            The gap has narrowed to just -1.2 (Orders leading Output), a constructive sign. Tariff front-running may be boosting orders.
                         </div>
                     </div>
                 </div>
@@ -795,13 +795,13 @@
                 <div class="risk-card">
                     <div class="risk-card-header">
                         <span class="risk-card-title">PMI Gap Historical Percentile</span>
-                        <span class="risk-card-badge badge-elevated">79th %ile</span>
+                        <span class="risk-card-badge badge-low">25th %ile</span>
                     </div>
                     <div class="risk-card-body">
                         <div class="risk-metrics">
                             <div class="risk-metric">
                                 <div class="risk-metric-label">Current Gap</div>
-                                <div class="risk-metric-value metric-elevated">+3.2</div>
+                                <div class="risk-metric-value metric-low">-1.2</div>
                             </div>
                             <div class="risk-metric">
                                 <div class="risk-metric-label">Avg Gap</div>
@@ -815,10 +815,10 @@
                         <div style="padding: 20px; background: var(--bg-tertiary); border-radius: 8px; margin-bottom: 16px;">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                                 <span style="font-size: 11px; color: var(--text-muted);">Gap Percentile</span>
-                                <span style="font-size: 11px; color: var(--accent-amber); font-weight: 600;">79th</span>
+                                <span style="font-size: 11px; color: var(--accent-green); font-weight: 600;">25th</span>
                             </div>
                             <div style="height: 12px; background: var(--bg-secondary); border-radius: 6px; overflow: hidden;">
-                                <div style="width: 79%; height: 100%; background: linear-gradient(90deg, #22c55e, #eab308, #f97316); border-radius: 6px;"></div>
+                                <div style="width: 25%; height: 100%; background: linear-gradient(90deg, #22c55e, #22c55e); border-radius: 6px;"></div>
                             </div>
                             <div style="display: flex; justify-content: space-between; margin-top: 6px;">
                                 <span style="font-size: 9px; color: #22c55e;">0</span>
@@ -827,9 +827,9 @@
                             </div>
                         </div>
                         <div class="risk-interpretation">
-                            <strong>Signal:</strong> Current Output-Orders gap is in the 79th percentile historically, down from 87th.
-                            Gaps above the 90th percentile have preceded every recession since 1980.
-                            The narrowing gap suggests mild improvement, but tariff policy uncertainty could reignite divergence.
+                            <strong>Signal:</strong> Current Output-Orders gap is in the 25th percentile historically, a dramatic improvement from 87th.
+                            New Orders (57.1) now lead Output (55.9), a healthy configuration. Gaps above the 90th percentile have preceded every recession since 1980.
+                            The sharp PMI rebound may partly reflect tariff front-running, so sustainability should be monitored.
                         </div>
                     </div>
                 </div>
@@ -848,21 +848,21 @@
                 <div class="risk-card">
                     <div class="risk-card-header">
                         <span class="risk-card-title">Credit Spread Monitor</span>
-                        <span class="risk-card-badge badge-high">WIDENING</span>
+                        <span class="risk-card-badge badge-low">TIGHT</span>
                     </div>
                     <div class="risk-card-body">
                         <div class="risk-metrics">
                             <div class="risk-metric">
                                 <div class="risk-metric-label">HY OAS</div>
-                                <div class="risk-metric-value metric-elevated">330 bps</div>
+                                <div class="risk-metric-value metric-low">281 bps</div>
                             </div>
                             <div class="risk-metric">
                                 <div class="risk-metric-label">4-Wk Change</div>
-                                <div class="risk-metric-value metric-high">+50 bps</div>
+                                <div class="risk-metric-value metric-low">-5 bps</div>
                             </div>
                             <div class="risk-metric">
                                 <div class="risk-metric-label">YoY Change</div>
-                                <div class="risk-metric-value metric-high">+78 bps</div>
+                                <div class="risk-metric-value metric-low">-30 bps</div>
                             </div>
                         </div>
                         <div class="chart-container">
@@ -878,21 +878,21 @@
                                 <text x="5" y="80" fill="#eab308" font-size="8">Elevated (250-350)</text>
                                 
                                 <!-- HY Spread line -->
-                                <path d="M10,110 L60,108 L120,105 L180,98 L240,90 L300,75 L360,68 L390,55" 
-                                      fill="none" stroke="#f97316" stroke-width="3"/>
-                                
+                                <path d="M10,90 L60,88 L120,85 L180,82 L240,80 L300,78 L360,76 L390,75"
+                                      fill="none" stroke="#22c55e" stroke-width="3"/>
+
                                 <!-- Current point -->
-                                <circle cx="390" cy="55" r="5" fill="#f97316"/>
-                                <text x="355" y="45" fill="#f97316" font-size="10" font-weight="bold">330 bps</text>
-                                
-                                <!-- Trend arrow -->
-                                <path d="M340,80 L380,58" fill="none" stroke="#ef4444" stroke-width="2" stroke-dasharray="4"/>
+                                <circle cx="390" cy="75" r="5" fill="#22c55e"/>
+                                <text x="355" y="68" fill="#22c55e" font-size="10" font-weight="bold">281 bps</text>
+
+                                <!-- Trend arrow (flat/slightly tightening) -->
+                                <path d="M340,78 L380,75" fill="none" stroke="#22c55e" stroke-width="2" stroke-dasharray="4"/>
                             </svg>
                         </div>
                         <div class="risk-interpretation">
-                            <strong>Signal:</strong> HY spreads have widened sharply from ~280 bps to 330 bps (+50 bps in 4 weeks), driven by
-                            tariff uncertainty and slowing growth expectations. Approaching the 350 bps threshold that signals tightening
-                            financial conditions. Watch for break above 400 bps as confirmation of broader credit stress.
+                            <strong>Constructive:</strong> HY spreads remain tight at 281 bps (ICE BofA US HY OAS), well below the 350 bps threshold
+                            that signals tightening financial conditions. Credit markets are complacent despite tariff uncertainty and mixed
+                            macro signals. Tight spreads suggest risk appetite is healthy, but watch for sudden repricing if growth deteriorates.
                         </div>
                     </div>
                 </div>
@@ -907,8 +907,8 @@
                             <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
                                 <div style="width: 100px; font-size: 11px; color: var(--text-muted);">Current</div>
                                 <div style="flex: 1; height: 24px; background: var(--bg-secondary); border-radius: 4px; position: relative;">
-                                    <div style="position: absolute; left: 65%; top: 0; height: 100%; width: 3px; background: #f97316;"></div>
-                                    <div style="position: absolute; left: 67%; top: -8px; font-size: 10px; color: #f97316; font-weight: 600;">330</div>
+                                    <div style="position: absolute; left: 40%; top: 0; height: 100%; width: 3px; background: #22c55e;"></div>
+                                    <div style="position: absolute; left: 42%; top: -8px; font-size: 10px; color: #22c55e; font-weight: 600;">281</div>
                                 </div>
                             </div>
                             <div style="display: flex; justify-content: space-between; font-size: 9px; color: var(--text-muted);">
@@ -930,22 +930,22 @@
                                 <tr>
                                     <td>COVID Mar 2020</td>
                                     <td class="metric-critical">1,087 bps</td>
-                                    <td>+757 bps</td>
+                                    <td>+806 bps</td>
                                 </tr>
                                 <tr>
                                     <td>GFC Oct 2008</td>
                                     <td class="metric-critical">1,934 bps</td>
-                                    <td>+1,604 bps</td>
+                                    <td>+1,653 bps</td>
                                 </tr>
                                 <tr>
                                     <td>Energy 2016</td>
                                     <td class="metric-high">839 bps</td>
-                                    <td>+509 bps</td>
+                                    <td>+558 bps</td>
                                 </tr>
                                 <tr>
                                     <td>2022 Tightening</td>
                                     <td class="metric-elevated">583 bps</td>
-                                    <td>+253 bps</td>
+                                    <td>+302 bps</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -972,11 +972,11 @@
                         <div class="risk-metrics">
                             <div class="risk-metric">
                                 <div class="risk-metric-label">SOFR</div>
-                                <div class="risk-metric-value metric-neutral">4.39%</div>
+                                <div class="risk-metric-value metric-neutral">3.64%</div>
                             </div>
                             <div class="risk-metric">
                                 <div class="risk-metric-label">Fed Funds</div>
-                                <div class="risk-metric-value metric-neutral">4.33%</div>
+                                <div class="risk-metric-value metric-neutral">3.64%</div>
                             </div>
                             <div class="risk-metric">
                                 <div class="risk-metric-label">Spread</div>
@@ -1006,7 +1006,7 @@
                             </svg>
                         </div>
                         <div class="risk-interpretation">
-                            <strong>✅ All Clear:</strong> The SOFR-Fed Funds spread is within normal range (+6 bps) with the Fed on hold at 4.25-4.50%.
+                            <strong>All Clear:</strong> The SOFR-Fed Funds spread is within normal range (+6 bps) with the Fed on hold at 3.50-3.75% (effective rate 3.64%).
                             No immediate funding stress detected. Watch for spikes above +25 bps or persistent
                             elevation as early warning of liquidity deterioration.
                         </div>
@@ -1082,11 +1082,11 @@
                         <div class="risk-metrics">
                             <div class="risk-metric">
                                 <div class="risk-metric-label">4-Wk Avg Claims</div>
-                                <div class="risk-metric-value metric-moderate">232K</div>
+                                <div class="risk-metric-value metric-low">212K</div>
                             </div>
                             <div class="risk-metric">
                                 <div class="risk-metric-label">Unemployment</div>
-                                <div class="risk-metric-value metric-moderate">4.2%</div>
+                                <div class="risk-metric-value metric-elevated">4.4%</div>
                             </div>
                             <div class="risk-metric">
                                 <div class="risk-metric-label">YoY Δ Claims</div>
@@ -1106,11 +1106,11 @@
                                 <!-- Unemployment rate (secondary axis, scaled) -->
                                 <path d="M10,130 L80,128 L160,125 L240,115 L320,100 L390,90" 
                                       fill="none" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="6,3"/>
-                                <text x="350" y="100" fill="#8b5cf6" font-size="9">U-Rate: 4.2%</text>
-                                
+                                <text x="350" y="100" fill="#8b5cf6" font-size="9">U-Rate: 4.4%</text>
+
                                 <!-- Current point -->
-                                <circle cx="390" cy="55" r="5" fill="#f59e0b"/>
-                                <text x="345" y="48" fill="#f59e0b" font-size="10" font-weight="bold">232K</text>
+                                <circle cx="390" cy="65" r="5" fill="#22c55e"/>
+                                <text x="345" y="58" fill="#22c55e" font-size="10" font-weight="bold">212K</text>
                                 
                                 <!-- Time labels -->
                                 <text x="10" y="145" fill="#64748b" font-size="9">Mar '25</text>
@@ -1119,9 +1119,9 @@
                             </svg>
                         </div>
                         <div class="risk-interpretation">
-                            <strong>Moderate:</strong> Initial claims at 232K (4-week avg) remain manageable and below the 250K warning threshold.
-                            YoY growth of +5.9% shows modest cooling. Unemployment at 4.2% is stable. Labor market is resilient
-                            but bears monitoring given tariff-related uncertainty and potential for delayed impacts.
+                            <strong>Mixed:</strong> Initial claims 4-week average at 212K is well below the 250K warning threshold, indicating low layoff activity.
+                            However, unemployment has risen to 4.4% (December 2025; January data delayed to Feb 11), showing softening on the hiring side.
+                            The divergence between low claims and rising unemployment suggests a labor market that is cooling via reduced hiring rather than mass layoffs.
                         </div>
                     </div>
                 </div>
@@ -1151,8 +1151,8 @@
                             </div>
                         </div>
                         <div class="risk-interpretation" style="margin-top: 16px;">
-                            <strong>Sahm Rule Check:</strong> Unemployment rate at 4.2% has risen 0.2% from 12-month low (4.0%).
-                            The Sahm Rule triggers at +0.5%. Currently below threshold, but continued deterioration would be concerning.
+                            <strong>Sahm Rule Check:</strong> Unemployment rate at 4.4% has risen 0.4% from 12-month low (4.0%).
+                            The Sahm Rule triggers at +0.5%. Approaching threshold -- continued deterioration would be a significant warning signal.
                         </div>
                     </div>
                 </div>
@@ -1279,35 +1279,35 @@
                 <h3 class="interpretation-title">🧠 AI Synthesis & Forward Outlook</h3>
                 <div class="interpretation-content">
                     <div class="interpretation-item">
-                        <h4>Yield Curve Flattening + Tariff Uncertainty</h4>
+                        <h4>Yield Curve Steepening + Fed on Hold</h4>
                         <p>
-                            The yield curve has flattened from +71 bps to +42 bps as the Fed holds at 4.25-4.50%.
-                            Markets are repricing rate-cut expectations lower amid persistent inflation and tariff
-                            policy uncertainty. The post-inversion recession pattern remains in play through H1 2026.
+                            The yield curve stands at +72 bps (10Y: 4.22%, 2Y: 3.50%) as the Fed holds at 3.50-3.75% (Jan 28 FOMC).
+                            The steeper curve reflects rate-cut expectations priced into the short end. The post-inversion
+                            recession pattern remains historically relevant, though the healthy spread is constructive.
                         </p>
                     </div>
                     <div class="interpretation-item">
-                        <h4>Credit Spreads Widening Sharply</h4>
+                        <h4>Credit Spreads Tight, Complacency Risk</h4>
                         <p>
-                            HY spreads widening from ~280 to 330 bps (+50 bps in 4 weeks) is the most concerning
-                            signal. Tariff-related uncertainty and slowing growth expectations are pressuring credit
-                            markets. If spreads break above 350 bps, expect broader risk-off repricing.
+                            HY spreads at 281 bps remain near historical tights, indicating strong risk appetite.
+                            Credit markets are not pricing meaningful recession risk. While tight spreads are a positive signal,
+                            complacency creates vulnerability to sudden repricing if macro data deteriorates.
                         </p>
                     </div>
                     <div class="interpretation-item">
-                        <h4>Labor Market Resilient but Watchful</h4>
+                        <h4>Labor Market Divergence: Low Claims, Rising Unemployment</h4>
                         <p>
-                            Initial claims at 232K and unemployment at 4.2% show a labor market that is bending
-                            but not breaking. The Sahm Rule has not yet triggered (+0.2% vs +0.5% threshold).
-                            However, rising bankruptcies (+34% YoY) suggest stress could transmit to employment with a lag.
+                            Initial claims at 212K (4-wk avg) are healthy, but unemployment has risen to 4.4%, approaching
+                            the Sahm Rule trigger (+0.4% vs +0.5% threshold). The labor market is cooling via reduced hiring
+                            rather than layoffs. Rising bankruptcies (+34% YoY) suggest stress could transmit to employment with a lag.
                         </p>
                     </div>
                     <div class="interpretation-item">
-                        <h4>Fed on Hold, Liquidity Intact</h4>
+                        <h4>Fed on Hold at 3.50-3.75%, Liquidity Intact</h4>
                         <p>
-                            The Fed remains on hold at 4.25-4.50% since December 2024, balancing inflation concerns
-                            against growth risks. SOFR-Fed Funds spread at +6 bps shows no funding stress. The key risk
-                            is that tariff escalation could force the Fed into a stagflationary dilemma.
+                            The Fed held steady at 3.50-3.75% at the Jan 28, 2026 FOMC meeting, with SOFR tracking
+                            at 3.64%. The SOFR-Fed Funds spread at +6 bps shows no funding stress. PMI surging to 52.6
+                            provides breathing room, but the key risk remains that tariff escalation could force a stagflationary dilemma.
                         </p>
                     </div>
                 </div>
